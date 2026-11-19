@@ -1,0 +1,42 @@
+---
+import '../styles/global.css';
+const { title } = Astro.props;
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{title} | RMG TECHNOLOGIES INC</title>
+		<meta name="description" content="High-performance software, trading systems, and defense-grade applications." />
+	</head>
+	<body class="bg-slate-950 text-slate-200 font-sans antialiased selection:bg-blue-500 selection:text-white flex flex-col min-h-screen">
+		
+		<!-- NAVBAR -->
+		<nav class="flex items-center justify-between px-8 py-6 w-full max-w-7xl mx-auto border-b border-slate-800">
+			<a href="/" class="text-xl font-bold tracking-tighter text-white">
+				RMG<span class="text-blue-500">.</span>
+			</a>
+			<div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
+				<a href="/#solutions" class="hover:text-white transition-colors">Solutions</a>
+				<!-- Notice we changed these links to point to the new pages -->
+				<a href="/about" class="hover:text-white transition-colors">About</a>
+				<a href="/contact" class="hover:text-white transition-colors">Contact</a>
+			</div>
+			<a href="/contact" class="bg-white text-black px-5 py-2 text-sm font-semibold rounded-md hover:bg-slate-200 transition-colors">
+				Get in touch
+			</a>
+		</nav>
+
+		<!-- THIS IS WHERE EVERY PAGE'S CONTENT WILL GO -->
+		<div class="flex-grow">
+			<slot />
+		</div>
+
+		<!-- FOOTER -->
+		<footer class="border-t border-slate-800 py-12 text-center text-slate-500 text-sm mt-auto">
+			<p>© 2024 RMG TECHNOLOGIES INC. All rights reserved.</p>
+		</footer>
+
+	</body>
+</html>
