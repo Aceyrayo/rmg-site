@@ -10,22 +10,39 @@ const { title } = Astro.props;
 		<title>{title} | RMG TECHNOLOGIES INC</title>
 		<meta name="description" content="High-performance software, trading systems, and defense-grade applications." />
 	</head>
-	<body class="bg-slate-950 text-slate-200 font-sans antialiased selection:bg-blue-500 selection:text-white flex flex-col min-h-screen">
+	<body class="bg-white text-black font-sans antialiased selection:bg-black selection:text-white flex flex-col min-h-screen">
 		
 		<!-- NAVBAR -->
-		<nav class="flex items-center justify-between px-8 py-6 w-full max-w-7xl mx-auto border-b border-slate-800">
-			<a href="/" class="text-xl font-bold tracking-tighter text-white">
-				RMG<span class="text-blue-500">.</span>
+		<nav class="flex items-center justify-between px-8 py-4 w-full max-w-7xl mx-auto border-b border-gray-200">
+			<!-- NEW CUSTOM LOGO (Adjusted for light mode) -->
+			<a href="/" class="flex items-center gap-3 group">
+				<div class="relative flex items-center justify-center w-8 h-8">
+					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:drop-shadow-[0_0_8px_rgba(0,0,0,0.2)] transition-all">
+						<path d="M16 2L30 10V22L16 30L2 22V10L16 2Z" stroke="black" stroke-width="2" fill="transparent"/>
+						<path d="M16 8L23 12V20L16 24L9 20V12L16 8Z" fill="black"/>
+					</svg>
+				</div>
+				<span class="text-xl font-bold tracking-tight text-black">
+					RMG
+				</span>
 			</a>
-			<div class="hidden md:flex space-x-8 text-sm font-medium text-slate-400">
-				<a href="/#solutions" class="hover:text-white transition-colors">Solutions</a>
-				<!-- Notice we changed these links to point to the new pages -->
-				<a href="/about" class="hover:text-white transition-colors">About</a>
-				<a href="/contact" class="hover:text-white transition-colors">Contact</a>
+			
+			<!-- Middle Links -->
+			<div class="hidden md:flex space-x-8 text-sm font-medium text-gray-500">
+				<a href="/#solutions" class="hover:text-black transition-colors">Solutions</a>
+				<a href="/about" class="hover:text-black transition-colors">Enterprise</a>
+				<a href="/contact" class="hover:text-black transition-colors">Contact</a>
 			</div>
-			<a href="/contact" class="bg-white text-black px-5 py-2 text-sm font-semibold rounded-md hover:bg-slate-200 transition-colors">
-				Get in touch
-			</a>
+			
+			<!-- Right Side Buttons -->
+			<div class="flex items-center gap-3">
+				<a href="/login" class="text-sm font-medium border border-gray-200 px-5 py-2 rounded-md hover:bg-gray-50 transition-colors text-black">
+					Log In
+				</a>
+				<a href="/signup" class="text-sm font-semibold bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition-colors">
+					Sign Up
+				</a>
+			</div>
 		</nav>
 
 		<!-- THIS IS WHERE EVERY PAGE'S CONTENT WILL GO -->
@@ -34,7 +51,7 @@ const { title } = Astro.props;
 		</div>
 
 		<!-- FOOTER -->
-		<footer class="border-t border-slate-800 py-12 text-center text-slate-500 text-sm mt-auto">
+		<footer class="border-t border-gray-200 py-12 text-center text-gray-500 text-sm mt-auto">
 			<p>© 2024 RMG TECHNOLOGIES INC. All rights reserved.</p>
 		</footer>
 
