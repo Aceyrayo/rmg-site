@@ -10,49 +10,109 @@ const { title } = Astro.props;
 		<title>{title} | RMG TECHNOLOGIES INC</title>
 		<meta name="description" content="High-performance software, trading systems, and defense-grade applications." />
 	</head>
-	<body class="bg-white text-black font-sans antialiased selection:bg-black selection:text-white flex flex-col min-h-screen">
+	<body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-500 selection:text-white flex flex-col min-h-screen">
 		
 		<!-- NAVBAR -->
-		<nav class="flex items-center justify-between px-8 py-4 w-full max-w-7xl mx-auto border-b border-gray-200">
-			<!-- NEW CUSTOM LOGO (Adjusted for light mode) -->
-			<a href="/" class="flex items-center gap-3 group">
-				<div class="relative flex items-center justify-center w-8 h-8">
-					<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:drop-shadow-[0_0_8px_rgba(0,0,0,0.2)] transition-all">
-						<path d="M16 2L30 10V22L16 30L2 22V10L16 2Z" stroke="black" stroke-width="2" fill="transparent"/>
-						<path d="M16 8L23 12V20L16 24L9 20V12L16 8Z" fill="black"/>
+		<nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200">
+			<div class="flex items-center justify-between px-8 py-3 w-full max-w-7xl mx-auto">
+				<a href="/" class="flex items-center gap-3 group">
+					<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" class="group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-all duration-300">
+						<path d="M16 2L30 10V22L16 30L2 22V10L16 2Z" stroke="#0f172a" stroke-width="2" fill="transparent"/>
+						<path d="M16 8L23 12V20L16 24L9 20V12L16 8Z" fill="#0f172a"/>
 					</svg>
+					<span class="text-sm font-bold tracking-widest text-slate-900 uppercase">RMG TECHNOLOGIES</span>
+				</a>
+				
+				<!-- DARKER NAVBAR HOVERS -->
+				<div class="hidden md:flex space-x-2 text-sm font-semibold text-slate-600">
+					<a href="/#solutions" class="px-3 py-2 rounded-md hover:bg-slate-200 hover:text-slate-900 transition-all">Solutions</a>
+					<a href="/pricing" class="px-3 py-2 rounded-md hover:bg-slate-200 hover:text-slate-900 transition-all">Pricing</a>
+					<a href="/security" class="px-3 py-2 rounded-md hover:bg-slate-200 hover:text-slate-900 transition-all">Security</a>
+					<a href="/about" class="px-3 py-2 rounded-md hover:bg-slate-200 hover:text-slate-900 transition-all">About</a>
+					<a href="/contact" class="px-3 py-2 rounded-md hover:bg-slate-200 hover:text-slate-900 transition-all">Contact</a>
 				</div>
-				<span class="text-xl font-bold tracking-tight text-black">
-					RMG
-				</span>
-			</a>
-			
-			<!-- Middle Links -->
-			<div class="hidden md:flex space-x-8 text-sm font-medium text-gray-500">
-				<a href="/#solutions" class="hover:text-black transition-colors">Solutions</a>
-				<a href="/about" class="hover:text-black transition-colors">Enterprise</a>
-				<a href="/contact" class="hover:text-black transition-colors">Contact</a>
-			</div>
-			
-			<!-- Right Side Buttons -->
-			<div class="flex items-center gap-3">
-				<a href="/login" class="text-sm font-medium border border-gray-200 px-5 py-2 rounded-md hover:bg-gray-50 transition-colors text-black">
-					Log In
-				</a>
-				<a href="/signup" class="text-sm font-semibold bg-black text-white px-5 py-2 rounded-md hover:bg-gray-800 transition-colors">
-					Sign Up
-				</a>
+				
+				<div class="flex items-center gap-4">
+					<a href="/login" class="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors">Log In</a>
+					<a href="/signup" class="bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 text-sm font-semibold rounded-md shadow-sm transition-all">
+						Sign Up
+					</a>
+				</div>
 			</div>
 		</nav>
 
-		<!-- THIS IS WHERE EVERY PAGE'S CONTENT WILL GO -->
+		<!-- PAGE CONTENT -->
 		<div class="flex-grow">
 			<slot />
 		</div>
 
 		<!-- FOOTER -->
-		<footer class="border-t border-gray-200 py-12 text-center text-gray-500 text-sm mt-auto">
-			<p>© 2024 RMG TECHNOLOGIES INC. All rights reserved.</p>
+		<footer class="bg-white pt-20 pb-10 border-t border-slate-200">
+			<div class="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-5 gap-12 mb-16">
+				
+				<div class="col-span-1 md:col-span-2">
+					<a href="/" class="flex items-center gap-3 mb-6">
+						<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+							<path d="M16 2L30 10V22L16 30L2 22V10L16 2Z" stroke="#0f172a" stroke-width="2" fill="transparent"/>
+							<path d="M16 8L23 12V20L16 24L9 20V12L16 8Z" fill="#0f172a"/>
+						</svg>
+						<span class="text-lg font-bold tracking-widest text-slate-900 uppercase">RMG TECHNOLOGIES</span>
+					</a>
+					<p class="text-slate-500 text-sm leading-relaxed mb-8 max-w-sm">
+						High-performance software engineered for financial markets, defense systems, and modern enterprises. Built for zero downtime.
+					</p>
+					<div class="flex space-x-3">
+						<a href="#" class="w-9 h-9 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all">
+							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+						</a>
+						<a href="#" class="w-9 h-9 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all">
+							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+						</a>
+						<a href="#" class="w-9 h-9 rounded-md bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-slate-900 hover:text-white transition-all">
+							<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+						</a>
+					</div>
+				</div>
+
+				<!-- DARKER FOOTER HOVERS (Turn black) -->
+				<div>
+					<h4 class="text-slate-900 text-sm font-bold mb-6 uppercase tracking-wider">Product</h4>
+					<ul class="space-y-2 text-sm text-slate-600">
+						<li><a href="/#solutions" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Solutions</a></li>
+						<li><a href="/pricing" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Pricing</a></li>
+						<li><a href="/security" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Security</a></li>
+						<li><a href="/about" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Enterprise</a></li>
+					</ul>
+				</div>
+
+				<div>
+					<h4 class="text-slate-900 text-sm font-bold mb-6 uppercase tracking-wider">Company</h4>
+					<ul class="space-y-2 text-sm text-slate-600">
+						<li><a href="/about" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">About Us</a></li>
+						<li><a href="/contact" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Contact</a></li>
+						<li><a href="#" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Careers</a></li>
+						<li><a href="#" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Press Kit</a></li>
+					</ul>
+				</div>
+
+				<div>
+					<h4 class="text-slate-900 text-sm font-bold mb-6 uppercase tracking-wider">Legal</h4>
+					<ul class="space-y-2 text-sm text-slate-600">
+						<li><a href="/privacy" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Privacy Policy</a></li>
+						<li><a href="/terms" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Terms of Service</a></li>
+						<li><a href="/cookies" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Cookie Policy</a></li>
+						<li><a href="/compliance" class="block px-3 py-1.5 -ml-3 rounded-md hover:bg-slate-800 hover:text-white transition-all">Compliance</a></li>
+					</ul>
+				</div>
+			</div>
+
+			<div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500 font-medium">
+				<p>© 2024 RMG TECHNOLOGIES INC. All rights reserved.</p>
+				<div class="flex items-center gap-2">
+					<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+					<span>All systems operational</span>
+				</div>
+			</div>
 		</footer>
 
 	</body>

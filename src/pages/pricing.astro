@@ -1,0 +1,56 @@
+---
+import Layout from '../layouts/layout.astro';
+---
+
+<Layout title="Pricing">
+	<main class="max-w-7xl mx-auto px-8 py-32 relative bg-slate-50">
+		<div class="text-center mb-20">
+			<h1 class="text-5xl font-bold tracking-tighter text-slate-900 mb-6">Plans for every scale.</h1>
+			<p class="text-xl text-slate-500 max-w-2xl mx-auto">Start small, or deploy military-grade infrastructure globally. No hidden fees.</p>
+		</div>
+
+		<div class="grid md:grid-cols-3 gap-8">
+			<!-- Tier 1 -->
+			<div class="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm hover:border-slate-300 transition-all duration-300">
+				<h3 class="text-xl font-bold text-slate-900 mb-2">Developer</h3>
+				<p class="text-slate-500 text-sm mb-6">For individual testing and side projects.</p>
+				<div class="text-4xl font-bold text-slate-900 mb-8">$0<span class="text-lg text-slate-500 font-normal">/mo</span></div>
+				<ul class="space-y-4 mb-8 text-sm text-slate-600">
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> 1,000 API calls/mo</li>
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Community Support</li>
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Standard Market Data</li>
+				</ul>
+				<a href="/signup" class="block text-center w-full border border-slate-200 text-slate-900 font-semibold py-3 rounded-xl hover:bg-slate-50 transition-colors">Start for free</a>
+			</div>
+
+			<!-- Tier 2 (Highlighted) -->
+			<div class="p-8 border border-slate-900 rounded-3xl bg-slate-900 text-white shadow-xl relative transform md:-translate-y-4">
+				<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</div>
+				<h3 class="text-xl font-bold mb-2">Professional</h3>
+				<p class="text-slate-400 text-sm mb-6">For active traders and startups.</p>
+				<div class="text-4xl font-bold mb-8">$99<span class="text-lg text-slate-400 font-normal">/mo</span></div>
+				<ul class="space-y-4 mb-8 text-sm text-slate-300">
+					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> 100,000 API calls/mo</li>
+					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Priority 24/7 Support</li>
+					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Ultra-Low Latency Data</li>
+					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Custom Webhooks</li>
+				</ul>
+				<a href="/contact" class="block text-center w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-500 transition-colors">Upgrade to Pro</a>
+			</div>
+
+			<!-- Tier 3 -->
+			<div class="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm hover:border-slate-300 transition-all duration-300">
+				<h3 class="text-xl font-bold text-slate-900 mb-2">Enterprise</h3>
+				<p class="text-slate-500 text-sm mb-6">For defense systems and institutions.</p>
+				<div class="text-4xl font-bold text-slate-900 mb-8">Custom</div>
+				<ul class="space-y-4 mb-8 text-sm text-slate-600">
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Unlimited API calls</li>
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Dedicated Account Manager</li>
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> On-Premise Deployment</li>
+					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Custom SLA</li>
+				</ul>
+				<a href="/contact" class="block text-center w-full border border-slate-200 text-slate-900 font-semibold py-3 rounded-xl hover:bg-slate-50 transition-colors">Contact Sales</a>
+			</div>
+		</div>
+	</main>
+</Layout>
