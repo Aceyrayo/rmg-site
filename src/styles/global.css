@@ -1,1 +1,4 @@
 @import "tailwindcss";
+
+/* This tells Tailwind to use the 'dark' class on the <html> tag */
+@custom-variant dark (&:where(.dark, .dark *));@import "tailwindcss";

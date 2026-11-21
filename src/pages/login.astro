@@ -107,6 +107,7 @@ import Layout from '../layouts/layout.astro';
 					localStorage.setItem('rmg_token', data.access_token);
 					localStorage.setItem('rmg_role', data.role);
 					localStorage.setItem('rmg_name', data.first_name);
+					localStorage.setItem('rmg_email', data.email); 
 
 					if (data.role === 'admin') {
 						window.location.href = '/dashboard';

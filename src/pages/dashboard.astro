@@ -1,8 +1,8 @@
 ---
-import Layout from '../layouts/layout.astro';
+import AppLayout from '../layouts/AppLayout.astro';
 ---
 
-<Layout title="Admin Dashboard">
+<AppLayout title="Admin Dashboard">
 	<!-- Wrap in a dark, full-screen container -->
 	<div class="bg-[#05080f] min-h-screen w-full py-12">
 		<main class="max-w-7xl mx-auto px-8">
@@ -169,4 +169,4 @@ import Layout from '../layouts/layout.astro';
 		fetchMessages();
 		document.getElementById('refreshBtn').addEventListener('click', fetchMessages);
 	</script>
-</Layout>
+</AppLayout>
