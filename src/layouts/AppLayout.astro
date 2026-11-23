@@ -37,51 +37,68 @@ const { title } = Astro.props;
 			</div>
 			
 			<!-- Navigation -->
-			<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+						<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
 				
+				<!-- 1. MAIN -->
 				<div>
 					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Main</p>
 					<div class="space-y-0.5">
-						<a href="/portal" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-							Overview
-						</a>
-						<a href="/dashboard" id="navAdmin" class="hidden items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-							Admin Command
-						</a>
+						<a href="/portal" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Overview</a>
+						<a href="/dashboard" id="navAdmin" class="hidden items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Admin Command</a>
 					</div>
 				</div>
 
+				<!-- 2. RMG DIVISIONS -->
 				<div>
-					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Trading Tools</p>
+					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">RMG Divisions</p>
 					<div class="space-y-0.5">
-						<a href="/portal/bots" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
-							Trading Bots
-						</a>
-						<a href="/portal/api-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
-							API Credentials
-						</a>
+						<a href="/portal/trading" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Systems</a>
+						<a href="/portal/defense" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
+						<a href="/portal/enterprise" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Tools</a>
 					</div>
 				</div>
 
+				<!-- 3. DATA & INTELLIGENCE -->
+				<div>
+					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Intelligence</p>
+					<div class="space-y-0.5">
+						<a href="/portal/market-data" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Live Market Data</a>
+						<a href="/portal/threat-intel" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Threat Intelligence</a>
+						<a href="/portal/analytics" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Analytics & Reports</a>
+						<a href="/portal/logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Logs</a>
+					</div>
+				</div>
+
+				<!-- 4. ACCOUNT & SECURITY -->
+				<div>
+					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Security</p>
+					<div class="space-y-0.5">
+						<a href="/portal/api-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Credentials</a>
+						<a href="/portal/security" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Security Center</a>
+						<a href="/portal/team" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Team Management</a>
+						<a href="/portal/audit-logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Audit Logs</a>
+						<a href="/portal/roles" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Roles & Permissions</a>
+					</div>
+				</div>
+
+				<!-- 5. MANAGE -->
 				<div>
 					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Manage</p>
 					<div class="space-y-0.5">
-						<a href="/portal/support" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-							Support Tickets
-						</a>
-						<a href="/portal/billing" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-							Billing
-						</a>
+						<a href="/portal/billing" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Billing & Plans</a>
+						<a href="/portal/support" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
+						<a href="/portal/settings" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Account Settings</a>
+						<a href="/portal/webhooks" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Webhooks</a>
+						<a href="/portal/integrations" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Integrations</a>
+						<a href="/portal/api-docs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Documentation</a>
+						<a href="/portal/status" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Status</a>
 					</div>
 				</div>
 			</nav>
 
+
+
+			
 			<!-- Bottom: User Profile & Dropdown -->
 			<div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 relative">
 				<div id="profileMenu" class="hidden absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">

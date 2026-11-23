@@ -1,0 +1,13 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+<AppLayout title="System Logs">
+	<div class="max-w-5xl mx-auto space-y-8">
+		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">System Logs</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Real-time server events and API errors.</p></div>
+		<div class="bg-slate-950 rounded-xl p-6 font-mono text-sm text-emerald-400 border border-slate-800 h-96 overflow-y-auto">
+			<p>[INFO] System initialized...</p>
+			<p>[INFO] Auth layer active...</p>
+			<p>[WARN] Awaiting live traffic...</p>
+		</div>
+	</div>
+</AppLayout>

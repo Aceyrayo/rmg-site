@@ -1,0 +1,15 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+<AppLayout title="Live Market Data">
+	<div class="max-w-5xl mx-auto space-y-8">
+		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Live Market Data</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Real-time crypto and forex feeds.</p></div>
+		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
+			<div class="h-96 bg-slate-50 dark:bg-slate-950 rounded-lg flex flex-col items-center justify-center border border-slate-200 dark:border-slate-800">
+				<svg class="w-12 h-12 text-slate-400 mb-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+				<p class="text-slate-500 font-medium">Connecting to market feeds...</p>
+				<p class="text-xs text-slate-400 mt-2">Once connected, your live charts will appear here.</p>
+			</div>
+		</div>
+	</div>
+</AppLayout>
