@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
-const { title } = Astro.props;
 import chatbot from '../components/chatbot.astro';
+const { title } = Astro.props;
+
 ---
 
 <html lang="en">
@@ -219,6 +220,6 @@ import chatbot from '../components/chatbot.astro';
 				if (logoutBtn) logoutBtn.addEventListener('click', logout);
 			});
 		</script>
-		<chatbot />
+		<chatbot/>
 	</body>
 </html>
