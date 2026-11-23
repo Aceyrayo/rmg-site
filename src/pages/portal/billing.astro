@@ -1,0 +1,78 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+
+<AppLayout title="Billing">
+	<div class="max-w-4xl mx-auto space-y-8">
+		
+		<div>
+			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Billing & Plans</h1>
+			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your subscription and view invoices.</p>
+		</div>
+
+		<!-- Current Plan -->
+		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+			<div>
+				<div class="flex items-center gap-3 mb-2">
+					<h2 class="text-xl font-bold text-slate-900 dark:text-white">Enterprise Plan</h2>
+					<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">Active</span>
+				</div>
+				<p class="text-slate-500 dark:text-slate-400 text-sm">Unlimited API calls, priority support, and custom SLAs.</p>
+			</div>
+			<div class="text-left md:text-right">
+				<p class="text-3xl font-bold text-slate-900 dark:text-white">$299<span class="text-sm text-slate-500 dark:text-slate-400 font-normal">/mo</span></p>
+				<p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Next billing date: Nov 28, 2026</p>
+			</div>
+		</div>
+
+		<!-- Billing History -->
+		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+			<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">Invoice History</h2>
+			</div>
+			<div id="invoiceList" class="divide-y divide-slate-100 dark:divide-slate-800">
+				<div class="p-6 text-center text-slate-500 dark:text-slate-400 text-sm animate-pulse">Loading invoices...</div>
+			</div>
+		</div>
+	</div>
+
+	<script is:inline>
+		const token = localStorage.getItem('rmg_token');
+		const API_URL = 'https://rmg-api-e46k.onrender.com';
+		const invoiceList = document.getElementById('invoiceList');
+
+		async function fetchInvoices() {
+			try {
+				const res = await fetch(`${API_URL}/api/invoices`, {
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+				const data = await res.json();
+
+				if (data.length === 0) {
+					invoiceList.innerHTML = '<div class="p-6 text-center text-slate-500 dark:text-slate-400 text-sm">No invoices found.</div>';
+					return;
+				}
+
+				invoiceList.innerHTML = data.map(inv => `
+					<div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+						<div class="flex items-center gap-4">
+							<div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
+								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+							</div>
+							<div>
+								<p class="text-sm font-bold text-slate-900 dark:text-white">Invoice #${inv.invoice_number}</p>
+								<p class="text-xs text-slate-500 dark:text-slate-400">${inv.date}</p>
+							</div>
+						</div>
+						<div class="flex items-center gap-6">
+							<p class="text-sm font-semibold text-slate-900 dark:text-white">${inv.amount}</p>
+							<button class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">Download PDF</button>
+						</div>
+					</div>
+				`).join('');
+			} catch(e) { console.error(e); }
+		}
+		
+		fetchInvoices();
+	</script>
+</AppLayout>
