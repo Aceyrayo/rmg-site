@@ -6,35 +6,35 @@ import AppLayout from '../../layouts/AppLayout.astro';
 	<div class="max-w-4xl mx-auto space-y-8">
 		
 		<div>
-			<h1 class="text-2xl font-bold text-slate-900 tracking-tight">API Credentials</h1>
-			<p class="text-slate-500 mt-1 text-sm">Manage your secret keys for connecting external applications to RMG.</p>
+			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">API Credentials</h1>
+			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your secret keys for connecting external applications to RMG.</p>
 		</div>
 
 		<!-- Warning -->
-		<div class="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3 text-amber-800 text-sm">
+		<div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/50 rounded-lg p-4 flex gap-3 text-amber-800 dark:text-amber-400 text-sm">
 			<svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
 			<p>Do not share your API keys in publicly accessible areas such as GitHub, client-side code, or forums.</p>
 		</div>
 
 		<!-- Key List -->
-		<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-			<div class="p-6 border-b border-slate-200 flex justify-between items-center">
+		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden transition-colors duration-200">
+			<div class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
 				<div>
-					<h2 class="text-lg font-bold text-slate-900">Live Keys</h2>
-					<p class="text-sm text-slate-500">Used for production environments.</p>
+					<h2 class="text-lg font-bold text-slate-900 dark:text-white">Live Keys</h2>
+					<p class="text-sm text-slate-500 dark:text-slate-400">Used for production environments.</p>
 				</div>
-				<button class="bg-slate-900 hover:bg-slate-800 text-white font-semibold px-4 py-2 rounded-lg shadow-sm transition-all text-sm">
+				<button class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-semibold px-4 py-2 rounded-lg shadow-sm transition-all text-sm">
 					+ Generate New Key
 				</button>
 			</div>
 			
 			<!-- Empty State -->
 			<div class="p-12 text-center">
-				<div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-					<svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+				<div class="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+					<svg class="w-8 h-8 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
 				</div>
-				<h3 class="text-lg font-bold text-slate-900 mb-1">No API keys found</h3>
-				<p class="text-slate-500 text-sm max-w-sm mx-auto">You haven't generated any API keys yet. Generate one to start connecting your applications.</p>
+				<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">No API keys found</h3>
+				<p class="text-slate-500 dark:text-slate-400 text-sm max-w-sm mx-auto">You haven't generated any API keys yet. Generate one to start connecting your applications.</p>
 			</div>
 		</div>
 	</div>
