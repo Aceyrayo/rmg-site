@@ -1,0 +1,42 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+
+<AppLayout title="Enterprise Tools">
+	<div class="max-w-5xl mx-auto space-y-8">
+		
+		<div>
+			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Enterprise Automation</h1>
+			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your day-to-day business workflows and integrations.</p>
+		</div>
+
+		<div class="grid md:grid-cols-3 gap-6">
+			<!-- Tool 1 -->
+			<a href="#" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all">
+				<div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+				</div>
+				<h3 class="font-bold text-slate-900 dark:text-white mb-1">CRM & Client Portal</h3>
+				<p class="text-sm text-slate-500 dark:text-slate-400">Manage customer relationships and sales pipelines.</p>
+			</a>
+
+			<!-- Tool 2 -->
+			<a href="#" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all">
+				<div class="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
+				</div>
+				<h3 class="font-bold text-slate-900 dark:text-white mb-1">Workflow Automation</h3>
+				<p class="text-sm text-slate-500 dark:text-slate-400">Build drag-and-drop automation for your internal tasks.</p>
+			</a>
+
+			<!-- Tool 3 -->
+			<a href="#" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all">
+				<div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+				</div>
+				<h3 class="font-bold text-slate-900 dark:text-white mb-1">Advanced Analytics</h3>
+				<p class="text-sm text-slate-500 dark:text-slate-400">Export custom PDF and Excel reports for stakeholders.</p>
+			</a>
+		</div>
+	</div>
+</AppLayout>

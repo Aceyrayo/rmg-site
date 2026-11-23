@@ -1,0 +1,48 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+
+<AppLayout title="API Documentation">
+	<div class="max-w-5xl mx-auto space-y-8">
+		<div>
+			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">API Documentation</h1>
+			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Learn how to interact with the RMG API endpoints.</p>
+		</div>
+
+		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+			<div class="p-6 border-b border-slate-200 dark:border-slate-800">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">REST API Reference</h2>
+			</div>
+			<div class="p-6 space-y-6">
+				
+				<!-- Endpoint 1 -->
+				<div>
+					<div class="flex items-center gap-3 mb-2">
+						<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
+						<code class="text-sm font-mono text-slate-900 dark:text-white">/api/v1/market-data</code>
+					</div>
+					<p class="text-sm text-slate-500 dark:text-slate-400">Returns real-time crypto and forex market prices.</p>
+				</div>
+
+				<!-- Endpoint 2 -->
+				<div>
+					<div class="flex items-center gap-3 mb-2">
+						<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold px-2 py-1 rounded">POST</span>
+						<code class="text-sm font-mono text-slate-900 dark:text-white">/api/v1/execute</code>
+					</div>
+					<p class="text-sm text-slate-500 dark:text-slate-400">Execute a trade order (requires API key and HMAC signature).</p>
+				</div>
+
+				<!-- Endpoint 3 -->
+				<div>
+					<div class="flex items-center gap-3 mb-2">
+						<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
+						<code class="text-sm font-mono text-slate-900 dark:text-white">/api/v1/portfolio</code>
+					</div>
+					<p class="text-sm text-slate-500 dark:text-slate-400">Returns the user's current account balance and open positions.</p>
+				</div>
+
+			</div>
+		</div>
+	</div>
+</AppLayout>
