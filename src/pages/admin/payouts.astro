@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Payout Management">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'payout', title:'Payout Management', noun:'Payout', status:'status', sub:'Outgoing payments',
+ fields:[{k:'payee',l:'Payee',req:1},{k:'amount',l:'Amount (USD)',t:'number',req:1},{k:'method',l:'Method',t:'select',o:['Bank Transfer','Card','Crypto']},{k:'status',l:'Status',t:'select',o:['Pending','Processing','Paid','Failed']},{k:'notes',l:'Notes',t:'textarea'}],
+ cols:[{k:'payee',l:'Payee'},{k:'amount',l:'Amount'},{k:'method',l:'Method'},{k:'status',l:'Status'}],
+ actions:[{label:'Mark paid',run:r=>patchRec('payout',r.id,{status:'Paid'})}] });
+	</script>
+</AdminLayout>

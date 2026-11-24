@@ -1,0 +1,26 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Broadcast Email">
+	<div class="max-w-2xl mx-auto space-y-6">
+		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white">Broadcast Email</h1><p class="text-sm text-slate-500">Send an announcement to verified accounts.</p></div>
+		<form id="form" class="card p-6 space-y-4">
+			<div><label class="text-xs font-semibold text-slate-500">Audience</label>
+				<select id="aud" class="inp"><option value="all">All verified users</option><option value="clients">Clients only (exclude admins)</option></select></div>
+			<div><label class="text-xs font-semibold text-slate-500">Subject</label><input id="subj" class="inp" required maxlength="150" /></div>
+			<div><label class="text-xs font-semibold text-slate-500">Message</label><textarea id="body" rows="9" class="inp" required></textarea></div>
+			<div class="flex justify-end"><button id="send" class="btn btn-p !px-6 !py-2">Send broadcast</button></div>
+		</form>
+	</div>
+	<script is:inline>
+		const $ = id => document.getElementById(id);
+		$('form').addEventListener('submit', async e => {
+			e.preventDefault();
+			if (!confirm('Send this email to ' + $('aud').selectedOptions[0].text.toLowerCase() + '? This cannot be undone.')) return;
+			$('send').disabled = true; $('send').textContent = 'Sending…';
+			try { const r = await api('/api/admin/broadcast', { method: 'POST', body: JSON.stringify({ subject: $('subj').value, body: $('body').value, audience: $('aud').value }) }); toast(r.message); e.target.reset(); }
+			catch (err) { toast(err.message, true); }
+			$('send').disabled = false; $('send').textContent = 'Send broadcast';
+		});
+	</script>
+</AdminLayout>

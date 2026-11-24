@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Defense Protocols">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'defense_protocol', title:'Defense Protocols', noun:'Protocol', status:'status', sub:'Security & defense policies',
+ fields:[{k:'name',l:'Protocol',req:1},{k:'classification',l:'Classification',t:'select',o:['Standard','Restricted','Critical']},{k:'scope',l:'Scope',p:'e.g. All client portals'},{k:'owner',l:'Owner'},{k:'status',l:'Status',t:'select',o:['Enforced','Monitoring','Disabled']},{k:'notes',l:'Notes',t:'textarea'}],
+ cols:[{k:'name',l:'Protocol'},{k:'classification',l:'Class'},{k:'scope',l:'Scope'},{k:'owner',l:'Owner'},{k:'status',l:'Status'}] });
+	</script>
+</AdminLayout>

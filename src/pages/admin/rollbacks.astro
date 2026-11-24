@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Rollback Manager">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'rollback', title:'Rollback Manager', noun:'Rollback', status:'status', sub:'Version rollback requests',
+ fields:[{k:'from_version',l:'From version',req:1},{k:'to_version',l:'Roll back to',req:1},{k:'reason',l:'Reason',t:'textarea',req:1},{k:'status',l:'Status',t:'select',o:['Requested','Approved','Executed','Rejected']}],
+ cols:[{k:'from_version',l:'From'},{k:'to_version',l:'To'},{k:'reason',l:'Reason'},{k:'status',l:'Status'}],
+ actions:[{label:'Approve',run:r=>patchRec('rollback',r.id,{status:'Approved'})},{label:'Execute',run:r=>patchRec('rollback',r.id,{status:'Executed'})}] });
+	</script>
+</AdminLayout>

@@ -1,0 +1,14 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Webhook Logs">
+	<div class="max-w-7xl mx-auto"><div id="app"></div><div id="logs" class="mt-8"></div></div>
+	<script is:inline>
+crudPage({ kind:'webhook', title:'Webhook Endpoints', noun:'Webhook', status:'status', sub:'Register endpoints and send test events',
+ fields:[{k:'name',l:'Name',req:1},{k:'url',l:'URL',t:'url',req:1,p:'https://example.com/hook'},{k:'event',l:'Event',t:'select',o:['user.created','ticket.created','invoice.created','all']},{k:'status',l:'Status',t:'select',o:['Active','Disabled']}],
+ cols:[{k:'name',l:'Name'},{k:'url',l:'URL'},{k:'event',l:'Event'},{k:'status',l:'Status'}],
+ actions:[{label:'Send test',run:async r=>{ await api('/api/admin/webhooks/'+r.id+'/test',{method:'POST'}); reloadLogs(); }}] });
+const reloadLogs = listPage({ mount:'logs', title:'Delivery Logs', url:'/api/admin/records/webhook_log', sub:'deliveries', file:'webhook-logs', poll:15000,
+ cols:[{h:'Time',f:r=>'<span class="font-mono text-xs text-slate-500">'+esc(r.created_at)+'</span>'},{h:'Webhook',f:r=>esc(r.webhook)},{h:'URL',f:r=>esc(r.url)},{h:'Result',f:r=>badge(r.status,r.ok?'green':'red')},{h:'Time',f:r=>esc(r.ms)+' ms'},{h:'Error',f:r=>esc(r.error)}] });
+	</script>
+</AdminLayout>

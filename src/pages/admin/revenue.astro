@@ -1,0 +1,14 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Revenue Overview">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+(async () => { const app = document.getElementById('app');
+ try { const a = await api('/api/admin/analytics'); const avg = a.invoice_count ? a.revenue_total / a.invoice_count : 0;
+  app.innerHTML = pageHead('Revenue Overview','Calculated from invoices', '<button id="ex" class="btn">Export CSV</button>') + `<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">${stat('Total invoiced',money(a.revenue_total),'text-emerald-500')}${stat('Invoices',a.invoice_count)}${stat('Average invoice',money(avg))}</div>
+  <div class="grid md:grid-cols-2 gap-6 mt-6">${panel('Revenue by month',bars(a.revenue_by_month,money))}${panel('Top clients',bars(a.top_clients,money))}</div>`;
+  document.getElementById('ex').onclick = () => downloadCsv('revenue-by-month.csv', a.revenue_by_month.map(([month, amount]) => ({ month, amount })));
+ } catch (e) { toast(e.message, true); } })();
+	</script>
+</AdminLayout>

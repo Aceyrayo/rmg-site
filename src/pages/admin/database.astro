@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Database Manager">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app = document.getElementById('app'); let rows = [], cur = '';
+(async () => { try { const tabs = await api('/api/admin/db');
+ app.innerHTML = pageHead('Database Manager','Read-only browser · passwords and verification codes are hidden','<button id="ej" class="btn">Export JSON</button><button id="ec" class="btn">Export CSV</button>') + `<div class="flex flex-wrap gap-2 mt-6">${tabs.map(t=>`<button class="btn" data-t="${t.name}">${t.name} <span class="text-slate-400">(${t.rows})</span></button>`).join('')}</div><div class="card mt-4"><div id="grid" class="overflow-x-auto"><div class="p-10 text-center text-sm text-slate-500">Select a table.</div></div></div>`;
+ async function open(n) { cur = n; rows = await api('/api/admin/db/' + n); const keys = rows.length ? Object.keys(rows[0]) : [];
+  table(document.getElementById('grid'), keys.map(k => ({ h: k, f: r => `<span class="text-xs font-mono">${esc(String(r[k] ?? '').slice(0, 90))}</span>` })), rows); }
+ app.addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b) open(b.dataset.t).catch(x => toast(x.message, true)); });
+ document.getElementById('ec').onclick = () => downloadCsv((cur||'table') + '.csv', rows);
+ document.getElementById('ej').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(rows, null, 2)], { type: 'application/json' })); a.download = (cur||'table') + '.json'; a.click(); };
+ } catch (e) { toast(e.message, true); } })();
+	</script>
+</AdminLayout>

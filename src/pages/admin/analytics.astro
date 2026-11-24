@@ -1,0 +1,13 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Deep Analytics">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+(async () => { const app = document.getElementById('app');
+ try { const a = await api('/api/admin/analytics');
+  app.innerHTML = pageHead('Deep Analytics','Live aggregates from your platform data') + `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">${stat('Users',a.users_total)}${stat('Verified',a.users_verified)}${stat('Revenue',money(a.revenue_total))}${stat('Tickets',a.tickets_total)}</div>
+  <div class="grid md:grid-cols-2 gap-6 mt-6">${panel('Users by role',bars(a.by_role))}${panel('Top companies',bars(a.top_companies))}${panel('Tickets by category',bars(a.tickets_by_category))}${panel('Tickets by status',bars(a.tickets_by_status))}${panel('Revenue by month',bars(a.revenue_by_month,money))}${panel('API requests by hour (UTC, last 12h)',bars(a.requests_by_hour))}</div>`;
+ } catch (e) { toast(e.message, true); } })();
+	</script>
+</AdminLayout>

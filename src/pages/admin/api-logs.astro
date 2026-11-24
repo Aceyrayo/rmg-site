@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="API Request Logs">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const sc = s => s >= 500 ? 'red' : s >= 400 ? 'amber' : 'green';
+listPage({ title:'API Request Logs', url:'/api/admin/requests?limit=500', sub:'requests (since last restart)', file:'api-logs', poll:8000,
+ cols:[{h:'Time (UTC)',f:r=>'<span class="font-mono text-xs text-slate-500">'+esc(r.time)+'</span>'},{h:'Method',f:r=>badge(r.method,'blue')},{h:'Path',f:r=>'<span class="font-mono text-xs">'+esc(r.path)+'</span>'},{h:'Status',f:r=>badge(r.status,sc(r.status))},{h:'Latency',f:r=>esc(r.ms)+' ms'},{h:'IP',f:r=>'<span class="font-mono text-xs">'+esc(r.ip)+'</span>'}] });
+	</script>
+</AdminLayout>

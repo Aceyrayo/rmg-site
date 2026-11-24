@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Transaction Logs">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'transaction', title:'Transaction Logs', noun:'Transaction', status:'status', sub:'Payments, refunds & chargebacks',
+ fields:[{k:'reference',l:'Reference',req:1,p:'TXN-0001'},{k:'client',l:'Client',t:'user'},{k:'amount',l:'Amount (USD)',t:'number',req:1},{k:'type',l:'Type',t:'select',o:['Payment','Refund','Chargeback']},{k:'method',l:'Method',t:'select',o:['Card','Bank Transfer','Crypto']},{k:'status',l:'Status',t:'select',o:['Completed','Pending','Failed']}],
+ cols:[{k:'reference',l:'Ref'},{k:'client',l:'Client'},{k:'amount',l:'Amount'},{k:'type',l:'Type'},{k:'method',l:'Method'},{k:'status',l:'Status'}] });
+	</script>
+</AdminLayout>

@@ -1,0 +1,30 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Audit Trail">
+	<div class="max-w-7xl mx-auto space-y-6">
+		<div class="flex flex-wrap items-center justify-between gap-3">
+			<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white">Audit Trail</h1><p id="count" class="text-sm text-slate-500">Loading…</p></div>
+			<div class="flex gap-2"><button id="refresh" class="btn">Refresh</button><button id="exportBtn" class="btn">Export CSV</button></div>
+		</div>
+		<div class="card"><div class="p-4 border-b border-slate-200 dark:border-slate-800"><input id="q" class="inp sm:max-w-xs" placeholder="Filter by admin, action, detail…" /></div><div id="tbl" class="overflow-x-auto"></div></div>
+	</div>
+	<script is:inline>
+		const $ = id => document.getElementById(id); let all = [], view = [];
+		async function load() { try { all = await api('/api/admin/audit'); draw(); } catch (e) { toast(e.message, true); } }
+		function draw() {
+			const q = $('q').value.toLowerCase();
+			view = all.filter(a => [a.actor, a.action, a.detail].join(' ').toLowerCase().includes(q));
+			$('count').textContent = `Showing ${view.length} of the latest ${all.length} events (UTC)`;
+			table($('tbl'), [
+				{ h: 'Time', f: a => `<span class="font-mono text-xs text-slate-500">${esc(a.created_at)}</span>` },
+				{ h: 'Admin', f: a => esc(a.actor) },
+				{ h: 'Action', f: a => badge(a.action, /DELETE/.test(a.action) ? 'red' : /BROADCAST/.test(a.action) ? 'blue' : 'slate') },
+				{ h: 'Detail', f: a => `<span class="text-slate-600 dark:text-slate-400">${esc(a.detail)}</span>` }
+			], view);
+		}
+		$('q').addEventListener('input', draw); $('refresh').addEventListener('click', load);
+		$('exportBtn').addEventListener('click', () => downloadCsv('audit-log.csv', view));
+		load();
+	</script>
+</AdminLayout>

@@ -1,0 +1,10 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Error Tracking">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+listPage({ title:'Error Tracking', url:'/api/admin/requests?errors=true&limit=500', sub:'server errors & blocked requests', file:'errors', poll:10000,
+ cols:[{h:'Time (UTC)',f:r=>'<span class="font-mono text-xs text-slate-500">'+esc(r.time)+'</span>'},{h:'Endpoint',f:r=>'<span class="font-mono text-xs">'+esc(r.method+' '+r.path)+'</span>'},{h:'Status',f:r=>badge(r.status,'red')},{h:'Error',f:r=>'<span class="text-xs text-red-500">'+esc(r.error||'HTTP '+r.status)+'</span>'},{h:'IP',f:r=>esc(r.ip)}] });
+	</script>
+</AdminLayout>

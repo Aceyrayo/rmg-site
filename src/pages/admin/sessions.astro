@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Active Sessions">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+listPage({ title:'Active Sessions', url:'/api/admin/sessions', sub:'accounts with login activity', file:'sessions', poll:20000,
+ cols:[{h:'User',f:r=>'<b>'+esc(r.username)+'</b>'},{h:'Last login (UTC)',f:r=>esc(r.last_login||'—')},{h:'Last IP',f:r=>'<span class="font-mono text-xs">'+esc(r.ip||'—')+'</span>'},{h:'Logins',f:r=>r.logins},{h:'Failed',f:r=>r.failed?badge(r.failed,'red'):0},{h:'Revoked',f:r=>r.revoked_at?badge(new Date(r.revoked_at*1000).toLocaleString(),'amber'):'—'},{h:'',f:(r,i)=>'<div class="text-right"><button class="btn btn-d" data-a="revoke" data-ix="'+i+'">Revoke sessions</button></div>'}],
+ onAction: async (a, r, reload) => { if (!confirm('Sign out every device for '+r.username+'?')) return; const x = await api('/api/admin/sessions/revoke',{method:'POST',body:JSON.stringify({username:r.username})}); toast(x.message); reload(); } });
+	</script>
+</AdminLayout>

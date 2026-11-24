@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Enterprise Nodes">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'enterprise_node', title:'Enterprise Nodes', noun:'Node', status:'status', sub:'Infrastructure nodes',
+ fields:[{k:'name',l:'Node name',req:1},{k:'host',l:'Host / IP'},{k:'region',l:'Region',t:'select',o:['US-East-1','EU-West-1','AP-South-1','AF-East-1']},{k:'capacity',l:'Capacity',p:'8 vCPU / 32 GB'},{k:'status',l:'Status',t:'select',o:['Online','Degraded','Offline','Provisioning']}],
+ cols:[{k:'name',l:'Node'},{k:'host',l:'Host'},{k:'region',l:'Region'},{k:'capacity',l:'Capacity'},{k:'status',l:'Status'}] });
+	</script>
+</AdminLayout>

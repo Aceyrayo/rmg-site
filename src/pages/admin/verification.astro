@@ -1,0 +1,16 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="KYC Verification">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app = document.getElementById('app');
+async function render() { try { const users = await api('/api/admin/users'); const pend = users.filter(u => !u.is_verified);
+ app.innerHTML = pageHead('KYC Verification','Accounts waiting for email verification') + `<div class="grid grid-cols-3 gap-4 mt-6">${stat('Pending',pend.length,pend.length?'text-amber-500':'')}${stat('Verified',users.length-pend.length,'text-emerald-500')}${stat('Total',users.length)}</div><div class="card mt-6"><div id="tb" class="overflow-x-auto"></div></div>`;
+ table(document.getElementById('tb'), [{h:'Applicant',f:u=>'<b>'+esc(u.first_name+' '+u.last_name)+'</b><div class="text-xs text-slate-500">'+esc(u.email)+'</div>'},{h:'Company',f:u=>esc(u.company_name)+'<div class="text-xs text-slate-500">'+esc(u.job_title)+'</div>'},{h:'Phone',f:u=>esc(u.phone)},{h:'',f:u=>`<div class="flex gap-1 justify-end"><button class="btn btn-p" data-a="ok" data-id="${u.id}">Approve</button><button class="btn btn-d" data-a="no" data-id="${u.id}">Reject</button></div>`}], pend);
+ document.getElementById('tb').onclick = async e => { const b = e.target.closest('button'); if (!b) return; const u = '/api/admin/users/' + b.dataset.id;
+  try { if (b.dataset.a === 'ok') await api(u, { method: 'PATCH', body: JSON.stringify({ is_verified: true }) }); else { if (!confirm('Reject and delete this application?')) return; await api(u, { method: 'DELETE' }); } toast('Done'); render(); } catch (err) { toast(err.message, true); } };
+ } catch (e) { toast(e.message, true); } }
+render();
+	</script>
+</AdminLayout>

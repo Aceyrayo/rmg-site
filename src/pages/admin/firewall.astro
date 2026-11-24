@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Firewall Rules">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'firewall', title:'Firewall Rules', noun:'Rule', status:'status', sub:'Active "Block" rules are enforced on every API request',
+ fields:[{k:'ip',l:'IP address',req:1,p:'203.0.113.7'},{k:'action',l:'Action',t:'select',o:['Block','Allow']},{k:'note',l:'Note'},{k:'status',l:'Status',t:'select',o:['Active','Disabled']}],
+ cols:[{k:'ip',l:'IP'},{k:'action',l:'Action'},{k:'note',l:'Note'},{k:'status',l:'Status'},{k:'created_at',l:'Added'}] });
+	</script>
+</AdminLayout>

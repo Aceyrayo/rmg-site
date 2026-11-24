@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Encryption Keys">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'key', title:'Encryption Keys', noun:'Key', status:'status', sub:'Generated keys are shown once; only a SHA-256 hash is stored',
+ fields:[{k:'name',l:'Key name',req:1},{k:'scope',l:'Scope',t:'select',o:['read','write','admin']},{k:'status',l:'Status',t:'select',o:['Active','Revoked'],edit:1}],
+ cols:[{k:'name',l:'Name'},{k:'scope',l:'Scope'},{k:'prefix',l:'Prefix'},{k:'status',l:'Status'},{k:'created_at',l:'Created'}],
+ onCreate: async d => { const r = await api('/api/admin/keys',{method:'POST',body:JSON.stringify(d)}); prompt('Copy your new key NOW — it will not be shown again:', r.key); } });
+	</script>
+</AdminLayout>

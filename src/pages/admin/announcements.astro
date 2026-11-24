@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="System Announcements">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'announcement', title:'System Announcements', noun:'Announcement', status:'status', sub:'Active announcements appear as a banner for every signed-in user',
+ fields:[{k:'title',l:'Title',req:1},{k:'message',l:'Message',t:'textarea',req:1},{k:'level',l:'Level',t:'select',o:['info','warning','critical']},{k:'status',l:'Status',t:'select',o:['Active','Inactive']}],
+ cols:[{k:'title',l:'Title'},{k:'message',l:'Message'},{k:'level',l:'Level'},{k:'status',l:'Status'}] });
+	</script>
+</AdminLayout>

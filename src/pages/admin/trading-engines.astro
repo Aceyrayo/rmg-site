@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Trading Engines">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'trading_engine', title:'Trading Engines', noun:'Engine', status:'status', sub:'Deployed trading systems',
+ fields:[{k:'name',l:'Name',req:1},{k:'type',l:'Type',t:'select',o:['High-Frequency','Market Making','Arbitrage','Execution']},{k:'region',l:'Region',t:'select',o:['US-East-1','EU-West-1','AP-South-1','AF-East-1']},{k:'version',l:'Version',p:'v1.0.0'},{k:'status',l:'Status',t:'select',o:['Running','Paused','Stopped','Maintenance']},{k:'notes',l:'Notes',t:'textarea'}],
+ cols:[{k:'name',l:'Engine'},{k:'type',l:'Type'},{k:'region',l:'Region'},{k:'version',l:'Version'},{k:'status',l:'Status'}] });
+	</script>
+</AdminLayout>

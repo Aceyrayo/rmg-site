@@ -1,0 +1,17 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Server Health">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app = document.getElementById('app'); const dur = s => `${Math.floor(s/3600)}h ${Math.floor(s%3600/60)}m`;
+async function tick() { try {
+ const t0 = performance.now(); await fetch(API_URL + '/'); const ping = Math.round(performance.now() - t0); const h = await api('/api/admin/health');
+ const ok = ping < 1000 && h.errors_5m === 0;
+ app.innerHTML = pageHead('Server Health','Auto-refreshes every 10s') + `<div class="mt-6 card p-4 flex items-center gap-3"><span class="w-3 h-3 rounded-full ${ok?'bg-emerald-500':'bg-amber-500'} animate-pulse"></span><b class="text-slate-900 dark:text-white">${ok?'All systems operational':'Degraded performance detected'}</b></div>
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">${stat('API round-trip',ping+' ms',ping<1000?'text-emerald-500':'text-amber-500')}${stat('Uptime',dur(h.uptime_s))}${stat('Avg server time',h.avg_ms+' ms')}${stat('Database size',(h.db_bytes/1024).toFixed(1)+' KB')}${stat('Requests (5 min)',h.requests_5m)}${stat('Server errors (5 min)',h.errors_5m,h.errors_5m?'text-red-500':'text-slate-900 dark:text-white')}${stat('Blocked IPs',h.blocked_ips)}${stat('DB tables',Object.keys(h.tables).length)}</div>
+ <div class="mt-6">${panel('Rows per table',bars(Object.entries(h.tables)))}</div>`;
+ } catch (e) { toast(e.message, true); } }
+tick(); setInterval(tick, 10000);
+	</script>
+</AdminLayout>

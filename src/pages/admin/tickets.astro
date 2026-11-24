@@ -1,0 +1,44 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Support Tickets">
+	<div class="max-w-7xl mx-auto space-y-6">
+		<div class="flex flex-wrap items-center justify-between gap-3">
+			<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white">Support Tickets</h1><p id="count" class="text-sm text-slate-500">Loading…</p></div>
+			<button id="exportBtn" class="btn">Export CSV</button>
+		</div>
+		<div class="card">
+			<div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-3">
+				<input id="q" class="inp sm:max-w-xs" placeholder="Search subject, client, category…" />
+				<select id="st" class="inp sm:max-w-[170px]"><option value="">All statuses</option><option>Open</option><option>In Progress</option><option>Resolved</option><option>Closed</option></select>
+			</div>
+			<div id="tbl" class="overflow-x-auto"></div>
+		</div>
+	</div>
+	<script is:inline>
+		const $ = id => document.getElementById(id); let all = [], view = [];
+		const COLORS = { 'Open': 'amber', 'In Progress': 'blue', 'Resolved': 'green', 'Closed': 'slate' };
+		async function load() { try { all = await api('/api/admin/tickets'); draw(); } catch (e) { toast(e.message, true); } }
+		function draw() {
+			const q = $('q').value.toLowerCase(), s = $('st').value;
+			view = all.filter(t => (!s || t.status === s) && [t.subject, t.user_email, t.category].join(' ').toLowerCase().includes(q));
+			$('count').textContent = `${view.length} tickets · ${all.filter(t => t.status === 'Open').length} open`;
+			table($('tbl'), [
+				{ h: '#', f: t => `<span class="font-mono text-xs text-slate-500">${t.id}</span>` },
+				{ h: 'Ticket', f: t => `<div class="font-semibold text-slate-900 dark:text-white">${esc(t.subject)}</div><div class="text-xs text-slate-500 max-w-md truncate">${esc(t.description)}</div>` },
+				{ h: 'Client', f: t => `<a class="text-blue-500 hover:underline" href="mailto:${esc(t.user_email)}?subject=${encodeURIComponent('Re: ' + t.subject)}">${esc(t.user_email)}</a>` },
+				{ h: 'Category', f: t => esc(t.category) },
+				{ h: 'Created', f: t => esc(t.created_at) },
+				{ h: 'Status', f: t => `<select class="inp !py-1 !w-auto" data-id="${t.id}">${Object.keys(COLORS).map(s => `<option ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}</select>` }
+			], view);
+		}
+		$('tbl').addEventListener('change', async e => {
+			if (!e.target.dataset.id) return;
+			try { await api('/api/admin/tickets/' + e.target.dataset.id, { method: 'PATCH', body: JSON.stringify({ status: e.target.value }) }); toast('Status updated'); load(); }
+			catch (err) { toast(err.message, true); }
+		});
+		['q', 'st'].forEach(id => $(id).addEventListener('input', draw));
+		$('exportBtn').addEventListener('click', () => downloadCsv('tickets.csv', view));
+		load();
+	</script>
+</AdminLayout>

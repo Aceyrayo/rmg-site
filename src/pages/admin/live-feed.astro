@@ -1,0 +1,15 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Live Activity Feed">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+let paused = false; const app = document.getElementById('app');
+app.innerHTML = pageHead('Live Activity Feed','Logins, admin actions and public API traffic · refreshes every 4s','<button id="pz" class="btn">Pause</button>') + '<div id="term" class="mt-6 bg-slate-950 border border-slate-800 rounded-xl p-4 h-[65vh] overflow-y-auto font-mono text-xs space-y-1"></div>';
+const col = { audit:'text-blue-400', req:'text-slate-300', error:'text-red-400' };
+async function tick() { if (paused) return; try { const ev = await api('/api/admin/feed');
+ document.getElementById('term').innerHTML = ev.length ? ev.map(e => `<p><span class="text-slate-500">[${esc(e.t)}]</span> <span class="${col[e.kind]}">${esc(e.msg)}</span></p>`).join('') : '<p class="text-slate-500">Waiting for activity…</p>'; } catch (e) {} }
+document.getElementById('pz').onclick = e => { paused = !paused; e.target.textContent = paused ? 'Resume' : 'Pause'; };
+tick(); setInterval(tick, 4000);
+	</script>
+</AdminLayout>

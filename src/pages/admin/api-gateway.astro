@@ -1,0 +1,10 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="API Gateway">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+listPage({ title:'API Gateway', url:'/api/admin/routes', sub:'routes', file:'routes', poll:15000,
+ cols:[{h:'Method',f:r=>badge(r.method,{GET:'green',POST:'blue',PUT:'amber',PATCH:'amber',DELETE:'red'}[r.method]||'slate')},{h:'Path',f:r=>'<span class="font-mono text-xs">'+esc(r.path)+'</span>'},{h:'Access',f:r=>badge(r.scope,r.scope==='Admin'?'red':'slate')},{h:'Calls',f:r=>r.calls},{h:'Errors',f:r=>r.errors?'<span class="text-red-500 font-semibold">'+r.errors+'</span>':0},{h:'Avg latency',f:r=>r.avg_ms+' ms'}] });
+	</script>
+</AdminLayout>

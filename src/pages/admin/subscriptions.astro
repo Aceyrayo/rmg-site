@@ -1,0 +1,11 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Subscriptions">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'subscription', title:'Subscriptions', noun:'Subscription', status:'status', sub:'Client plans',
+ fields:[{k:'client',l:'Client',t:'user'},{k:'plan',l:'Plan',t:'select',o:['Starter','Professional','Enterprise']},{k:'price',l:'Monthly price (USD)',t:'number',req:1},{k:'renewal',l:'Renewal date',t:'date'},{k:'status',l:'Status',t:'select',o:['Active','Past Due','Cancelled']}],
+ cols:[{k:'client',l:'Client'},{k:'plan',l:'Plan'},{k:'price',l:'Price'},{k:'renewal',l:'Renews'},{k:'status',l:'Status'}] });
+	</script>
+</AdminLayout>

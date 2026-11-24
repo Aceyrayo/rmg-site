@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="System Updates">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+crudPage({ kind:'update', title:'System Updates', noun:'Update', status:'status', sub:'Release schedule',
+ fields:[{k:'version',l:'Version',req:1,p:'v2.5.0'},{k:'title',l:'Title',req:1},{k:'type',l:'Type',t:'select',o:['Feature','Security','Hotfix']},{k:'scheduled',l:'Scheduled',t:'date'},{k:'status',l:'Status',t:'select',o:['Planned','Deploying','Released','Cancelled']},{k:'notes',l:'Release notes',t:'textarea'}],
+ cols:[{k:'version',l:'Version'},{k:'title',l:'Title'},{k:'type',l:'Type'},{k:'scheduled',l:'Scheduled'},{k:'status',l:'Status'}],
+ actions:[{label:'Mark released',run:r=>patchRec('update',r.id,{status:'Released'})}] });
+	</script>
+</AdminLayout>

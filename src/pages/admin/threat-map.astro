@@ -1,0 +1,21 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Global Threat Map">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app = document.getElementById('app');
+async function render() { try {
+ const reqs = await api('/api/admin/requests?limit=1000'); const bad = reqs.filter(r => [401,403,429].includes(r.status) || r.error === 'firewall' || (r.path === '/api/login' && r.status === 400));
+ const cnt = (arr, f) => Object.entries(arr.reduce((m, r) => (m[f(r)] = (m[f(r)] || 0) + 1, m), {})).sort((a, b) => b[1] - a[1]).slice(0, 10);
+ const ips = cnt(bad, r => r.ip), paths = cnt(bad, r => r.path), max = Math.max(1, ...ips.map(i => i[1]));
+ app.innerHTML = pageHead('Global Threat Map','Hostile traffic: failed logins, denied and blocked requests','<button id="rf" class="btn">Refresh</button>') + `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">${stat('Suspicious requests',bad.length,bad.length?'text-amber-500':'')}${stat('Unique source IPs',new Set(bad.map(r=>r.ip)).size)}${stat('Blocked by firewall',bad.filter(r=>r.error==='firewall').length)}${stat('Failed logins',bad.filter(r=>r.path==='/api/login').length)}</div>
+ <div class="grid lg:grid-cols-3 gap-6 mt-6"><div class="lg:col-span-2 card"><div class="p-5 font-bold text-slate-900 dark:text-white">Top offending IPs</div><div id="ipt" class="overflow-x-auto"></div></div>${panel('Most targeted endpoints',bars(paths))}</div>`;
+ table(document.getElementById('ipt'), [{h:'IP',f:r=>'<span class="font-mono text-xs">'+esc(r[0])+'</span>'},{h:'Hits',f:r=>`<div class="flex items-center gap-2"><div class="h-2 rounded bg-red-500" style="width:${r[1]/max*120}px"></div><b>${r[1]}</b></div>`},{h:'',f:r=>`<div class="text-right"><button class="btn btn-d" data-ip="${esc(r[0])}">Block IP</button></div>`}], ips);
+ document.getElementById('rf').onclick = render;
+ document.getElementById('ipt').onclick = async e => { const b = e.target.closest('[data-ip]'); if (!b || !confirm('Block ' + b.dataset.ip + '?')) return;
+  try { await api('/api/admin/records/firewall', { method: 'POST', body: JSON.stringify({ data: { ip: b.dataset.ip, action: 'Block', note: 'Added from Threat Map', status: 'Active' } }) }); toast('IP blocked'); } catch (err) { toast(err.message, true); } };
+ } catch (e) { toast(e.message, true); } }
+render();
+	</script>
+</AdminLayout>

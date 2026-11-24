@@ -1,0 +1,18 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Roles & Permissions">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app = document.getElementById('app'); const Y = '<span class="text-emerald-500 font-bold">✓</span>', N = '<span class="text-slate-300 dark:text-slate-600">—</span>';
+const MATRIX = [['View own portal, profile & billing',1,1],['Submit support tickets',1,1],['View all users & roles',0,1],['Verify / delete accounts',0,1],['Manage tickets, invoices & inbox',0,1],['Send broadcasts & announcements',0,1],['Firewall, keys & infrastructure',0,1],['View audit trail & logs',0,1]];
+async function render() { try { const users = await api('/api/admin/users');
+ app.innerHTML = pageHead('Roles & Permissions','Two roles are enforced by the API: client and admin') + `<div class="grid grid-cols-2 gap-4 mt-6">${stat('Admins',users.filter(u=>u.role==='admin').length)}${stat('Clients',users.filter(u=>u.role==='client').length)}</div>
+ <div class="card mt-6"><div id="mx" class="overflow-x-auto"></div></div><div class="card mt-6"><div class="p-5 font-bold text-slate-900 dark:text-white">Assign roles</div><div id="us" class="overflow-x-auto"></div></div>`;
+ table(document.getElementById('mx'), [{h:'Capability',f:r=>r[0]},{h:'Client',f:r=>r[1]?Y:N},{h:'Admin',f:r=>r[2]?Y:N}], MATRIX);
+ table(document.getElementById('us'), [{h:'User',f:u=>'<b>'+esc(u.first_name+' '+u.last_name)+'</b><div class="text-xs text-slate-500">'+esc(u.email)+'</div>'},{h:'Role',f:u=>`<select class="inp !py-1 !w-auto" data-id="${u.id}">${['client','admin'].map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select>`}], users);
+ document.getElementById('us').onchange = async e => { try { await api('/api/admin/users/' + e.target.dataset.id, { method: 'PATCH', body: JSON.stringify({ role: e.target.value }) }); toast('Role updated'); render(); } catch (err) { toast(err.message, true); render(); } };
+ } catch (e) { toast(e.message, true); } }
+render();
+	</script>
+</AdminLayout>
