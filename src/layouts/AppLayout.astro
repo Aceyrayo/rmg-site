@@ -1,14 +1,13 @@
 ---
 import '../styles/global.css';
-import chatbot from '../components/chatbot.astro';
+import chatbot from '../components/chatbot.astro'; // Ensure this is lowercase!
 const { title } = Astro.props;
-
 ---
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>{title} | RMG App</title>
 		<script is:inline>
 			if (localStorage.getItem('rmg_theme') === 'dark' || (!('rmg_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -20,10 +19,13 @@ const { title } = Astro.props;
 	</head>
 	<body class="bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-200 font-sans antialiased flex h-screen overflow-hidden selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-200">
 		
+		<!-- MOBILE OVERLAY (Closes sidebar when clicked) -->
+		<div id="mobileOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
 		<!-- SIDEBAR -->
-		<aside class="w-[260px] bg-white dark:bg-[#080b12] border-r border-slate-200 dark:border-slate-800 flex flex-col h-screen shrink-0 hidden md:flex transition-colors duration-200">
+		<aside id="sidebar" class="w-[260px] bg-white dark:bg-[#080b12] border-r border-slate-200 dark:border-slate-800 flex flex-col h-screen shrink-0 fixed md:relative inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
 			<!-- Workspace Selector -->
-			<div class="h-16 flex items-center px-4 border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors">
+			<div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800">
 				<div class="flex items-center gap-3 w-full">
 					<div class="w-8 h-8 rounded bg-slate-900 dark:bg-white flex items-center justify-center text-white dark:text-slate-900 font-bold">
 						<svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,13 +37,16 @@ const { title } = Astro.props;
 						<p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">RMG Workspace</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">Enterprise</p>
 					</div>
+					<!-- Close button for mobile -->
+					<button class="md:hidden text-slate-500 hover:text-slate-900 dark:hover:text-white" onclick="toggleSidebar()">
+						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+					</button>
 				</div>
 			</div>
 			
 			<!-- Navigation -->
-						<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+			<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
 				
-				<!-- 1. MAIN -->
 				<div>
 					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Main</p>
 					<div class="space-y-0.5">
@@ -50,73 +55,43 @@ const { title } = Astro.props;
 					</div>
 				</div>
 
-				<!-- 2. RMG DIVISIONS -->
 				<div>
 					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">RMG Divisions</p>
 					<div class="space-y-0.5">
 						<a href="/portal/trading" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Systems</a>
-						<a href="/portal/defence" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
+						<a href="/portal/defense" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
 						<a href="/portal/enterprise" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Tools</a>
 					</div>
 				</div>
 
-				<!-- 3. DATA & INTELLIGENCE -->
 				<div>
-					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Intelligence</p>
-					<div class="space-y-0.5">
-						<a href="/portal/market-data" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Live Market Data</a>
-						<a href="/portal/threat-intel" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Threat Intelligence</a>
-						<a href="/portal/analytics" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Analytics & Reports</a>
-						<a href="/portal/logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Logs</a>
-					</div>
-				</div>
-
-				<!-- 4. ACCOUNT & SECURITY -->
-				<div>
-					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Security</p>
+					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Account</p>
 					<div class="space-y-0.5">
 						<a href="/portal/api-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Credentials</a>
 						<a href="/portal/security" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Security Center</a>
 						<a href="/portal/team" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Team Management</a>
-						<a href="/portal/audit-logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Audit Logs</a>
-						<a href="/portal/roles" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Roles & Permissions</a>
 					</div>
 				</div>
 
-				<!-- 5. MANAGE -->
 				<div>
 					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Manage</p>
 					<div class="space-y-0.5">
-						<a href="/portal/billing" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Billing & Plans</a>
+						<a href="/portal/billing" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Billing</a>
 						<a href="/portal/support" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
 						<a href="/portal/settings" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Account Settings</a>
-						<a href="/portal/webhooks" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Webhooks</a>
-						<a href="/portal/integrations" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Integrations</a>
-						<a href="/portal/api-docs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Documentation</a>
-						<a href="/portal/status" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Status</a>
 					</div>
 				</div>
 			</nav>
 
-
-
-
-			<!-- Bottom: User Profile & Dropdown -->
+			<!-- Bottom: User Profile -->
 			<div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 relative">
 				<div id="profileMenu" class="hidden absolute bottom-full left-4 right-4 mb-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl overflow-hidden z-50">
 					<div class="px-4 py-3 border-b border-slate-100 dark:border-slate-700">
 						<p class="text-sm font-bold text-slate-900 dark:text-white truncate" id="menuName">Loading...</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400 truncate" id="menuEmail">loading@email.com</p>
 					</div>
-					<div class="py-1">
-						<a href="/portal/settings" class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
-							<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-							Account settings
-						</a>
-					</div>
 					<div class="border-t border-slate-100 dark:border-slate-700 py-1">
 						<button id="menuLogoutBtn" class="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
 							Sign out
 						</button>
 					</div>
@@ -131,36 +106,54 @@ const { title } = Astro.props;
 							<p id="userNameSidebar" class="text-sm font-bold text-slate-900 dark:text-white truncate">Loading...</p>
 						</div>
 					</div>
-					<svg class="w-4 h-4 text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-200 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path></svg>
 				</button>
 			</div>
 		</aside>
 
 		<!-- MAIN CONTENT AREA -->
-		<div class="flex-1 flex flex-col h-screen overflow-hidden">
+		<div class="flex-1 flex flex-col h-screen overflow-hidden w-full">
 			
 			<!-- Top Bar -->
-			<header class="h-16 bg-white dark:bg-[#080b12] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-8 shrink-0 transition-colors duration-200">
-				<div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-					<span>RMG Portal</span>
-					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-					<span class="text-slate-900 dark:text-white font-semibold">{title}</span>
+			<header class="h-16 bg-white dark:bg-[#080b12] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 transition-colors duration-200">
+				<div class="flex items-center gap-4">
+					<!-- Hamburger Menu (Mobile) -->
+					<button class="md:hidden text-slate-500 hover:text-slate-900 dark:hover:text-white" onclick="toggleSidebar()">
+						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+					</button>
+					<div class="hidden sm:flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+						<span>RMG Portal</span>
+						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+						<span class="text-slate-900 dark:text-white font-semibold">{title}</span>
+					</div>
 				</div>
 				<div class="flex items-center gap-4">
-					<div class="flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
-						<span class="w-2 h-2 rounded-full bg-emerald-500"></span> All systems operational
+					<div class="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
+						<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online
 					</div>
 				</div>
 			</header>
 
 			<!-- Dynamic Page Content -->
-			<main class="flex-1 overflow-y-auto p-8 relative bg-slate-50 dark:bg-[#0b0f19] transition-colors duration-200">
+			<main class="flex-1 overflow-y-auto p-4 md:p-8 relative bg-slate-50 dark:bg-[#0b0f19] transition-colors duration-200">
 				<slot />
 			</main>
 		</div>
 
 		<!-- App Logic -->
 		<script is:inline>
+			// Mobile Sidebar Toggle
+			function toggleSidebar() {
+				const sidebar = document.getElementById('sidebar');
+				const overlay = document.getElementById('mobileOverlay');
+				if (sidebar.classList.contains('-translate-x-full')) {
+					sidebar.classList.remove('-translate-x-full');
+					overlay.classList.remove('hidden');
+				} else {
+					sidebar.classList.add('-translate-x-full');
+					overlay.classList.add('hidden');
+				}
+			}
+
 			document.addEventListener('DOMContentLoaded', () => {
 				const token = localStorage.getItem('rmg_token');
 				const role = localStorage.getItem('rmg_role');
@@ -209,17 +202,16 @@ const { title } = Astro.props;
 				}
 
 				const logout = () => {
-					localStorage.removeItem('rmg_token');
-					localStorage.removeItem('rmg_role');
-					localStorage.removeItem('rmg_name');
-					localStorage.removeItem('rmg_email');
-					window.location.href = '/login';
+					localStorage.clear();
+					window.location.replace('/login');
 				};
 
 				const logoutBtn = document.getElementById('menuLogoutBtn');
 				if (logoutBtn) logoutBtn.addEventListener('click', logout);
 			});
 		</script>
-		<chatbot/>
+
+		<!-- CHATBOT (Placed right before closing body tag) -->
+		<chatbot />
 	</body>
 </html>
