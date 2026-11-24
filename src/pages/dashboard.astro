@@ -1,8 +1,8 @@
 ---
-import AppLayout from '../layouts/AppLayout.astro';
+import AdminLayout from '../layouts/AdminLayout.astro';
 ---
 
-<AppLayout title="Admin Command">
+<AdminLayout title="Admin Command">
 	<div class="max-w-7xl mx-auto space-y-6">
 		
 		<!-- HEADER: Dark Mode Alert -->
@@ -20,14 +20,8 @@ import AppLayout from '../layouts/AppLayout.astro';
 					<p class="text-slate-400 mt-1 text-sm font-mono">Node: US-East-1 | Version: v2.4.1-stable</p>
 				</div>
 				<div class="flex gap-3">
-					<button class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-						Export Logs
-					</button>
-					<button class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-red-900/20">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-						Deploy Update
-					</button>
+					<button id="exportBtn" class="bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 px-4 py-2 rounded-lg text-sm font-semibold transition-colors">Export Audit Log</button>
+					<a href="/admin/broadcast" class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors shadow-lg shadow-red-900/20">Send Broadcast</a>
 				</div>
 			</div>
 		</div>
@@ -54,8 +48,8 @@ import AppLayout from '../layouts/AppLayout.astro';
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
 					</div>
 				</div>
-				<p class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total API Calls (24h)</p>
-				<p class="text-3xl font-bold text-slate-900 dark:text-white">842.1k</p>
+				<p class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Verified Accounts</p>
+				<p id="statVerified" class="text-3xl font-bold text-slate-900 dark:text-white">...</p>
 			</div>
 
 			<!-- Stat 3 -->
@@ -66,7 +60,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 					</div>
 				</div>
 				<p class="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Open Support Tickets</p>
-				<p class="text-3xl font-bold text-slate-900 dark:text-white">3</p>
+				<p id="statTickets" class="text-3xl font-bold text-slate-900 dark:text-white">...</p>
 			</div>
 
 			<!-- Stat 4 -->
@@ -91,7 +85,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 				<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
 					<div class="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
 						<h2 class="text-lg font-bold text-slate-900 dark:text-white">Marketing Inbox</h2>
-						<button id="refreshBtn" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">Refresh</button>
+						<div class="flex gap-4 text-sm font-semibold"><a href="/admin/marketing-inbox" class="text-slate-500 hover:underline">View all</a><button id="refreshBtn" class="text-blue-600 dark:text-blue-400 hover:underline">Refresh</button></div>
 					</div>
 					<div id="messagesList" class="divide-y divide-slate-100 dark:divide-slate-800 max-h-[400px] overflow-y-auto">
 						<div class="p-8 text-center text-slate-500 text-sm animate-pulse">Fetching secure data...</div>
@@ -127,69 +121,36 @@ import AppLayout from '../layouts/AppLayout.astro';
 	</div>
 
 	<script is:inline>
-		const token = localStorage.getItem('rmg_token');
-		const API_URL = 'https://rmg-api-e46k.onrender.com';
-		const messagesList = document.getElementById('messagesList');
-		const statUsers = document.getElementById('statUsers');
-
-		// Fetch Stats
+		const $ = id => document.getElementById(id);
 		async function fetchStats() {
 			try {
-				const res = await fetch(`${API_URL}/api/stats`);
-				const data = await res.json();
-				statUsers.innerText = data.global_users;
-			} catch(e) { statUsers.innerText = "Err"; }
+				const s = await api('/api/admin/stats');
+				$('statUsers').innerText = s.users;
+				$('statVerified').innerText = s.verified;
+				$('statTickets').innerText = s.open_tickets;
+			} catch (e) { $('statUsers').innerText = 'Err'; }
 		}
-
-		// Fetch Messages
 		async function fetchMessages() {
-			messagesList.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm animate-pulse">Fetching data...</div>';
-			
+			$('messagesList').innerHTML = '<div class="p-8 text-center text-slate-500 text-sm animate-pulse">Fetching data...</div>';
 			try {
-				const res = await fetch(`${API_URL}/api/messages`, {
-					headers: { 'Authorization': `Bearer ${token}` }
-				});
-				
-				if (res.status === 401 || res.status === 403) {
-					alert("Admin access required.");
-					window.location.href = '/login';
-					return;
-				}
-
-				const data = await res.json();
-
-				if (data.length === 0) {
-					messagesList.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm">No messages found.</div>';
-					return;
-				}
-
-				messagesList.innerHTML = data.map(msg => `
+				const data = await api('/api/messages');
+				if (!data.length) { $('messagesList').innerHTML = '<div class="p-8 text-center text-slate-500 text-sm">No messages found.</div>'; return; }
+				$('messagesList').innerHTML = data.slice(0, 8).map(m => `
 					<div class="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
 						<div class="flex justify-between items-start mb-2">
-							<div class="flex items-center gap-3">
-								<div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold text-xs">
-									${msg.name.charAt(0).toUpperCase()}
-								</div>
-								<div>
-									<h3 class="text-sm font-bold text-slate-900 dark:text-white">${msg.name}</h3>
-									<a href="mailto:${msg.email}" class="text-xs text-blue-500 hover:underline">${msg.email}</a>
-								</div>
-							</div>
-							<span class="text-[10px] font-mono text-slate-500">#${msg.id}</span>
+							<div><h3 class="text-sm font-bold text-slate-900 dark:text-white">${esc(m.name)}</h3>
+							<a href="mailto:${esc(m.email)}" class="text-xs text-blue-500 hover:underline">${esc(m.email)}</a></div>
+							<span class="text-[10px] font-mono text-slate-500">#${m.id}</span>
 						</div>
-						<p class="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed bg-slate-50 dark:bg-slate-950 p-3 rounded border border-slate-100 dark:border-slate-800">
-							${msg.message}
-						</p>
-					</div>
-				`).join('');
-
-			} catch (error) {
-				messagesList.innerHTML = '<div class="p-8 text-center text-red-500 text-sm">Failed to connect to API.</div>';
-			}
+						<p class="text-sm text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-950 p-3 rounded border border-slate-100 dark:border-slate-800">${esc(m.message)}</p>
+					</div>`).join('');
+			} catch (e) { $('messagesList').innerHTML = '<div class="p-8 text-center text-red-500 text-sm">Failed to load messages.</div>'; }
 		}
-
-		fetchStats();
-		fetchMessages();
-		document.getElementById('refreshBtn').addEventListener('click', fetchMessages);
+		$('exportBtn').addEventListener('click', async () => {
+			try { downloadCsv('audit-log.csv', await api('/api/admin/audit')); toast('Audit log exported'); }
+			catch (e) { toast(e.message, true); }
+		});
+		$('refreshBtn').addEventListener('click', () => { fetchStats(); fetchMessages(); });
+		fetchStats(); fetchMessages();
 	</script>
-</AppLayout>
+</AdminLayout>
