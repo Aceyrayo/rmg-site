@@ -1,9 +1,17 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Analytics">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Analytics & Reports</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Exportable performance metrics.</p></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex items-center justify-center h-64 text-slate-500">Chart Data Loading...</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Analytics & Reports">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+(async()=>{ const app=document.getElementById('app'); try{ const o=await api('/api/me/overview');
+ app.innerHTML=pageHead('Analytics & Reports','Performance metrics from your own account data','<button id="csv" class="btn">Export CSV</button><button id="pdf" class="btn btn-p">Print / PDF</button>')+`
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">${stat('Running bots',o.bots.running,'text-emerald-500')}${stat('Active API keys',o.keys.active)}${stat('API calls (all keys)',o.keys.calls.toLocaleString())}${stat('Open tickets',o.tickets.open,o.tickets.open?'text-amber-500':'')}</div>
+ <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">${stat('Total billed',money(o.invoices.total))}${stat('Invoices',o.invoices.count)}${stat('Team members',o.team)}${stat('Failed logins',o.failed_logins,o.failed_logins?'text-red-500':'')}</div>
+ <div class="grid md:grid-cols-2 gap-6 mt-6">${panel('Account activity (last 14 days)',bars(o.activity_by_day.map(([d,n])=>[d.slice(5),n])))}${panel('Tickets by category',bars(o.tickets.by_category))}${panel('Tickets by status',bars(o.tickets.by_status))}${panel('Workspace inventory',bars([['Bots',o.bots.total],['Webhooks',o.webhooks],['Integrations',o.integrations],['CRM contacts',o.crm],['Vault files',o.vault]]))}</div>`;
+ const rows=[['Running bots',o.bots.running],['Paused bots',o.bots.paused],['Stopped bots',o.bots.stopped],['Active API keys',o.keys.active],['API calls',o.keys.calls],['Open tickets',o.tickets.open],['Total tickets',o.tickets.total],['Invoices',o.invoices.count],['Total billed (USD)',o.invoices.total],['Team members',o.team],['Failed logins',o.failed_logins]].map(([metric,value])=>({metric,value}));
+ document.getElementById('csv').onclick=()=>downloadCsv('rmg-analytics.csv',rows);
+ document.getElementById('pdf').onclick=()=>printTable('RMG Analytics Report',['metric','value'],rows);
+ }catch(e){toast(e.message,true);} })();
+	</script>
+</PortalLayout>

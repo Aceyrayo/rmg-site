@@ -1,11 +1,11 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Audit Logs">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Audit Logs</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Track every action taken by your users.</p></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-			<table class="w-full text-left text-sm"><thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 border-b dark:border-slate-800"><tr><th class="p-4">User</th><th class="p-4">Action</th><th class="p-4">Time</th></tr></thead><tbody class="dark:text-slate-400"><tr><td class="p-4 font-bold text-slate-900 dark:text-white">You</td><td class="p-4">Logged in</td><td class="p-4">Just now</td></tr></tbody></table>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Audit Logs">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const col=a=>/FAILED|DELETE|REVOKED/.test(a)?'red':/^LOGIN/.test(a)?'green':/CREATE|UPLOAD/.test(a)?'blue':'slate';
+listPage({ title:'Audit Logs', url:'/api/me/activity?limit=500', sub:'events on your account', file:'audit-logs', poll:20000,
+ cols:[{h:'Time (UTC)',f:r=>'<span class="font-mono text-xs text-slate-500">'+esc(r.time)+'</span>'},{h:'Action',f:r=>badge(r.action.replace(/_/g,' '),col(r.action))},{h:'Detail',f:r=>'<span class="text-slate-600 dark:text-slate-400">'+esc(r.detail)+'</span>'}] });
+	</script>
+</PortalLayout>

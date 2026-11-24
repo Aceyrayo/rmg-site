@@ -1,78 +1,28 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-
-<AppLayout title="Billing">
-	<div class="max-w-4xl mx-auto space-y-8">
-		
-		<div>
-			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Billing & Plans</h1>
-			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your subscription and view invoices.</p>
-		</div>
-
-		<!-- Current Plan -->
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-			<div>
-				<div class="flex items-center gap-3 mb-2">
-					<h2 class="text-xl font-bold text-slate-900 dark:text-white">Enterprise Plan</h2>
-					<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">Active</span>
-				</div>
-				<p class="text-slate-500 dark:text-slate-400 text-sm">Unlimited API calls, priority support, and custom SLAs.</p>
-			</div>
-			<div class="text-left md:text-right">
-				<p class="text-3xl font-bold text-slate-900 dark:text-white">$299<span class="text-sm text-slate-500 dark:text-slate-400 font-normal">/mo</span></p>
-				<p class="text-xs text-slate-400 dark:text-slate-500 mt-1">Next billing date: Nov 28, 2026</p>
-			</div>
-		</div>
-
-		<!-- Billing History -->
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
-			<div class="p-6 border-b border-slate-200 dark:border-slate-800">
-				<h2 class="text-lg font-bold text-slate-900 dark:text-white">Invoice History</h2>
-			</div>
-			<div id="invoiceList" class="divide-y divide-slate-100 dark:divide-slate-800">
-				<div class="p-6 text-center text-slate-500 dark:text-slate-400 text-sm animate-pulse">Loading invoices...</div>
-			</div>
-		</div>
-	</div>
-
+<PortalLayout title="Billing">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
 	<script is:inline>
-		const token = localStorage.getItem('rmg_token');
-		const API_URL = 'https://rmg-api-e46k.onrender.com';
-		const invoiceList = document.getElementById('invoiceList');
-
-		async function fetchInvoices() {
-			try {
-				const res = await fetch(`${API_URL}/api/invoices`, {
-					headers: { 'Authorization': `Bearer ${token}` }
-				});
-				const data = await res.json();
-
-				if (data.length === 0) {
-					invoiceList.innerHTML = '<div class="p-6 text-center text-slate-500 dark:text-slate-400 text-sm">No invoices found.</div>';
-					return;
-				}
-
-				invoiceList.innerHTML = data.map(inv => `
-					<div class="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-						<div class="flex items-center gap-4">
-							<div class="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400">
-								<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-							</div>
-							<div>
-								<p class="text-sm font-bold text-slate-900 dark:text-white">Invoice #${inv.invoice_number}</p>
-								<p class="text-xs text-slate-500 dark:text-slate-400">${inv.date}</p>
-							</div>
-						</div>
-						<div class="flex items-center gap-6">
-							<p class="text-sm font-semibold text-slate-900 dark:text-white">${inv.amount}</p>
-							<button class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">Download PDF</button>
-						</div>
-					</div>
-				`).join('');
-			} catch(e) { console.error(e); }
-		}
-		
-		fetchInvoices();
+const app=document.getElementById('app'); let invs=[],sub=null,prof={};
+const PLANS=[{n:'Starter',p:49,d:'For individuals getting started'},{n:'Professional',p:149,d:'Teams, API access, email support'},{n:'Enterprise',p:299,d:'Unlimited API calls, priority support, custom SLAs'}];
+const g=id=>document.getElementById(id);
+function inv(i){ return {Invoice:i.invoice_number,Date:i.date,Amount:i.amount}; }
+function printInvoice(i){ const w=window.open('','_blank'); if(!w)return toast('Allow pop-ups to download',true);
+ w.document.write(`<html><head><title>Invoice ${esc(i.invoice_number)}</title><style>body{font-family:system-ui,sans-serif;padding:48px;color:#0f172a;max-width:720px;margin:auto}h1{margin:0}.r{display:flex;justify-content:space-between}hr{border:0;border-top:1px solid #e2e8f0;margin:24px 0}.t{font-size:28px;font-weight:700}small{color:#64748b}</style></head><body><div class="r"><div><h1>RMG Technologies</h1><small>support@rmgtechnologies.com</small></div><div style="text-align:right"><h2 style="margin:0">INVOICE</h2><small>#${esc(i.invoice_number)}</small></div></div><hr><div class="r"><div><small>Billed to</small><br><b>${esc((prof.first_name||'')+' '+(prof.last_name||''))}</b><br>${esc(prof.company_name||'')}<br>${esc(prof.email||'')}</div><div style="text-align:right"><small>Date</small><br><b>${esc(i.date)}</b></div></div><hr><div class="r"><span>${esc(sub?sub.plan+' plan':'RMG services')}</span><span class="t">${esc(i.amount)}</span></div><hr><small>Thank you for your business.</small></body></html>`);
+ w.document.close(); w.focus(); setTimeout(()=>w.print(),300); }
+function draw(){ const total=invs.reduce((s,i)=>s+(parseFloat(String(i.amount).replace(/[^0-9.]/g,''))||0),0);
+ g('plan').innerHTML=sub?`<div class="card p-6 flex flex-col md:flex-row justify-between gap-6"><div><div class="flex items-center gap-3 mb-2"><h2 class="text-xl font-bold text-slate-900 dark:text-white">${esc(sub.plan)} Plan</h2>${badge(sub.status,statusColor(sub.status))}</div><p class="text-sm text-slate-500">${esc((PLANS.find(p=>p.n===sub.plan)||{}).d||'')}</p></div><div class="md:text-right"><p class="text-3xl font-bold text-slate-900 dark:text-white">${money(sub.price).replace('.00','')}<span class="text-sm text-slate-500 font-normal">/mo</span></p><p class="text-xs text-slate-400 mt-1">${sub.renewal?'Renews '+esc(sub.renewal):''}</p></div></div>`
+  :'<div class="card p-6 text-sm text-slate-500">No active subscription on file yet. Choose a plan below and our team will activate it.</div>';
+ g('plans').innerHTML=PLANS.map(p=>`<div class="card p-5 ${sub&&sub.plan===p.n?'ring-2 ring-blue-500':''}"><h3 class="font-bold text-slate-900 dark:text-white">${p.n}</h3><p class="text-2xl font-bold my-1 text-slate-900 dark:text-white">$${p.p}<span class="text-xs text-slate-500 font-normal">/mo</span></p><p class="text-xs text-slate-500 mb-4">${p.d}</p>${sub&&sub.plan===p.n?'<span class="text-xs font-bold text-blue-500">Current plan</span>':`<button class="btn btn-p w-full" data-plan="${p.n}">${sub?'Request change':'Request plan'}</button>`}</div>`).join('');
+ const q=g('q').value.toLowerCase(); const rows=invs.filter(i=>(i.invoice_number+i.date+i.amount).toLowerCase().includes(q));
+ g('sum').textContent=`${invs.length} invoices · ${money(total)} total`;
+ table(g('tbl'),[{h:'Invoice',f:i=>'<span class="font-mono font-semibold">#'+esc(i.invoice_number)+'</span>'},{h:'Date',f:i=>esc(i.date)},{h:'Amount',f:i=>'<b>'+esc(i.amount)+'</b>'},{h:'',f:i=>`<div class="text-right"><button class="btn" data-pdf="${i.id}">Download PDF</button></div>`}],rows); }
+app.innerHTML=pageHead('Billing & Plans','Manage your subscription and view invoices','<button id="ex" class="btn">Export CSV</button>')+'<div id="plan" class="mt-6"></div><h2 class="text-lg font-bold text-slate-900 dark:text-white mt-8 mb-3">Plans</h2><div id="plans" class="grid md:grid-cols-3 gap-4"></div><div class="card mt-8"><div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-3 items-center justify-between"><input id="q" class="inp sm:max-w-xs" placeholder="Search invoices…"><span id="sum" class="text-sm text-slate-500"></span></div><div id="tbl" class="overflow-x-auto"></div></div>';
+(async()=>{ try{ [invs,sub,prof]=await Promise.all([api('/api/invoices'),api('/api/me/subscription'),api('/api/profile')]); draw(); }catch(e){toast(e.message,true);} })();
+g('q').oninput=draw; g('ex').onclick=()=>downloadCsv('invoices.csv',invs.map(inv));
+app.onclick=async e=>{ const b=e.target.closest('button'); if(!b)return;
+ if(b.dataset.pdf) printInvoice(invs.find(i=>i.id==b.dataset.pdf));
+ if(b.dataset.plan){ if(!confirm('Send a request to switch to the '+b.dataset.plan+' plan?'))return; try{ await api('/api/tickets',{method:'POST',body:JSON.stringify({subject:'Plan change request: '+b.dataset.plan,category:'Billing Question',description:'Please move my account to the '+b.dataset.plan+' plan.'})}); toast('Request sent — our billing team will confirm shortly'); }catch(err){toast(err.message,true);} } };
 	</script>
-</AppLayout>
+</PortalLayout>

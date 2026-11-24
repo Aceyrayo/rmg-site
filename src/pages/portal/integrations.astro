@@ -1,14 +1,22 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Integrations">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Integrations</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Connect RMG to your favorite tools.</p></div>
-		<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm text-center font-bold text-slate-400">Slack</div>
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm text-center font-bold text-slate-400">Discord</div>
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm text-center font-bold text-slate-400">Zapier</div>
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm text-center font-bold text-slate-400">GitHub</div>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Integrations">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app=document.getElementById('app'),g=id=>document.getElementById(id),B='/api/me/records/integration'; let recs=[],cur=null;
+const P=[{n:'Slack',d:'Post RMG events to a Slack channel.',h:'Slack → Apps → Incoming Webhooks → copy the Webhook URL.',i:'💬'},{n:'Discord',d:'Send alerts to a Discord channel.',h:'Channel settings → Integrations → Webhooks → Copy Webhook URL.',i:'🎮'},{n:'Microsoft Teams',d:'Notify a Teams channel.',h:'Channel → Connectors/Workflows → Incoming Webhook → copy URL.',i:'👥'},{n:'Zapier',d:'Trigger any Zap with a JSON payload.',h:'Zapier → Webhooks by Zapier → Catch Hook → copy the custom URL.',i:'⚡'}];
+app.innerHTML=pageHead('Integrations','Connect RMG to your favorite tools — events are pushed in real time')+'<div id="grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6"></div><p class="text-xs text-slate-500 mt-4">Events sent: ticket.created, bot.created / deployed / paused / stopped, key.created / revoked, member.invited, vault.uploaded, security.updated, sessions.revoked.</p><dialog id="dlg" class="card p-0 w-full max-w-lg backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200"><form id="frm" class="p-6 space-y-4"><h2 id="dt" class="text-lg font-bold"></h2><p id="hint" class="text-sm text-slate-500"></p><input id="url" type="url" required class="inp" placeholder="https://…"><div class="flex justify-end gap-2"><button type="button" id="cx" class="btn">Cancel</button><button class="btn btn-p">Connect</button></div></form></dialog>';
+function draw(){ g('grid').innerHTML=P.map(p=>{const r=recs.find(x=>x.provider===p.n); return `<div class="card p-6"><div class="flex justify-between items-start mb-3"><div class="text-3xl">${p.i}</div>${r?badge('Connected','green'):badge('Not connected','slate')}</div><h3 class="font-bold text-slate-900 dark:text-white">${p.n}</h3><p class="text-sm text-slate-500 mb-4">${p.d}</p>${r?`<div class="flex gap-2 flex-wrap"><button class="btn" data-test="${r.id}">Send test</button><button class="btn" data-edit="${p.n}">Change URL</button><button class="btn btn-d" data-rm="${r.id}">Disconnect</button></div>`:`<button class="btn btn-p w-full" data-edit="${p.n}">Connect</button>`}</div>`;}).join('')
+ +`<div class="card p-6 opacity-70"><div class="flex justify-between items-start mb-3"><div class="text-3xl">🐙</div>${badge('Coming soon','amber')}</div><h3 class="font-bold text-slate-900 dark:text-white">GitHub</h3><p class="text-sm text-slate-500">Requires OAuth app approval — in progress.</p></div>`; }
+async function load(){ try{ recs=await api(B); draw(); }catch(e){toast(e.message,true);} }
+g('cx').onclick=()=>g('dlg').close();
+g('frm').onsubmit=async e=>{ e.preventDefault(); const r=recs.find(x=>x.provider===cur);
+ try{ if(r) await patchRec('integration',r.id,{url:g('url').value},'/api/me/records'); else await api(B,{method:'POST',body:JSON.stringify({data:{provider:cur,name:cur,url:g('url').value}})}); g('dlg').close(); toast(cur+' connected'); load(); }catch(err){toast(err.message,true);} };
+app.onclick=async e=>{ const b=e.target.closest('button'); if(!b)return; try{
+ if(b.dataset.edit){ cur=b.dataset.edit; const p=P.find(x=>x.n===cur); g('dt').textContent='Connect '+cur; g('hint').textContent=p.h; g('url').value=''; g('dlg').showModal(); }
+ if(b.dataset.test){ const x=await api('/api/me/integrations/'+b.dataset.test+'/test',{method:'POST'}); toast(x.ok?'Test delivered ✓':'Failed: '+(x.error||x.status),!x.ok); }
+ if(b.dataset.rm){ if(!confirm('Disconnect this integration?'))return; await api(B+'/'+b.dataset.rm,{method:'DELETE'}); toast('Disconnected'); load(); } }catch(err){toast(err.message,true);} };
+load();
+	</script>
+</PortalLayout>

@@ -1,13 +1,19 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="System Logs">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">System Logs</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Real-time server events and API errors.</p></div>
-		<div class="bg-slate-950 rounded-xl p-6 font-mono text-sm text-emerald-400 border border-slate-800 h-96 overflow-y-auto">
-			<p>[INFO] System initialized...</p>
-			<p>[INFO] Auth layer active...</p>
-			<p>[WARN] Awaiting live traffic...</p>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="System Logs">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+let all=[],paused=false,lvl='ALL'; const app=document.getElementById('app');
+const level=a=>/FAILED/.test(a)?'ERROR':/DELETE|REVOKED|UPDATE/.test(a)?'WARN':'INFO'; const C={INFO:'text-emerald-400',WARN:'text-amber-400',ERROR:'text-red-400'};
+app.innerHTML=pageHead('System Logs','Real-time account & API events · refreshes every 5s','<button id="pz" class="btn">Pause</button><button id="dl" class="btn">Download .log</button>')+'<div class="flex gap-2 mt-6" id="lv"></div><div id="term" class="mt-3 bg-slate-950 border border-slate-800 rounded-xl p-4 h-[60vh] overflow-y-auto font-mono text-xs space-y-1"></div>';
+const draw=()=>{ document.getElementById('lv').innerHTML=['ALL','INFO','WARN','ERROR'].map(l=>`<button class="btn ${l===lvl?'btn-p':''}" data-l="${l}">${l}</button>`).join('');
+ const rows=all.map(a=>({...a,lv:level(a.action)})).filter(a=>lvl==='ALL'||a.lv===lvl);
+ document.getElementById('term').innerHTML=rows.length?rows.map(a=>`<p><span class="text-slate-500">[${esc(a.time)}]</span> <span class="${C[a.lv]}">${a.lv.padEnd(5)}</span> <span class="text-slate-300">${esc(a.action)} ${esc(a.detail)}</span></p>`).join(''):'<p class="text-slate-500">No events yet.</p>'; };
+async function tick(){ if(paused)return; try{ all=await api('/api/me/activity?limit=300'); draw(); }catch(e){} }
+document.getElementById('lv').onclick=e=>{const b=e.target.closest('[data-l]'); if(b){lvl=b.dataset.l;draw();}};
+document.getElementById('pz').onclick=e=>{paused=!paused;e.target.textContent=paused?'Resume':'Pause';};
+document.getElementById('dl').onclick=()=>{const t=all.map(a=>`[${a.time}] ${level(a.action)} ${a.action} ${a.detail}`).join('\n'); const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'})); a.download='rmg-system.log'; a.click();};
+tick(); setInterval(tick,5000);
+	</script>
+</PortalLayout>

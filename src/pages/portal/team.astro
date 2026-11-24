@@ -1,9 +1,13 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Team Management">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div class="flex justify-between items-end"><div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Team Management</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Invite colleagues to your workspace.</p></div><button class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-semibold px-4 py-2 rounded-lg text-sm shadow-sm">+ Invite Member</button></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm text-center text-slate-500">No team members added yet.</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Team Management">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const ROLES=['Admin','Developer','Read-Only'];
+crudPage({ base:'/api/me/records', kind:'team', title:'Team Management', noun:'Member', status:'status', sub:'Invite colleagues — they receive an email invitation',
+ fields:[{k:'name',l:'Full name',req:1},{k:'email',l:'Email',t:'email',req:1},{k:'role',l:'Role',t:'select',o:ROLES},{k:'status',l:'Status',t:'select',o:['Invited','Active','Suspended'],edit:1}],
+ cols:[{k:'name',l:'Member',f:r=>'<b>'+esc(r.name)+'</b><div class="text-xs text-slate-500">'+esc(r.email)+'</div>'},{k:'role',l:'Role',f:r=>badge(r.role,r.role==='Admin'?'red':r.role==='Developer'?'blue':'slate')},{k:'status',l:'Status'},{k:'created_at',l:'Added'}],
+ actions:[{label:'Resend invite',run:async r=>{await api('/api/me/records/team/'+r.id,{method:'PATCH',body:JSON.stringify({data:{status:'Invited'}})}); toast('Invite re-sent');}}] });
+	</script>
+</PortalLayout>

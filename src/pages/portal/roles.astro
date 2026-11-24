@@ -1,9 +1,17 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Roles & Permissions">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Roles & Permissions</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Control what your users can access.</p></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm text-slate-500">Admin, Developer, and Read-Only roles are available.</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Roles & Permissions">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app=document.getElementById('app'); const Y='<span class="text-emerald-500 font-bold">✓</span>',N='<span class="text-slate-300 dark:text-slate-600">—</span>';
+const MX=[['View dashboards & reports',1,1,1],['Manage trading bots',1,1,0],['Create & revoke API keys',1,1,0],['Manage webhooks & integrations',1,1,0],['Invite & manage team members',1,0,0],['View billing & invoices',1,0,1],['Security policy & sessions',1,0,0]];
+async function render(){ try{ const t=await api('/api/me/records/team'); const c=r=>t.filter(x=>x.role===r).length;
+ app.innerHTML=pageHead('Roles & Permissions','What each role can do in your workspace')+`<div class="grid grid-cols-3 gap-4 mt-6">${stat('Admins',c('Admin'))}${stat('Developers',c('Developer'))}${stat('Read-Only',c('Read-Only'))}</div><div class="card mt-6"><div id="mx" class="overflow-x-auto"></div></div><div class="card mt-6"><div class="p-5 font-bold text-slate-900 dark:text-white">Assign roles</div><div id="us" class="overflow-x-auto"></div></div>`;
+ table(document.getElementById('mx'),[{h:'Capability',f:r=>r[0]},{h:'Admin',f:r=>r[1]?Y:N},{h:'Developer',f:r=>r[2]?Y:N},{h:'Read-Only',f:r=>r[3]?Y:N}],MX);
+ table(document.getElementById('us'),[{h:'Member',f:u=>'<b>'+esc(u.name)+'</b><div class="text-xs text-slate-500">'+esc(u.email)+'</div>'},{h:'Status',f:u=>badge(u.status,statusColor(u.status))},{h:'Role',f:u=>`<select class="inp !py-1 !w-auto" data-id="${u.id}">${['Admin','Developer','Read-Only'].map(r=>`<option ${r===u.role?'selected':''}>${r}</option>`).join('')}</select>`}],t);
+ document.getElementById('us').onchange=async e=>{ try{ await patchRec('team',e.target.dataset.id,{role:e.target.value},'/api/me/records'); toast('Role updated'); render(); }catch(err){toast(err.message,true);} };
+ if(!t.length) document.getElementById('us').innerHTML='<div class="p-10 text-center text-sm text-slate-500">No members yet. <a class="text-blue-500 hover:underline" href="/portal/team">Invite your first colleague →</a></div>';
+ }catch(e){toast(e.message,true);} } render();
+	</script>
+</PortalLayout>

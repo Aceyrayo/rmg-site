@@ -1,15 +1,28 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Live Market Data">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Live Market Data</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Real-time crypto and forex feeds.</p></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm">
-			<div class="h-96 bg-slate-50 dark:bg-slate-950 rounded-lg flex flex-col items-center justify-center border border-slate-200 dark:border-slate-800">
-				<svg class="w-12 h-12 text-slate-400 mb-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-				<p class="text-slate-500 font-medium">Connecting to market feeds...</p>
-				<p class="text-xs text-slate-400 mt-2">Once connected, your live charts will appear here.</p>
-			</div>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Live Market Data">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app=document.getElementById('app'); let M=null,tab='crypto',watch=JSON.parse(localStorage.getItem('rmg_watch')||'[]'),left=30;
+app.innerHTML=pageHead('Live Market Data','Crypto prices and forex rates · refreshes every 30s','<span id="upd" class="text-xs text-slate-500 self-center"></span><button id="rf" class="btn">Refresh</button>')+'<div class="flex flex-wrap gap-2 mt-6" id="tabs"></div><div class="card mt-3"><div class="p-4 border-b border-slate-200 dark:border-slate-800"><input id="q" class="inp sm:max-w-xs" placeholder="Search…"></div><div id="tb" class="overflow-x-auto"></div></div>';
+const g=id=>document.getElementById(id);
+function draw(){ g('tabs').innerHTML=[['crypto','Crypto'],['watch','★ Watchlist'],['forex','Forex'],['conv','Converter']].map(([k,l])=>`<button class="btn ${k===tab?'btn-p':''}" data-t="${k}">${l}</button>`).join('');
+ g('q').parentElement.style.display=tab==='conv'?'none':'';
+ if(!M){ g('tb').innerHTML='<div class="p-10 text-center text-sm text-slate-500 animate-pulse">Loading market data…</div>'; return; }
+ g('upd').textContent=(M.stale?'⚠ cached · ':'')+'updated '+M.updated+' UTC';
+ const q=g('q').value.toLowerCase();
+ if(tab==='crypto'||tab==='watch'){ const rows=M.crypto.filter(c=>(tab==='crypto'||watch.includes(c.id))&&(c.name+c.symbol).toLowerCase().includes(q));
+  table(g('tb'),[{h:'',f:c=>`<button data-w="${c.id}" class="text-lg ${watch.includes(c.id)?'text-amber-400':'text-slate-300'}">★</button>`},{h:'Asset',f:c=>`<b>${esc(c.symbol)}</b> <span class="text-slate-500 text-xs">${esc(c.name)}</span>`},{h:'Price',f:c=>`<b>${price(c.price)}</b>`},{h:'24h',f:c=>chg(c.change_24h)},{h:'High',f:c=>price(c.high)},{h:'Low',f:c=>price(c.low)},{h:'Volume',f:c=>'$'+Number(c.volume||0).toLocaleString('en-US',{notation:'compact'})}],rows);
+  if(!rows.length) g('tb').innerHTML='<div class="p-10 text-center text-sm text-slate-500">'+(tab==='watch'?'Star assets to build your watchlist.':'No matches.')+'</div>'; }
+ else if(tab==='forex'){ const rows=Object.entries(M.forex).filter(([k])=>k.toLowerCase().includes(q)).map(([k,v])=>({k,v}));
+  table(g('tb'),[{h:'Pair',f:r=>`<b>USD/${r.k}</b>`},{h:'Rate',f:r=>r.v.toFixed(r.v>20?2:4)},{h:'Inverse',f:r=>`${r.k}/USD ${(1/r.v).toFixed(r.v>20?5:4)}`}],rows); }
+ else { const cur=['USD',...Object.keys(M.forex)]; const opt=s=>cur.map(c=>`<option ${c===s?'selected':''}>${c}</option>`).join('');
+  g('tb').innerHTML=`<div class="p-6 grid sm:grid-cols-4 gap-3 items-end"><div><label class="text-xs font-semibold text-slate-500">Amount</label><input id="cv-a" type="number" value="1000" class="inp"></div><div><label class="text-xs font-semibold text-slate-500">From</label><select id="cv-f" class="inp">${opt('USD')}</select></div><div><label class="text-xs font-semibold text-slate-500">To</label><select id="cv-t" class="inp">${opt('EUR')}</select></div><div id="cv-r" class="text-2xl font-bold text-slate-900 dark:text-white"></div></div>`;
+  const calc=()=>{const R=c=>c==='USD'?1:M.forex[c]; const v=g('cv-a').value*R(g('cv-t').value)/R(g('cv-f').value); g('cv-r').textContent=v.toLocaleString('en-US',{maximumFractionDigits:2})+' '+g('cv-t').value;}; ['cv-a','cv-f','cv-t'].forEach(i=>g(i).oninput=calc); calc(); } }
+async function load(){ try{ M=await api('/api/market-data'); left=30; draw(); }catch(e){ toast(e.message,true); if(!M) g('tb').innerHTML='<div class="p-10 text-center text-sm text-red-500">'+esc(e.message)+'</div>'; } }
+g('tabs').onclick=e=>{const b=e.target.closest('[data-t]'); if(b){tab=b.dataset.t;draw();}};
+g('tb').onclick=e=>{const b=e.target.closest('[data-w]'); if(!b)return; const id=b.dataset.w; watch=watch.includes(id)?watch.filter(x=>x!==id):[...watch,id]; localStorage.setItem('rmg_watch',JSON.stringify(watch)); draw();};
+g('q').oninput=draw; g('rf').onclick=load; draw(); load(); setInterval(load,30000);
+	</script>
+</PortalLayout>

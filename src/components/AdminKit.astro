@@ -18,7 +18,7 @@
 	async function api(path, opts = {}) {
 		const res = await fetch(API_URL + path, { ...opts, headers: { 'Authorization': 'Bearer ' + localStorage.getItem('rmg_token'), 'Content-Type': 'application/json', ...(opts.headers || {}) } });
 		if (res.status === 401) { location.href = '/login'; throw new Error('Session expired'); }
-		if (res.status === 403) { location.href = '/portal'; throw new Error('Admin access required'); }
+		if (res.status === 403 && location.pathname.startsWith('/admin')) { location.href = '/portal'; throw new Error('Admin access required'); }
 		const data = await res.json().catch(() => ({}));
 		if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Request failed');
 		return data;
@@ -49,12 +49,12 @@
 	const stat = (l, v, c = '') => `<div class="card p-5"><p class="text-sm font-semibold text-slate-500">${l}</p><p class="text-3xl font-bold mt-1 ${c || 'text-slate-900 dark:text-white'}">${v}</p></div>`;
 	const panel = (t, body) => `<div class="card p-5"><h2 class="font-bold text-slate-900 dark:text-white mb-4">${t}</h2>${body}</div>`;
 	const bars = (items, fmt = v => v) => { const m = Math.max(1, ...items.map(i => i[1])); return items.length ? items.map(([l, v]) => `<div class="mb-3"><div class="flex justify-between text-xs mb-1"><span class="text-slate-600 dark:text-slate-300">${esc(l)}</span><span class="font-mono text-slate-500">${fmt(v)}</span></div><div class="h-2 rounded bg-slate-100 dark:bg-slate-800"><div class="h-2 rounded bg-blue-600" style="width:${v / m * 100}%"></div></div></div>`).join('') : '<p class="text-sm text-slate-500">No data yet.</p>'; };
-	const patchRec = (kind, id, data) => api(`/api/admin/records/${kind}/${id}`, { method: 'PATCH', body: JSON.stringify({ data }) });
-	const statusColor = s => ({ Active:'green', Running:'green', Online:'green', Enforced:'green', Released:'green', Completed:'green', Paid:'green', Executed:'green', Approved:'green', Pending:'amber', Planned:'amber', Requested:'amber', Processing:'amber', Degraded:'amber', Monitoring:'amber', Provisioning:'amber', Paused:'amber', Failed:'red', Offline:'red', Stopped:'red', Disabled:'red', Cancelled:'red', Rejected:'red', 'Past Due':'red', Revoked:'red' }[s] || 'slate');
+	const patchRec = (kind, id, data, base = '/api/admin/records') => api(`${base}/${kind}/${id}`, { method: 'PATCH', body: JSON.stringify({ data }) });
+	const statusColor = s => ({ Active:'green', Running:'green', Online:'green', Operational:'green', Enforced:'green', Released:'green', Completed:'green', Paid:'green', Executed:'green', Approved:'green', Pending:'amber', Planned:'amber', Requested:'amber', Processing:'amber', Degraded:'amber', Monitoring:'amber', Provisioning:'amber', Paused:'amber', Failed:'red', Offline:'red', Stopped:'red', Disabled:'red', Cancelled:'red', Rejected:'red', 'Past Due':'red', Revoked:'red', Invited:'amber', Connected:'green', Lead:'slate', Contacted:'blue', Proposal:'amber', Won:'green', Lost:'red', Closed:'slate' }[s] || 'slate');
 
 	// Generic CRUD page backed by /api/admin/records/{kind}
 	async function crudPage(c) {
-		const m = c.mount || 'app', g = s => document.getElementById(m + '-' + s), root = document.getElementById(m);
+		const m = c.mount || 'app', g = s => document.getElementById(m + '-' + s), root = document.getElementById(m), B = c.base || '/api/admin/records';
 		let all = [], view = [], users = [], editing = null;
 		if (c.fields.some(f => f.t === 'user')) { try { users = (await api('/api/admin/users')).map(u => u.email); } catch (e) {} }
 		const sf = c.fields.find(f => f.k === c.status);
@@ -68,24 +68,24 @@
 		const draw = () => {
 			const q = g('q').value.toLowerCase(); view = all.filter(r => JSON.stringify(r).toLowerCase().includes(q));
 			g('cnt').textContent = view.length + ' records';
-			table(g('tbl'), [...c.cols.map(col => ({ h: col.l, f: r => col.k === c.status ? `<select class="inp !py-1 !w-auto" data-s="${r.id}">${sf.o.map(o => `<option ${o === r[col.k] ? 'selected' : ''}>${o}</option>`).join('')}</select>` : esc(r[col.k]) })),
+			table(g('tbl'), [...c.cols.map(col => ({ h: col.l, f: r => col.k === c.status ? `<select class="inp !py-1 !w-auto" data-s="${r.id}">${sf.o.map(o => `<option ${o === r[col.k] ? 'selected' : ''}>${o}</option>`).join('')}</select>` : col.f ? col.f(r) : esc(r[col.k]) })),
 				{ h: '', f: r => `<div class="flex gap-1 justify-end">${(c.actions || []).map((a, i) => `<button class="btn" data-act="${i}" data-id="${r.id}">${a.label}</button>`).join('')}<button class="btn" data-e="${r.id}">Edit</button><button class="btn btn-d" data-d="${r.id}">Delete</button></div>` }], view);
 		};
-		const load = async () => { try { all = await api('/api/admin/records/' + c.kind); draw(); } catch (e) { toast(e.message, true); } };
+		const load = async () => { try { all = await api(B + '/' + c.kind); draw(); if (c.onLoad) c.onLoad(all); } catch (e) { toast(e.message, true); } };
 		const open = r => { editing = r; g('dt').textContent = (r ? 'Edit ' : 'New ') + c.noun;
 			g('flds').innerHTML = c.fields.filter(f => !f.edit || r).map(f => `<div><label class="text-xs font-semibold text-slate-500">${f.l}</label>${input(f, r ? r[f.k] ?? '' : '')}</div>`).join(''); g('dlg').showModal(); };
 		g('new').onclick = () => open(null); g('cancel').onclick = () => g('dlg').close(); g('q').oninput = draw;
 		g('exp').onclick = () => downloadCsv(c.kind + '.csv', view);
 		g('frm').onsubmit = async e => { e.preventDefault(); const data = {};
 			c.fields.filter(f => !f.edit || editing).forEach(f => { const v = g('f-' + f.k).value; data[f.k] = f.t === 'number' ? Number(v) : v; });
-			try { if (editing) await patchRec(c.kind, editing.id, data); else if (c.onCreate) await c.onCreate(data); else await api('/api/admin/records/' + c.kind, { method: 'POST', body: JSON.stringify({ data }) });
+			try { if (editing) await patchRec(c.kind, editing.id, data, B); else if (c.onCreate) await c.onCreate(data); else await api(B + '/' + c.kind, { method: 'POST', body: JSON.stringify({ data }) });
 				g('dlg').close(); toast('Saved'); load(); } catch (err) { toast(err.message, true); } };
 		g('tbl').addEventListener('click', async e => { const b = e.target.closest('button'); if (!b) return;
 			try { if (b.dataset.e) open(all.find(r => r.id == b.dataset.e));
-				else if (b.dataset.d) { if (!confirm('Delete this record?')) return; await api(`/api/admin/records/${c.kind}/${b.dataset.d}`, { method: 'DELETE' }); toast('Deleted'); load(); }
+				else if (b.dataset.d) { if (!confirm('Delete this record?')) return; await api(`${B}/${c.kind}/${b.dataset.d}`, { method: 'DELETE' }); toast('Deleted'); load(); }
 				else if (b.dataset.act) { await c.actions[b.dataset.act].run(all.find(r => r.id == b.dataset.id)); toast('Done'); load(); } } catch (err) { toast(err.message, true); } });
 		g('tbl').addEventListener('change', async e => { if (!e.target.dataset.s) return;
-			try { await patchRec(c.kind, e.target.dataset.s, { [c.status]: e.target.value }); toast('Status updated'); load(); } catch (err) { toast(err.message, true); } });
+			try { await patchRec(c.kind, e.target.dataset.s, { [c.status]: e.target.value }, B); toast('Status updated'); load(); } catch (err) { toast(err.message, true); } });
 		load();
 	}
 
@@ -98,5 +98,21 @@
 		g('q').oninput = draw; g('ref').onclick = load; g('exp').onclick = () => downloadCsv((c.file || 'export') + '.csv', view);
 		g('tbl').addEventListener('click', async e => { const b = e.target.closest('button[data-ix]'); if (!b || !c.onAction) return; try { await c.onAction(b.dataset.a, view[+b.dataset.ix], load); } catch (err) { toast(err.message, true); } });
 		if (c.poll) setInterval(load, c.poll); load(); return load;
+	}
+
+	const price = n => n == null ? '—' : n >= 1 ? '$' + Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '$' + Number(n).toPrecision(4);
+	const chg = v => `<span class="${v >= 0 ? 'text-emerald-500' : 'text-red-500'} font-semibold">${v >= 0 ? '▲' : '▼'} ${Math.abs(v).toFixed(2)}%</span>`;
+	function showSecret(title, value, note) {
+		const d = document.createElement('dialog');
+		d.className = 'card p-0 w-full max-w-lg backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+		d.innerHTML = `<div class="p-6 space-y-4"><h2 class="text-lg font-bold">${esc(title)}</h2><p class="text-sm text-slate-500">${esc(note || '')}</p><div class="flex gap-2"><input readonly class="inp font-mono text-xs" value="${esc(value)}"><button class="btn btn-p" data-c>Copy</button></div><div class="flex justify-end"><button class="btn" data-x>Done</button></div></div>`;
+		document.body.appendChild(d); d.showModal();
+		d.querySelector('[data-c]').onclick = async e => { try { await navigator.clipboard.writeText(value); e.target.textContent = 'Copied ✓'; } catch (x) { d.querySelector('input').select(); } };
+		d.querySelector('[data-x]').onclick = () => { d.close(); d.remove(); };
+	}
+	function printTable(title, cols, rows) {
+		const w = window.open('', '_blank'); if (!w) return toast('Allow pop-ups to print', true);
+		w.document.write(`<html><head><title>${esc(title)}</title><style>body{font-family:system-ui,sans-serif;padding:32px;color:#0f172a}h1{font-size:20px}table{width:100%;border-collapse:collapse;font-size:12px;margin-top:16px}th,td{border:1px solid #e2e8f0;padding:6px 8px;text-align:left}th{background:#f1f5f9}small{color:#64748b}</style></head><body><h1>${esc(title)}</h1><small>RMG Technologies · generated ${new Date().toLocaleString()}</small><table><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${cols.map(c => `<td>${esc(r[c])}</td>`).join('')}</tr>`).join('')}</tbody></table></body></html>`);
+		w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
 	}
 </script>

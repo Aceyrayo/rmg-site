@@ -1,42 +1,30 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-
-<AppLayout title="Enterprise Tools">
-	<div class="max-w-5xl mx-auto space-y-8">
-		
-		<div>
-			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Enterprise Automation</h1>
-			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your day-to-day business workflows and integrations.</p>
-		</div>
-
-		<div class="grid md:grid-cols-3 gap-6">
-			<!-- Tool 1 -->
-			<a href="#" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all">
-				<div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-				</div>
-				<h3 class="font-bold text-slate-900 dark:text-white mb-1">CRM & Client Portal</h3>
-				<p class="text-sm text-slate-500 dark:text-slate-400">Manage customer relationships and sales pipelines.</p>
-			</a>
-
-			<!-- Tool 2 -->
-			<a href="#" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all">
-				<div class="w-10 h-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>
-				</div>
-				<h3 class="font-bold text-slate-900 dark:text-white mb-1">Workflow Automation</h3>
-				<p class="text-sm text-slate-500 dark:text-slate-400">Build drag-and-drop automation for your internal tasks.</p>
-			</a>
-
-			<!-- Tool 3 -->
-			<a href="#" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-md transition-all">
-				<div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-					<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-				</div>
-				<h3 class="font-bold text-slate-900 dark:text-white mb-1">Advanced Analytics</h3>
-				<p class="text-sm text-slate-500 dark:text-slate-400">Export custom PDF and Excel reports for stakeholders.</p>
-			</a>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Enterprise Tools">
+	<div class="max-w-6xl mx-auto"><div id="app"></div><div id="wfwrap" class="hidden"><div id="wf"></div></div><div id="rpwrap" class="hidden"></div></div>
+	<script is:inline>
+const g=id=>document.getElementById(id),B='/api/me/records';
+const first=document.getElementById('app'); first.innerHTML=pageHead('Enterprise Automation','CRM, workflow automation and reporting in one place')+'<div class="flex gap-2 mt-6" id="tabs"></div><div id="crmwrap" class="mt-4"><div id="pipe" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6"></div><div id="crm"></div></div>';
+const wrapW=g('wfwrap'),wrapR=g('rpwrap'),wrapC=g('crmwrap'); const T=[['crm','CRM & Clients',wrapC],['wf','Workflow Automation',wrapW],['rp','Advanced Reports',wrapR]];
+const tabs=a=>{ g('tabs').innerHTML=T.map(([k,l])=>`<button class="btn ${k===a?'btn-p':''}" data-t="${k}">${l}</button>`).join(''); T.forEach(([k,,w])=>w.classList.toggle('hidden',k!==a)); };
+g('tabs').onclick=e=>{const b=e.target.closest('[data-t]'); if(b) tabs(b.dataset.t);}; tabs('crm');
+const STAGES=['Lead','Contacted','Proposal','Won','Lost'];
+crudPage({ mount:'crm', base:B, kind:'crm', title:'CRM & Clients', noun:'Contact', status:'stage', sub:'Track relationships and your sales pipeline',
+ fields:[{k:'name',l:'Name',req:1},{k:'email',l:'Email',t:'email'},{k:'company',l:'Company'},{k:'value',l:'Deal value (USD)',t:'number'},{k:'stage',l:'Stage',t:'select',o:STAGES},{k:'notes',l:'Notes',t:'textarea'}],
+ cols:[{k:'name',l:'Contact',f:r=>'<b>'+esc(r.name)+'</b><div class="text-xs text-slate-500">'+esc(r.email||'')+'</div>'},{k:'company',l:'Company'},{k:'value',l:'Value',f:r=>money(r.value)},{k:'stage',l:'Stage'}],
+ actions:[{label:'Mark won',run:r=>patchRec('crm',r.id,{stage:'Won'},B)}],
+ onLoad:all=>{ g('pipe').innerHTML=STAGES.map(s=>{const x=all.filter(r=>r.stage===s); return stat(s,x.length+' · '+money(x.reduce((a,r)=>a+(+r.value||0),0)).replace('.00',''));}).join(''); } });
+const EV=['ticket.created','bot.created','bot.deployed','bot.paused','bot.stopped','key.created','key.revoked','member.invited','vault.uploaded','security.updated','sessions.revoked'];
+crudPage({ mount:'wf', base:B, kind:'workflow', title:'Workflow Automation', noun:'Workflow', status:'status', sub:'When an event happens in your workspace, we email you automatically',
+ fields:[{k:'name',l:'Workflow name',req:1},{k:'trigger',l:'When this happens…',t:'select',o:EV},{k:'action',l:'Then…',t:'select',o:['Email me']},{k:'status',l:'Status',t:'select',o:['Active','Paused']}],
+ cols:[{k:'name',l:'Workflow'},{k:'trigger',l:'Trigger',f:r=>badge(r.trigger,'blue')},{k:'action',l:'Action'},{k:'runs',l:'Runs',f:r=>r.runs||0},{k:'status',l:'Status'}] });
+const SETS={activity:['/api/me/activity?limit=1000','Account activity'],tickets:['/api/tickets','Support tickets'],invoices:['/api/invoices','Invoices'],bots:[B+'/bot','Trading bots'],team:[B+'/team','Team members'],crm:[B+'/crm','CRM contacts']};
+wrapR.innerHTML=`<div class="card p-6 mt-0 max-w-2xl"><h2 class="font-bold text-slate-900 dark:text-white mb-4">Report builder</h2><label class="text-xs font-semibold text-slate-500">Dataset</label><select id="ds" class="inp mb-4">${Object.entries(SETS).map(([k,v])=>`<option value="${k}">${v[1]}</option>`).join('')}</select><div class="flex flex-wrap gap-2"><button class="btn btn-p" data-f="csv">Export CSV</button><button class="btn" data-f="json">Export JSON</button><button class="btn" data-f="pdf">Print / Save as PDF</button></div><p class="text-xs text-slate-500 mt-4">PDF opens a print-ready report — choose “Save as PDF” in the print dialog. CSV opens directly in Excel.</p></div>`;
+wrapR.onclick=async e=>{ const b=e.target.closest('[data-f]'); if(!b)return; const [url,title]=SETS[g('ds').value];
+ try{ const rows=(await api(url)).map(r=>{const o={}; for(const k in r) if(typeof r[k]!=='object'&&!['kind','user_id'].includes(k)) o[k]=r[k]; return o;}); if(!rows.length)return toast('Nothing to export yet',true);
+  if(b.dataset.f==='csv') downloadCsv(g('ds').value+'-report.csv',rows);
+  else if(b.dataset.f==='json'){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(rows,null,2)],{type:'application/json'})); a.download=g('ds').value+'-report.json'; a.click(); }
+  else printTable(title,Object.keys(rows[0]),rows); }catch(err){toast(err.message,true);} };
+	</script>
+</PortalLayout>

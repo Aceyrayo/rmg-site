@@ -1,48 +1,24 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-
-<AppLayout title="API Documentation">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div>
-			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">API Documentation</h1>
-			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Learn how to interact with the RMG API endpoints.</p>
-		</div>
-
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
-			<div class="p-6 border-b border-slate-200 dark:border-slate-800">
-				<h2 class="text-lg font-bold text-slate-900 dark:text-white">REST API Reference</h2>
-			</div>
-			<div class="p-6 space-y-6">
-				
-				<!-- Endpoint 1 -->
-				<div>
-					<div class="flex items-center gap-3 mb-2">
-						<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
-						<code class="text-sm font-mono text-slate-900 dark:text-white">/api/v1/market-data</code>
-					</div>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Returns real-time crypto and forex market prices.</p>
-				</div>
-
-				<!-- Endpoint 2 -->
-				<div>
-					<div class="flex items-center gap-3 mb-2">
-						<span class="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 text-xs font-bold px-2 py-1 rounded">POST</span>
-						<code class="text-sm font-mono text-slate-900 dark:text-white">/api/v1/execute</code>
-					</div>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Execute a trade order (requires API key and HMAC signature).</p>
-				</div>
-
-				<!-- Endpoint 3 -->
-				<div>
-					<div class="flex items-center gap-3 mb-2">
-						<span class="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold px-2 py-1 rounded">GET</span>
-						<code class="text-sm font-mono text-slate-900 dark:text-white">/api/v1/portfolio</code>
-					</div>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Returns the user's current account balance and open positions.</p>
-				</div>
-
-			</div>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="API Documentation">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app=document.getElementById('app'); const BASE=API_URL;
+const EP=[{m:'GET',p:'/api/v1/market-data',d:'Live prices for the top crypto assets plus USD forex rates (cached 30s).',scope:'read',ex:'{ "crypto":[{"symbol":"BTC","price":67250.1,"change_24h":1.8}], "forex":{"EUR":0.92}, "updated":"2026-11-24 10:00:00" }',try:1},
+ {m:'GET',p:'/api/v1/account',d:'Identity of the key owner and usage of the key.',scope:'read',ex:'{ "name":"Jane Doe", "company":"Acme", "key_scope":"read", "key_calls":42 }',try:1},
+ {m:'GET',p:'/api/v1/bots',d:'Lists your trading engines with their status and configuration.',scope:'read',ex:'[{ "id":3, "name":"Alpha Momentum", "pair":"BTC/USDT", "status":"Running" }]',try:1},
+ {m:'POST',p:'/api/v1/bots/{id}/status',d:'Start, pause or stop an engine. Requires a write key.',scope:'write',body:'{"status":"Paused"}',ex:'{ "id":3, "status":"Paused" }'}];
+const col={GET:'green',POST:'blue'};
+app.innerHTML=pageHead('API Documentation','Build on RMG with a simple REST API')+`
+<div class="grid md:grid-cols-3 gap-4 mt-6"><div class="card p-5 md:col-span-2"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Authentication</h3><p class="text-sm text-slate-500 mb-3">Create a key in <a class="text-blue-500 hover:underline" href="/portal/api-keys">API Credentials</a> and send it in the <code class="font-mono">X-API-Key</code> header. Errors return JSON: <code class="font-mono">{"detail": "…"}</code> with status 401 (bad key), 403 (read-only key) or 400.</p><div class="bg-slate-950 text-emerald-400 font-mono text-xs rounded-lg p-3 overflow-x-auto">Base URL: ${BASE}</div></div>
+<div class="card p-5"><h3 class="font-bold text-slate-900 dark:text-white mb-2">Try it live</h3><input id="key" type="password" class="inp font-mono text-xs" placeholder="Paste an API key (kept in this tab only)"></div></div>
+<div class="space-y-4 mt-6">${EP.map((e,i)=>{ const curl=`curl ${e.m==='POST'?'-X POST ':''}${BASE}${e.p} \\\n  -H "X-API-Key: YOUR_KEY"${e.body?` \\\n  -H "Content-Type: application/json" \\\n  -d '${e.body}'`:''}`;
+ return `<div class="card p-5"><div class="flex flex-wrap items-center gap-3 mb-2">${badge(e.m,col[e.m])}<code class="font-mono text-sm text-slate-900 dark:text-white">${e.p}</code>${badge(e.scope+' key',e.scope==='write'?'amber':'slate')}</div><p class="text-sm text-slate-500 mb-3">${e.d}</p>
+ <div class="grid lg:grid-cols-2 gap-3"><div><div class="flex justify-between text-xs text-slate-500 mb-1"><span>Request</span><button class="underline" data-copy="${i}">Copy cURL</button></div><pre class="bg-slate-950 text-slate-200 text-xs rounded-lg p-3 overflow-x-auto">${esc(curl)}</pre></div><div><div class="flex justify-between text-xs text-slate-500 mb-1"><span id="rl${i}">Response</span>${e.try?`<button class="underline" data-try="${i}">Send request</button>`:''}</div><pre id="rs${i}" class="bg-slate-950 text-emerald-300 text-xs rounded-lg p-3 overflow-x-auto max-h-48">${esc(e.ex)}</pre></div></div></div>`;}).join('')}</div>`;
+app.onclick=async e=>{ const b=e.target.closest('button'); if(!b)return;
+ if(b.dataset.copy!==undefined){ const x=EP[b.dataset.copy]; await navigator.clipboard.writeText(`curl ${x.m==='POST'?'-X POST ':''}${BASE}${x.p} -H "X-API-Key: YOUR_KEY"${x.body?` -H "Content-Type: application/json" -d '${x.body}'`:''}`); toast('Copied'); }
+ if(b.dataset.try!==undefined){ const i=b.dataset.try,k=document.getElementById('key').value.trim(); if(!k)return toast('Paste an API key first',true); const out=document.getElementById('rs'+i); out.textContent='Loading…';
+  try{ const r=await fetch(BASE+EP[i].p,{headers:{'X-API-Key':k}}); const j=await r.json(); out.textContent=r.status+' '+JSON.stringify(j,null,2).slice(0,3000); out.className=out.className.replace(/text-\w+-300/,r.ok?'text-emerald-300':'text-red-300'); }catch(err){out.textContent='Network error: '+err.message;} } };
+	</script>
+</PortalLayout>

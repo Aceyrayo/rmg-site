@@ -1,9 +1,16 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Webhooks">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Webhooks</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Send real-time events to your own servers.</p></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm text-center text-slate-500">No webhook URLs configured.</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Webhooks">
+	<div class="max-w-6xl mx-auto"><div id="app"></div><div id="logs" class="mt-8"></div></div>
+	<script is:inline>
+const EVENTS=['all','ticket.created','bot.created','bot.deployed','bot.paused','bot.stopped','key.created','key.revoked','member.invited','vault.uploaded','security.updated','sessions.revoked'];
+crudPage({ base:'/api/me/records', kind:'webhook', title:'Webhooks', noun:'Endpoint', status:'status', sub:'Signed JSON events delivered to your servers (header X-RMG-Signature = HMAC-SHA256 of the body with your secret)',
+ fields:[{k:'name',l:'Name',req:1},{k:'url',l:'Endpoint URL',t:'url',req:1,p:'https://yourapp.com/rmg-hook'},{k:'events',l:'Events',t:'select',o:EVENTS},{k:'status',l:'Status',t:'select',o:['Active','Disabled']}],
+ cols:[{k:'name',l:'Name'},{k:'url',l:'URL',f:r=>'<span class="font-mono text-xs">'+esc(r.url)+'</span>'},{k:'events',l:'Events'},{k:'status',l:'Status'}],
+ actions:[{label:'Send test',run:async r=>{const x=await api('/api/me/webhooks/'+r.id+'/test',{method:'POST'}); toast(x.ok?'Delivered ('+x.status+', '+x.ms+' ms)':'Failed: '+(x.error||x.status),!x.ok); reloadLogs();}},
+          {label:'Copy secret',run:async r=>{await navigator.clipboard.writeText(r.secret);}}] });
+const reloadLogs = listPage({ mount:'logs', title:'Delivery Logs', url:'/api/me/records/webhook_log', sub:'deliveries', file:'webhook-logs', poll:15000,
+ cols:[{h:'Time (UTC)',f:r=>'<span class="font-mono text-xs text-slate-500">'+esc(r.created_at)+'</span>'},{h:'Target',f:r=>esc(r.target)},{h:'Event',f:r=>badge(r.event,'blue')},{h:'Result',f:r=>badge(r.status,r.ok?'green':'red')},{h:'Time',f:r=>esc(r.ms)+' ms'},{h:'Error',f:r=>'<span class="text-xs text-red-500">'+esc(r.error)+'</span>'}] });
+	</script>
+</PortalLayout>

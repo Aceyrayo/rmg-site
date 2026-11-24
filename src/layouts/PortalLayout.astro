@@ -1,0 +1,12 @@
+
+---
+
+// Client-portal wrapper: your AppLayout + the shared UI toolkit (loaded only on pages that use it).
+import AppLayout from './AppLayout.astro';
+import AdminKit from '../components/AdminKit.astro';
+const { title } = Astro.props;
+---
+<AppLayout title={title}>
+	<AdminKit />
+	<slot />
+</AppLayout>

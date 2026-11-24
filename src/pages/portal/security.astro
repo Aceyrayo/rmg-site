@@ -1,13 +1,26 @@
 ---
-import AppLayout from '../../layouts/AppLayout.astro';
+import PortalLayout from '../../layouts/PortalLayout.astro';
 ---
-<AppLayout title="Security Center">
-	<div class="max-w-5xl mx-auto space-y-8">
-		<div><h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Security Center</h1><p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your encryption and authentication protocols.</p></div>
-		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-6 shadow-sm space-y-4">
-			<div class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-950 rounded-lg"><span class="font-bold text-slate-900 dark:text-white">Two-Factor Auth</span><span class="text-emerald-500 text-sm font-bold">Enabled</span></div>
-			<div class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-950 rounded-lg"><span class="font-bold text-slate-900 dark:text-white">IP Whitelisting</span><button class="text-blue-500 text-sm font-bold hover:underline">Configure</button></div>
-			<div class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-950 rounded-lg"><span class="font-bold text-slate-900 dark:text-white">Session Timeout</span><span class="text-slate-500 text-sm">30 Minutes</span></div>
-		</div>
-	</div>
-</AppLayout>
+<PortalLayout title="Security Center">
+	<div class="max-w-6xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+const app=document.getElementById('app'),g=id=>document.getElementById(id); let S=null;
+app.innerHTML=pageHead('Security Center','Control how and from where your account can be accessed','<a href="/portal/settings" class="btn">Change password</a>')+`<div id="score" class="grid sm:grid-cols-3 gap-4 mt-6"></div>
+<div class="grid lg:grid-cols-5 gap-6 mt-6"><div class="lg:col-span-3 card p-6 space-y-5"><h2 class="font-bold text-slate-900 dark:text-white">Access policy</h2>
+<div><label class="text-xs font-semibold text-slate-500">Maximum session length</label><select id="hrs" class="inp sm:max-w-xs"><option value="1">1 hour</option><option value="4">4 hours</option><option value="8">8 hours</option><option value="24">24 hours</option></select><p class="text-xs text-slate-500 mt-1">After this time you must sign in again.</p></div>
+<div><div class="flex justify-between"><label class="text-xs font-semibold text-slate-500">IP allowlist (one address per line)</label><button id="mine" class="text-xs text-blue-500 hover:underline"></button></div><textarea id="ips" rows="4" class="inp font-mono text-xs" placeholder="203.0.113.10"></textarea></div>
+<label class="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300"><input id="enf" type="checkbox" class="mt-1"><span><b>Enforce allowlist</b> — block sign-ins and API use from any other IP. Your current IP must be on the list. If your IP changes you will be locked out, so avoid this on mobile or dynamic connections.</span></label>
+<div class="flex justify-end"><button id="save" class="btn btn-p !px-6 !py-2">Save policy</button></div></div>
+<div class="lg:col-span-2 space-y-6"><div class="card p-6"><h2 class="font-bold text-slate-900 dark:text-white mb-2">Sign out everywhere</h2><p class="text-sm text-slate-500 mb-4">Immediately invalidates every active session on all devices, including this one. Use it if you suspect your account was accessed.</p><button id="rv" class="btn btn-d w-full !py-2">Sign out all devices</button></div>
+<div class="card"><div class="p-5 font-bold text-slate-900 dark:text-white">Recent sign-ins</div><div id="ss" class="overflow-x-auto max-h-72 overflow-y-auto"></div></div></div></div>`;
+async function load(){ try{ const [s,ses]=await Promise.all([api('/api/me/security'),api('/api/me/sessions')]); S=s;
+ g('hrs').value=s.session_hours; g('ips').value=s.ips.join('\n'); g('enf').checked=s.ip_enforce; g('mine').textContent='Add my IP ('+s.current_ip+')';
+ const fails=ses.filter(x=>!x.ok).length, checks=[['Session length ≤ 8h',s.session_hours<=8],['IP allowlist enforced',s.ip_enforce],['No failed sign-ins recently',fails===0]];
+ g('score').innerHTML=checks.map(([l,ok])=>`<div class="card p-4 flex items-center gap-3"><span class="text-xl ${ok?'text-emerald-500':'text-amber-500'}">${ok?'✔':'●'}</span><span class="text-sm font-medium text-slate-800 dark:text-slate-200">${l}</span></div>`).join('');
+ table(g('ss'),[{h:'Time (UTC)',f:x=>'<span class="font-mono text-xs">'+esc(x.time)+'</span>'},{h:'IP',f:x=>'<span class="font-mono text-xs">'+esc(x.ip)+'</span>'},{h:'',f:x=>badge(x.ok?'OK':'Failed',x.ok?'green':'red')}],ses); }catch(e){toast(e.message,true);} }
+g('mine').onclick=()=>{ const v=g('ips').value.split('\n').map(x=>x.trim()).filter(Boolean); if(!v.includes(S.current_ip)) v.push(S.current_ip); g('ips').value=v.join('\n'); };
+g('save').onclick=async()=>{ try{ await api('/api/me/security',{method:'PUT',body:JSON.stringify({session_hours:+g('hrs').value,ip_enforce:g('enf').checked,ips:g('ips').value.split('\n').map(x=>x.trim()).filter(Boolean)})}); toast('Security policy saved'); load(); }catch(e){toast(e.message,true);} };
+g('rv').onclick=async()=>{ if(!confirm('Sign out on ALL devices now?'))return; try{ await api('/api/me/sessions/revoke',{method:'POST'}); localStorage.clear(); location.href='/login'; }catch(e){toast(e.message,true);} };
+load();
+	</script>
+</PortalLayout>
