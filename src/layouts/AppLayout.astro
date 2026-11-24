@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import chatbot from '../components/chatbot.astro'; // Ensure this is lowercase!
+import Chatbot from '../components/chatbot.astro'; // Import it here
 const { title } = Astro.props;
 ---
 
@@ -19,11 +19,12 @@ const { title } = Astro.props;
 	</head>
 	<body class="bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-200 font-sans antialiased flex h-screen overflow-hidden selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-200">
 		
-		<!-- MOBILE OVERLAY (Closes sidebar when clicked) -->
-		<div id="mobileOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+		<!-- MOBILE OVERLAY (Darkens screen when sidebar is open on mobile) -->
+		<div id="mobileOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden transition-opacity" onclick="toggleSidebar()"></div>
 
-		<!-- SIDEBAR -->
-		<aside id="sidebar" class="w-[260px] bg-white dark:bg-[#080b12] border-r border-slate-200 dark:border-slate-800 flex flex-col h-screen shrink-0 fixed md:relative inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300">
+		<!-- SIDEBAR (Hidden by default on mobile, slides in) -->
+		<aside id="sidebar" class="w-[260px] bg-white dark:bg-[#080b12] border-r border-slate-200 dark:border-slate-800 flex flex-col h-screen shrink-0 fixed md:relative inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+			
 			<!-- Workspace Selector -->
 			<div class="h-16 flex items-center justify-between px-4 border-b border-slate-200 dark:border-slate-800">
 				<div class="flex items-center gap-3 w-full">
@@ -37,14 +38,14 @@ const { title } = Astro.props;
 						<p class="text-sm font-bold text-slate-900 dark:text-white leading-tight">RMG Workspace</p>
 						<p class="text-xs text-slate-500 dark:text-slate-400">Enterprise</p>
 					</div>
-					<!-- Close button for mobile -->
+					<!-- Close button (Mobile only) -->
 					<button class="md:hidden text-slate-500 hover:text-slate-900 dark:hover:text-white" onclick="toggleSidebar()">
 						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
 					</button>
 				</div>
 			</div>
 			
-			<!-- Navigation -->
+			<!-- Navigation (Scrollable) -->
 			<nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
 				
 				<div>
@@ -59,7 +60,7 @@ const { title } = Astro.props;
 					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">RMG Divisions</p>
 					<div class="space-y-0.5">
 						<a href="/portal/trading" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Systems</a>
-						<a href="/portal/defense" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
+						<a href="/portal/defence" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
 						<a href="/portal/enterprise" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Tools</a>
 					</div>
 				</div>
@@ -69,7 +70,6 @@ const { title } = Astro.props;
 					<div class="space-y-0.5">
 						<a href="/portal/api-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Credentials</a>
 						<a href="/portal/security" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Security Center</a>
-						<a href="/portal/team" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Team Management</a>
 					</div>
 				</div>
 
@@ -116,7 +116,7 @@ const { title } = Astro.props;
 			<!-- Top Bar -->
 			<header class="h-16 bg-white dark:bg-[#080b12] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0 transition-colors duration-200">
 				<div class="flex items-center gap-4">
-					<!-- Hamburger Menu (Mobile) -->
+					<!-- HAMBURGER MENU (Mobile only) -->
 					<button class="md:hidden text-slate-500 hover:text-slate-900 dark:hover:text-white" onclick="toggleSidebar()">
 						<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
 					</button>
@@ -141,7 +141,6 @@ const { title } = Astro.props;
 
 		<!-- App Logic -->
 		<script is:inline>
-			// Mobile Sidebar Toggle
 			function toggleSidebar() {
 				const sidebar = document.getElementById('sidebar');
 				const overlay = document.getElementById('mobileOverlay');
@@ -211,7 +210,7 @@ const { title } = Astro.props;
 			});
 		</script>
 
-		<!-- CHATBOT (Placed right before closing body tag) -->
-		<chatbot />
+		<!-- CHATBOT -->
+		<Chatbot />
 	</body>
 </html>
