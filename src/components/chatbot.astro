@@ -1,13 +1,12 @@
 ---
-// chatbot.astro
-const apiKey = import.meta.env.PUBLIC_GEMINI_API_KEY;
+// chatbot.astro — talks to YOUR backend (/api/chat). The Gemini key stays on the server.
 ---
 
 <!-- AI CHATBOT WIDGET -->
-<div id="chatbot-wrapper" data-api-key={apiKey} class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100] font-sans">
+<div id="chatbot-wrapper" class="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[100] font-sans">
 	<!-- Chat Window -->
 	<div id="chatWindow" class="hidden absolute bottom-16 right-0 w-[calc(100vw-2rem)] sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col h-[450px] sm:h-[500px] transition-all transform scale-95 opacity-0 origin-bottom-right">
-		
+
 		<!-- Header -->
 		<div class="bg-slate-900 dark:bg-slate-800 p-4 flex justify-between items-center text-white shrink-0">
 			<div class="flex items-center gap-3">
@@ -22,21 +21,26 @@ const apiKey = import.meta.env.PUBLIC_GEMINI_API_KEY;
 					</div>
 				</div>
 			</div>
-			<button id="closeChatBtn" class="text-slate-400 hover:text-white transition-colors bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-			</button>
+			<div class="flex items-center gap-1">
+				<button id="clearChatBtn" title="New conversation" class="text-slate-400 hover:text-white transition-colors bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+				</button>
+				<button id="closeChatBtn" class="text-slate-400 hover:text-white transition-colors bg-slate-800 hover:bg-slate-700 p-1.5 rounded-md">
+					<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+				</button>
+			</div>
 		</div>
-		
+
 		<!-- Chat Messages -->
 		<div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4 text-sm bg-slate-50 dark:bg-slate-950">
 			<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg rounded-tl-none shadow-sm text-slate-700 dark:text-slate-300 w-fit max-w-[85%]">
 				Hello! I am the RMG AI assistant. How can I help you today?
 			</div>
 		</div>
-		
+
 		<!-- Input Area -->
 		<div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex gap-2 shrink-0">
-			<input type="text" id="chatInput" placeholder="Ask a question..." class="flex-1 bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 transition-all">
+			<input type="text" id="chatInput" maxlength="500" placeholder="Ask a question..." class="flex-1 bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-900 dark:text-white focus:outline-none focus:bg-white dark:focus:bg-slate-800 focus:border-blue-500 transition-all">
 			<button id="sendChatBtn" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition-colors disabled:opacity-50">
 				<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
 			</button>
@@ -53,99 +57,79 @@ const apiKey = import.meta.env.PUBLIC_GEMINI_API_KEY;
 
 <script is:inline>
 	document.addEventListener('DOMContentLoaded', () => {
-		// Read the API key from the data attribute
-		const wrapper = document.getElementById('chatbot-wrapper');
-		const apiKey = wrapper.getAttribute('data-api-key');
-		const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey;
+		const CHAT_URL = 'https://rmg-api-e46k.onrender.com/api/chat';
+		const GREETING = 'Hello! I am the RMG AI assistant. How can I help you today?';
 
 		const openChatBtn = document.getElementById('openChatBtn');
 		const closeChatBtn = document.getElementById('closeChatBtn');
+		const clearChatBtn = document.getElementById('clearChatBtn');
 		const chatWindow = document.getElementById('chatWindow');
 		const sendChatBtn = document.getElementById('sendChatBtn');
 		const chatInput = document.getElementById('chatInput');
 		const chatMessages = document.getElementById('chatMessages');
+		let history = [];   // {role:'user'|'model', text}
+
+		const bubble = (cls, text) => {
+			const d = document.createElement('div');
+			d.className = cls; d.innerText = text;
+			chatMessages.appendChild(d); chatMessages.scrollTop = chatMessages.scrollHeight;
+			return d;
+		};
+		const AI = 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg rounded-tl-none shadow-sm text-slate-700 dark:text-slate-300 w-fit max-w-[85%] leading-relaxed whitespace-pre-wrap';
+		const ERR = 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 p-3 rounded-lg rounded-tl-none text-sm w-fit max-w-[85%]';
 
 		openChatBtn.addEventListener('click', () => {
 			chatWindow.classList.remove('hidden');
-			setTimeout(() => {
-				chatWindow.classList.remove('scale-95', 'opacity-0');
-				chatWindow.classList.add('scale-100', 'opacity-100');
-			}, 10);
+			setTimeout(() => { chatWindow.classList.remove('scale-95', 'opacity-0'); chatWindow.classList.add('scale-100', 'opacity-100'); }, 10);
 			chatInput.focus();
 		});
-
 		closeChatBtn.addEventListener('click', () => {
-			chatWindow.classList.remove('scale-100', 'opacity-100');
-			chatWindow.classList.add('scale-95', 'opacity-0');
-			setTimeout(() => {
-				chatWindow.classList.add('hidden');
-			}, 300);
+			chatWindow.classList.remove('scale-100', 'opacity-100'); chatWindow.classList.add('scale-95', 'opacity-0');
+			setTimeout(() => chatWindow.classList.add('hidden'), 300);
+		});
+		clearChatBtn.addEventListener('click', () => {
+			history = []; chatMessages.innerHTML = ''; bubble(AI, GREETING);
 		});
 
 		async function sendMessage() {
 			const text = chatInput.value.trim();
 			if (!text) return;
+			chatInput.value = ''; chatInput.disabled = true; sendChatBtn.disabled = true;
 
-			chatInput.value = "";
-			chatInput.disabled = true;
-			sendChatBtn.disabled = true;
+			bubble('bg-blue-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm ml-auto w-fit max-w-[85%] whitespace-pre-wrap', text);
+			history.push({ role: 'user', text });
 
-			const userMsg = document.createElement('div');
-			userMsg.className = "bg-blue-600 text-white p-3 rounded-lg rounded-tr-none shadow-sm ml-auto w-fit max-w-[85%]";
-			userMsg.innerText = text;
-			chatMessages.appendChild(userMsg);
-			chatMessages.scrollTop = chatMessages.scrollHeight;
-
-			const loadingMsg = document.createElement('div');
-			loadingMsg.className = "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg rounded-tl-none shadow-sm text-slate-500 w-fit max-w-[85%] flex items-center gap-1";
-			loadingMsg.innerHTML = '<span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>';
-			chatMessages.appendChild(loadingMsg);
-			chatMessages.scrollTop = chatMessages.scrollHeight;
+			const loading = document.createElement('div');
+			loading.className = 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg rounded-tl-none shadow-sm text-slate-500 w-fit max-w-[85%] flex items-center gap-1';
+			loading.innerHTML = '<span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:.1s"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce" style="animation-delay:.2s"></span>';
+			chatMessages.appendChild(loading); chatMessages.scrollTop = chatMessages.scrollHeight;
+			// Render's free tier sleeps when idle; tell the user if the first reply is slow.
+			const slow = setTimeout(() => { loading.innerHTML = '<span class="text-xs">Waking up the server… this can take up to a minute the first time.</span>'; }, 6000);
 
 			try {
-				const systemPrompt = "You are the AI assistant for RMG Technologies, a high-end software company that builds Trading Systems (algorithmic bots), Defense Software (encryption, threat intel), and Enterprise Tools (CRM, automation). You must be professional, concise, and helpful.";
-				
-				const response = await fetch(API_URL, {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({
-						contents: [{
-							parts: [{ text: systemPrompt + "\n\nUser: " + text }]
-						}]
-					})
+				const ctrl = new AbortController();
+				const timer = setTimeout(() => ctrl.abort(), 70000);
+				const res = await fetch(CHAT_URL, {
+					method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: ctrl.signal,
+					body: JSON.stringify({ messages: history })
 				});
-
-				const data = await response.json();
-				chatMessages.removeChild(loadingMsg);
-
-				const aiMsg = document.createElement('div');
-				aiMsg.className = "bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg rounded-tl-none shadow-sm text-slate-700 dark:text-slate-300 w-fit max-w-[85%] leading-relaxed";
-				
-				if (data.candidates && data.candidates[0].content.parts[0].text) {
-					aiMsg.innerText = data.candidates[0].content.parts[0].text;
-				} else {
-					aiMsg.innerText = "Sorry, I couldn't process that request. Please try again.";
-				}
-				
-				chatMessages.appendChild(aiMsg);
-				chatMessages.scrollTop = chatMessages.scrollHeight;
-
+				clearTimeout(timer);
+				const data = await res.json().catch(() => ({}));
+				loading.remove();
+				if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Request failed');
+				history.push({ role: 'model', text: data.reply });
+				bubble(AI, data.reply);
 			} catch (error) {
-				chatMessages.removeChild(loadingMsg);
-				const errorMsg = document.createElement('div');
-				errorMsg.className = "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50 p-3 rounded-lg rounded-tl-none text-sm w-fit max-w-[85%]";
-				errorMsg.innerText = "System error. Please try again later.";
-				chatMessages.appendChild(errorMsg);
+				loading.remove();
+				history.pop();   // drop the failed user turn so the next try starts clean
+				bubble(ERR, error.name === 'AbortError' ? 'The server took too long to respond. Please try again.' : (error.message === 'Failed to fetch' ? 'Cannot reach the server. Check your connection and try again.' : error.message));
 			} finally {
-				chatInput.disabled = false;
-				sendChatBtn.disabled = false;
-				chatInput.focus();
+				clearTimeout(slow);
+				chatInput.disabled = false; sendChatBtn.disabled = false; chatInput.focus();
 			}
 		}
 
 		sendChatBtn.addEventListener('click', sendMessage);
-		chatInput.addEventListener('keypress', (e) => {
-			if (e.key === 'Enter') sendMessage();
-		});
+		chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
 	});
 </script>
