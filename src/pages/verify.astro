@@ -2,7 +2,7 @@
 import Layout from '../layouts/layout.astro';
 ---
 
-<Layout title="Verify Email">
+<Layout title="Verify Email" hideChat>
 	<main class="max-w-md mx-auto px-8 py-32">
 		<div class="text-center mb-10">
 			<h1 class="text-3xl font-bold text-slate-900 mb-2">Check your email</h1>
@@ -33,47 +33,28 @@ import Layout from '../layouts/layout.astro';
 	</main>
 
 	<script is:inline>
-		const email = localStorage.getItem('verify_email');
-		if (!email) window.location.href = '/signup';
-		document.getElementById('emailDisplay').innerText = email;
-
-		const form = document.getElementById('verifyForm');
-		const submitBtn = document.getElementById('submitBtn');
-		const errorMsg = document.getElementById('errorMsg');
-		const successOverlay = document.getElementById('successOverlay');
-
-		form.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			submitBtn.innerText = "Verifying...";
-			errorMsg.classList.add('hidden');
-
-			const code = document.getElementById('code').value;
-
-			try {
-				const response = await fetch('https://rmg-api-e46k.onrender.com/api/verify-email', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ email: email, code: code })
-				});
-				const data = await response.json();
-
-				if (response.ok) {
-					// Show the beautiful overlay instead of a browser alert
-					successOverlay.classList.remove('hidden');
-					localStorage.removeItem('verify_email');
-					setTimeout(() => {
-						window.location.href = '/login';
-					}, 2000);
-				} else {
-					errorMsg.innerText = data.detail || "Verification failed.";
-					errorMsg.classList.remove('hidden');
-					submitBtn.innerText = "Verify Account";
-				}
-			} catch (error) {
-				errorMsg.innerText = "Cannot connect to server.";
-				errorMsg.classList.remove('hidden');
-				submitBtn.innerText = "Verify Account";
-			}
-		});
-	</script>
+const email = localStorage.getItem('verify_email');
+if (!email) window.location.href = '/signup';
+document.getElementById('emailDisplay').innerText = email;
+const form = document.getElementById('verifyForm'), submitBtn = document.getElementById('submitBtn'), errorMsg = document.getElementById('errorMsg');
+const successOverlay = document.getElementById('successOverlay'), resendBtn = document.getElementById('resendBtn'), codeInput = document.getElementById('code');
+const note = (ok, t) => { errorMsg.className = 'text-sm text-center py-2 rounded-lg border ' + (ok ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-600 bg-red-50 border-red-200'); errorMsg.innerText = t; };
+codeInput.addEventListener('input', () => { codeInput.value = codeInput.value.replace(/\D/g, ''); });
+form.addEventListener('submit', async (e) => {
+	e.preventDefault(); errorMsg.classList.add('hidden');
+	submitBtn.disabled = true; submitBtn.innerText = 'Verifying...';
+	const r = await RMG.call('/api/verify-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code: codeInput.value.trim() }) }, () => { submitBtn.innerText = 'Waking up server…'; });
+	submitBtn.disabled = false; submitBtn.innerText = 'Verify Account';
+	if (!r.ok) return note(false, r.message);
+	successOverlay.classList.remove('hidden'); localStorage.removeItem('verify_email');
+	setTimeout(() => { window.location.href = '/login?verified=1'; }, 1800);
+});
+let cool = 0, timer;
+resendBtn.addEventListener('click', async () => {
+	if (cool > 0) return; resendBtn.disabled = true;
+	const r = await RMG.call('/api/resend-verification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+	note(r.ok, r.ok ? 'A new code is on its way. Check your inbox (and spam folder).' : r.message);
+	cool = 60; timer = setInterval(() => { cool--; resendBtn.innerText = cool > 0 ? 'Resend in ' + cool + 's' : 'Resend code'; if (cool <= 0) { clearInterval(timer); resendBtn.disabled = false; } }, 1000);
+});
+</script>
 </Layout>

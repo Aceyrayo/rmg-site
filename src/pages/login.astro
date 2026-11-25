@@ -2,7 +2,7 @@
 import Layout from '../layouts/layout.astro';
 ---
 
-<Layout title="Login">
+<Layout title="Login" hideChat>
 	<div class="flex min-h-screen bg-white">
 		
 		<!-- Left Side: Fixed Graphic & Branding -->
@@ -21,7 +21,7 @@ import Layout from '../layouts/layout.astro';
 			</div>
 
 			<div class="relative z-10 text-slate-500 text-sm">
-				© 2024 RMG TECHNOLOGIES INC.
+				© 2026 RMG TECHNOLOGIES INC.
 			</div>
 		</div>
 
@@ -72,58 +72,32 @@ import Layout from '../layouts/layout.astro';
 	</div>
 
 	<script is:inline>
-		const togglePassword = document.getElementById('togglePassword');
-		const passwordInput = document.getElementById('password');
-		togglePassword.addEventListener('click', () => {
-			const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-			passwordInput.setAttribute('type', type);
-		});
-
-		const form = document.getElementById('loginForm');
-		const submitBtn = document.getElementById('submitBtn');
-		const errorMsg = document.getElementById('errorMsg');
-
-		form.addEventListener('submit', async (e) => {
-			e.preventDefault();
-			submitBtn.innerText = "Authenticating...";
-			errorMsg.classList.add('hidden');
-
-			const username = document.getElementById('username').value;
-			const password = document.getElementById('password').value;
-
-			const formData = new URLSearchParams();
-			formData.append('username', username);
-			formData.append('password', password);
-
-			try {
-				const response = await fetch('https://rmg-api-e46k.onrender.com/api/login', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					body: formData.toString()
-				});
-				const data = await response.json();
-
-				if (response.ok) {
-					localStorage.setItem('rmg_token', data.access_token);
-					localStorage.setItem('rmg_role', data.role);
-					localStorage.setItem('rmg_name', data.first_name);
-					localStorage.setItem('rmg_email', data.email); 
-
-					if (data.role === 'admin') {
-						window.location.href = '/dashboard';
-					} else {
-						window.location.href = '/portal';
-					}
-				} else {
-					errorMsg.innerText = data.detail || "Invalid credentials.";
-					errorMsg.classList.remove('hidden');
-					submitBtn.innerText = "Sign In";
-				}
-			} catch (error) {
-				errorMsg.innerText = "Cannot connect to the server.";
-				errorMsg.classList.remove('hidden');
-				submitBtn.innerText = "Sign In";
-			}
-		});
-	</script>
+const g = id => document.getElementById(id);
+const form = g('loginForm'), submitBtn = g('submitBtn'), errorMsg = g('errorMsg');
+const rememberedUser = localStorage.getItem('rmg_remember_user');
+if (rememberedUser) { g('username').value = rememberedUser; g('remember').checked = true; }
+g('togglePassword').addEventListener('click', () => { const p = g('password'); p.type = p.type === 'password' ? 'text' : 'password'; });
+const fail = (msg, extra = '') => { errorMsg.innerHTML = ''; errorMsg.append(msg); if (extra) errorMsg.insertAdjacentHTML('beforeend', extra); errorMsg.classList.remove('hidden'); submitBtn.disabled = false; submitBtn.innerText = 'Sign In'; };
+const justVerified = new URLSearchParams(location.search).get('verified');
+if (justVerified) { errorMsg.className = 'text-emerald-700 text-sm text-center bg-emerald-50 py-2 rounded-lg border border-emerald-200'; errorMsg.innerText = 'Account verified — you can sign in now.'; }
+form.addEventListener('submit', async (e) => {
+	e.preventDefault();
+	submitBtn.disabled = true; submitBtn.innerText = 'Authenticating...';
+	errorMsg.className = 'text-red-600 text-sm text-center hidden bg-red-50 py-2 rounded-lg border border-red-200';
+	const body = new URLSearchParams({ username: g('username').value.trim(), password: g('password').value });
+	const r = await RMG.call('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: body.toString() }, () => { submitBtn.innerText = 'Waking up secure server…'; });
+	if (!r.ok) return fail(r.message, r.status === 403 ? ' <a class="underline font-semibold" href="/verify">Enter your code</a>' : '');
+	const d = r.data;
+	localStorage.setItem('rmg_token', d.access_token); localStorage.setItem('rmg_role', d.role);
+	localStorage.setItem('rmg_name', d.first_name); localStorage.setItem('rmg_email', d.email);
+	if (g('remember').checked) localStorage.setItem('rmg_remember_user', g('username').value.trim()); else localStorage.removeItem('rmg_remember_user');
+	// A plan chosen on the pricing page becomes a plan request for our team
+	const plan = localStorage.getItem('rmg_plan');
+	if (plan && plan !== 'developer' && d.role !== 'admin') {
+		try { await fetch(RMG.API + '/api/tickets', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + d.access_token }, body: JSON.stringify({ subject: 'Plan request: ' + plan, category: 'Billing Question', description: 'New account requesting the ' + plan + ' plan.' }) }); } catch (_) {}
+	}
+	localStorage.removeItem('rmg_plan');
+	window.location.href = d.role === 'admin' ? '/dashboard' : '/portal';
+});
+</script>
 </Layout>

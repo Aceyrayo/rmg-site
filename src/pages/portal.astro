@@ -1,78 +1,62 @@
 ---
-import AppLayout from '../layouts/AppLayout.astro';
+import PortalLayout from '../layouts/PortalLayout.astro';
+const groups = [
+	['Trading', [['Trading Systems', '/portal/trading', 'Engines and market at a glance'], ['Trading Bots', '/portal/bots', 'Deploy and manage algorithmic engines'], ['Live Market Data', '/portal/market-data', 'Crypto prices and forex rates']]],
+	['Developers', [['API Credentials', '/portal/api-keys', 'Create and revoke API keys'], ['API Documentation', '/portal/api-docs', 'Endpoints with live testing'], ['Webhooks', '/portal/webhooks', 'Signed event delivery + logs'], ['Integrations', '/portal/integrations', 'Slack, Discord, Teams, Zapier']]],
+	['Security', [['Security Center', '/portal/security', 'IP allowlist, sessions, sign-out'], ['Defense & Military', '/portal/defence', 'Encrypted vault and infrastructure'], ['Threat Intelligence', '/portal/threat-intel', 'Hostile activity on your account'], ['System Logs', '/portal/logs', 'Live event stream'], ['Audit Logs', '/portal/audit-logs', 'Every action, searchable']]],
+	['Workspace', [['Team', '/portal/team', 'Invite colleagues'], ['Roles & Permissions', '/portal/roles', 'Admin, Developer, Read-Only'], ['Enterprise Tools', '/portal/enterprise', 'CRM, workflows, reports'], ['Analytics', '/portal/analytics', 'Metrics and exports']]],
+	['Account', [['Billing & Plans', '/portal/billing', 'Plan, invoices, PDFs'], ['Support Center', '/portal/support', 'Open and track tickets'], ['System Status', '/portal/status', 'Live platform health'], ['Account Settings', '/portal/settings', 'Profile, password, theme']]]
+];
 ---
-
-<AppLayout title="Overview">
-	<div class="max-w-5xl mx-auto space-y-10">
-		
-		<!-- Page Header -->
-		<div>
-			<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Workspace Overview</h1>
-			<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your trading infrastructure, API credentials, and support tickets.</p>
-		</div>
-
-		<!-- Stats Grid -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-			<!-- Card 1 -->
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm transition-colors">
-				<div class="flex items-center justify-between mb-4">
-					<h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400">Active Bots</h3>
-					<div class="w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
-					</div>
-				</div>
-				<p class="text-3xl font-bold text-slate-900 dark:text-white">0</p>
-			</div>
-			
-			<!-- Card 2 -->
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm transition-colors">
-				<div class="flex items-center justify-between mb-4">
-					<h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400">API Requests (24h)</h3>
-					<div class="w-8 h-8 rounded-full bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-					</div>
-				</div>
-				<p class="text-3xl font-bold text-slate-900 dark:text-white">0</p>
-			</div>
-
-			<!-- Card 3 -->
-			<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm transition-colors">
-				<div class="flex items-center justify-between mb-4">
-					<h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400">Account Status</h3>
-					<div class="w-8 h-8 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-						<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-					</div>
-				</div>
-				<p class="text-3xl font-bold text-slate-900 dark:text-white">Verified</p>
-			</div>
-		</div>
-
-		<!-- Quick Links -->
-		<div class="grid md:grid-cols-2 gap-6">
-			<a href="/portal/bots" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-md transition-all flex items-start gap-4">
-				<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/30 group-hover:text-blue-600 dark:group-hover:text-blue-400 flex items-center justify-center shrink-0 transition-colors">
-					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path></svg>
-				</div>
-				<div>
-					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Deploy Trading Bot</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Browse available algorithmic engines and deploy them to your infrastructure.</p>
-				</div>
-			</a>
-
-			<a href="/portal/api-keys" class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-xl shadow-sm hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-md transition-all flex items-start gap-4">
-				<div class="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 group-hover:bg-purple-50 dark:group-hover:bg-purple-900/30 group-hover:text-purple-600 dark:group-hover:text-purple-400 flex items-center justify-center shrink-0 transition-colors">
-					<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
-				</div>
-				<div>
-					<h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">Manage API Keys</h3>
-					<p class="text-sm text-slate-500 dark:text-slate-400">Generate secure access tokens to connect your custom software to the RMG network.</p>
-				</div>
-			</a>
-		</div>
+<PortalLayout title="Overview">
+<div class="max-w-6xl mx-auto space-y-10">
+	<div>
+		<h1 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Welcome back<span id="welcomeName"></span></h1>
+		<p class="text-slate-500 dark:text-slate-400 mt-1 text-sm">Manage your trading infrastructure, API credentials, security and support from one place.</p>
 	</div>
 
-	<script is:inline>
-		const name = localStorage.getItem('rmg_name');
-		if (name) document.getElementById('welcomeName').innerText = name;
-	</script>
-</AppLayout>
+	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+		<div class="card p-5"><p class="text-sm font-semibold text-slate-500">Running bots</p><p id="sBots" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">…</p></div>
+		<div class="card p-5"><p class="text-sm font-semibold text-slate-500">Active API keys</p><p id="sKeys" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">…</p></div>
+		<div class="card p-5"><p class="text-sm font-semibold text-slate-500">Open tickets</p><p id="sTix" class="text-3xl font-bold text-slate-900 dark:text-white mt-1">…</p></div>
+		<div class="card p-5"><p class="text-sm font-semibold text-slate-500">Account status</p><p class="text-3xl font-bold text-emerald-500 mt-1">Verified</p><p id="sLast" class="text-xs text-slate-500 mt-1"></p></div>
+	</div>
+
+	<div class="grid lg:grid-cols-3 gap-8">
+		<div class="lg:col-span-2 space-y-8">
+			{groups.map(([title, items]) => (
+				<section>
+					<h2 class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">{title}</h2>
+					<div class="grid sm:grid-cols-2 gap-3">
+						{items.map(([t, href, d]) => (
+							<a href={href} class="group card p-4 hover:!border-blue-400 dark:hover:!border-blue-600 transition-colors block">
+								<h3 class="font-semibold text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{t}</h3>
+								<p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{d}</p>
+							</a>
+						))}
+					</div>
+				</section>
+			))}
+		</div>
+		<aside>
+			<div class="card sticky top-0">
+				<div class="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center"><h2 class="font-bold text-slate-900 dark:text-white">Recent activity</h2><a href="/portal/audit-logs" class="text-xs text-blue-500 hover:underline">View all</a></div>
+				<div id="recent" class="divide-y divide-slate-100 dark:divide-slate-800"><div class="p-6 text-center text-sm text-slate-500 animate-pulse">Loading…</div></div>
+			</div>
+		</aside>
+	</div>
+</div>
+<script is:inline>
+	(async () => {
+		const n = localStorage.getItem('rmg_name'); if (n) document.getElementById('welcomeName').textContent = ', ' + n;
+		try {
+			const [o, act] = await Promise.all([api('/api/me/overview'), api('/api/me/activity?limit=7')]);
+			document.getElementById('sBots').textContent = o.bots.running;
+			document.getElementById('sKeys').textContent = o.keys.active;
+			document.getElementById('sTix').textContent = o.tickets.open;
+			if (o.last_login) document.getElementById('sLast').textContent = 'Last sign-in ' + o.last_login + ' UTC';
+			document.getElementById('recent').innerHTML = act.length ? act.map(a => `<div class="p-3"><div class="flex justify-between items-center gap-2">${badge(a.action.replace(/_/g, ' '), /FAILED|DELETE|REVOKED/.test(a.action) ? 'red' : /^LOGIN/.test(a.action) ? 'green' : 'blue')}<span class="text-[10px] font-mono text-slate-500">${esc(a.time.slice(5, 16))}</span></div><p class="text-xs text-slate-500 mt-1 truncate">${esc(a.detail)}</p></div>`).join('') : '<div class="p-6 text-center text-sm text-slate-500">No activity yet.</div>';
+		} catch (e) { document.getElementById('recent').innerHTML = '<div class="p-6 text-center text-sm text-red-500">Could not load data.</div>'; }
+	})();
+</script>
+</PortalLayout>

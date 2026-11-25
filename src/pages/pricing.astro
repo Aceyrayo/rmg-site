@@ -1,56 +1,102 @@
 ---
 import Layout from '../layouts/layout.astro';
+const rows = [
+	['API calls per month', '1,000', '100,000', 'Unlimited'],
+	['Live market data', 'Standard', 'Ultra-low latency', 'Ultra-low latency'],
+	['API keys & webhooks', 'Basic', 'Custom webhooks', 'Custom webhooks'],
+	['Encrypted vault', true, true, true],
+	['Team members & roles', false, true, true],
+	['Priority 24/7 support', false, true, true],
+	['Dedicated account manager', false, false, true],
+	['On-premise deployment', false, false, true],
+	['Custom SLA', false, false, true]
+];
+const faqs = [
+	['Can I change plans later?', 'Yes. Request a change from Billing & Plans in your portal and our team confirms it, usually the same business day.'],
+	['What happens if I exceed my API calls?', 'We will contact you before limiting anything. You can upgrade at any time to raise your limit.'],
+	['Do you offer refunds?', 'Contact our team within your first billing period and we will review your situation fairly.'],
+	['How does Enterprise pricing work?', 'Enterprise is scoped to your needs — deployment model, volume and SLA. Talk to sales and we will send a proposal.']
+];
 ---
-
 <Layout title="Pricing">
-	<main class="max-w-7xl mx-auto px-8 py-32 relative bg-slate-50">
-		<div class="text-center mb-20">
-			<h1 class="text-5xl font-bold tracking-tighter text-slate-900 mb-6">Plans for every scale.</h1>
-			<p class="text-xl text-slate-500 max-w-2xl mx-auto">Start small, or deploy military-grade infrastructure globally. No hidden fees.</p>
+<main class="max-w-7xl mx-auto px-6 sm:px-8 py-28 sm:py-32 relative bg-slate-50">
+	<div class="text-center mb-16">
+		<h1 class="text-4xl sm:text-5xl font-bold tracking-tighter text-slate-900 mb-6">Plans for every scale.</h1>
+		<p class="text-xl text-slate-500 max-w-2xl mx-auto">Start small, or deploy military-grade infrastructure globally. No hidden fees.</p>
+	</div>
+
+	<div class="grid md:grid-cols-3 gap-8 items-start">
+		<div class="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm hover:border-slate-300 transition-all duration-300">
+			<h3 class="text-xl font-bold text-slate-900 mb-2">Developer</h3>
+			<p class="text-slate-500 text-sm mb-6">For individual testing and side projects.</p>
+			<div class="text-4xl font-bold text-slate-900 mb-8">$0<span class="text-lg text-slate-500 font-normal">/mo</span></div>
+			<ul class="space-y-4 mb-8 text-sm text-slate-600">
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> 1,000 API calls/mo</li>
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Community Support</li>
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Standard Market Data</li>
+			</ul>
+			<a data-plan="developer" href="/signup?plan=developer" class="block text-center w-full border border-slate-200 text-slate-900 font-semibold py-3 rounded-xl hover:bg-slate-50 transition-colors">Start for free</a>
 		</div>
 
-		<div class="grid md:grid-cols-3 gap-8">
-			<!-- Tier 1 -->
-			<div class="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm hover:border-slate-300 transition-all duration-300">
-				<h3 class="text-xl font-bold text-slate-900 mb-2">Developer</h3>
-				<p class="text-slate-500 text-sm mb-6">For individual testing and side projects.</p>
-				<div class="text-4xl font-bold text-slate-900 mb-8">$0<span class="text-lg text-slate-500 font-normal">/mo</span></div>
-				<ul class="space-y-4 mb-8 text-sm text-slate-600">
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> 1,000 API calls/mo</li>
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Community Support</li>
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Standard Market Data</li>
-				</ul>
-				<a href="/signup" class="block text-center w-full border border-slate-200 text-slate-900 font-semibold py-3 rounded-xl hover:bg-slate-50 transition-colors">Start for free</a>
-			</div>
-
-			<!-- Tier 2 (Highlighted) -->
-			<div class="p-8 border border-slate-900 rounded-3xl bg-slate-900 text-white shadow-xl relative transform md:-translate-y-4">
-				<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</div>
-				<h3 class="text-xl font-bold mb-2">Professional</h3>
-				<p class="text-slate-400 text-sm mb-6">For active traders and startups.</p>
-				<div class="text-4xl font-bold mb-8">$99<span class="text-lg text-slate-400 font-normal">/mo</span></div>
-				<ul class="space-y-4 mb-8 text-sm text-slate-300">
-					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> 100,000 API calls/mo</li>
-					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Priority 24/7 Support</li>
-					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Ultra-Low Latency Data</li>
-					<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Custom Webhooks</li>
-				</ul>
-				<a href="/contact" class="block text-center w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-500 transition-colors">Upgrade to Pro</a>
-			</div>
-
-			<!-- Tier 3 -->
-			<div class="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm hover:border-slate-300 transition-all duration-300">
-				<h3 class="text-xl font-bold text-slate-900 mb-2">Enterprise</h3>
-				<p class="text-slate-500 text-sm mb-6">For defense systems and institutions.</p>
-				<div class="text-4xl font-bold text-slate-900 mb-8">Custom</div>
-				<ul class="space-y-4 mb-8 text-sm text-slate-600">
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Unlimited API calls</li>
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Dedicated Account Manager</li>
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> On-Premise Deployment</li>
-					<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Custom SLA</li>
-				</ul>
-				<a href="/contact" class="block text-center w-full border border-slate-200 text-slate-900 font-semibold py-3 rounded-xl hover:bg-slate-50 transition-colors">Contact Sales</a>
-			</div>
+		<div class="p-8 border border-slate-900 rounded-3xl bg-slate-900 text-white shadow-xl relative transform md:-translate-y-4">
+			<div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Most Popular</div>
+			<h3 class="text-xl font-bold mb-2">Professional</h3>
+			<p class="text-slate-400 text-sm mb-6">For active traders and startups.</p>
+			<div class="text-4xl font-bold mb-8">$99<span class="text-lg text-slate-400 font-normal">/mo</span></div>
+			<ul class="space-y-4 mb-8 text-sm text-slate-300">
+				<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> 100,000 API calls/mo</li>
+				<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Priority 24/7 Support</li>
+				<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Ultra-Low Latency Data</li>
+				<li class="flex items-center gap-3"><span class="text-blue-400 font-bold">✓</span> Custom Webhooks</li>
+			</ul>
+			<a data-plan="professional" href="/signup?plan=professional" class="block text-center w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-500 transition-colors">Get Professional</a>
 		</div>
-	</main>
+
+		<div class="p-8 border border-slate-200 rounded-3xl bg-white shadow-sm hover:border-slate-300 transition-all duration-300">
+			<h3 class="text-xl font-bold text-slate-900 mb-2">Enterprise</h3>
+			<p class="text-slate-500 text-sm mb-6">For defense systems and institutions.</p>
+			<div class="text-4xl font-bold text-slate-900 mb-8">Custom</div>
+			<ul class="space-y-4 mb-8 text-sm text-slate-600">
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Unlimited API calls</li>
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Dedicated Account Manager</li>
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> On-Premise Deployment</li>
+				<li class="flex items-center gap-3"><span class="text-blue-500 font-bold">✓</span> Custom SLA</li>
+			</ul>
+			<a data-plan="enterprise" href="/signup?plan=enterprise" class="block text-center w-full border border-slate-200 text-slate-900 font-semibold py-3 rounded-xl hover:bg-slate-50 transition-colors">Get Enterprise</a>
+			<p class="text-center text-xs text-slate-500 mt-3">Need a custom quote? <a href="/contact?topic=Enterprise%20quote" class="text-blue-600 hover:underline">Talk to sales</a></p>
+		</div>
+	</div>
+
+	<!-- COMPARISON -->
+	<div class="mt-24">
+		<h2 class="text-2xl font-bold text-slate-900 text-center mb-8">Compare plans</h2>
+		<div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-x-auto">
+			<table class="w-full text-sm text-left min-w-[560px]">
+				<thead class="bg-slate-50 text-slate-500 text-xs uppercase"><tr><th class="px-6 py-4 font-semibold">Feature</th><th class="px-6 py-4 font-semibold">Developer</th><th class="px-6 py-4 font-semibold text-blue-600">Professional</th><th class="px-6 py-4 font-semibold">Enterprise</th></tr></thead>
+				<tbody class="divide-y divide-slate-100">
+					{rows.map(r => (
+						<tr>{r.map((c, i) => <td class={`px-6 py-3.5 ${i === 0 ? 'font-medium text-slate-900' : 'text-slate-600'}`}>{c === true ? <span class="text-emerald-500 font-bold">✓</span> : c === false ? <span class="text-slate-300">—</span> : c}</td>)}</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- FAQ -->
+	<div class="max-w-3xl mx-auto mt-24">
+		<h2 class="text-2xl font-bold text-slate-900 text-center mb-8">Pricing questions</h2>
+		<div class="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-200 shadow-sm">
+			{faqs.map(([q, a]) => (
+				<details class="group p-6"><summary class="flex justify-between items-center cursor-pointer list-none font-semibold text-slate-900">{q}<span class="text-slate-400 group-open:rotate-45 transition-transform text-xl leading-none">+</span></summary><p class="text-slate-500 text-sm leading-relaxed mt-3">{a}</p></details>
+			))}
+		</div>
+		<p class="text-center text-sm text-slate-500 mt-8">Still unsure? <a href="/contact" class="text-blue-600 font-semibold hover:underline">Talk to our team</a></p>
+	</div>
+</main>
+<script is:inline>
+	// Already signed in? Plan buttons take you straight to Billing & Plans instead of the sign-up page.
+	if (localStorage.getItem('rmg_token') && localStorage.getItem('rmg_role') !== 'admin') {
+		document.querySelectorAll('[data-plan]').forEach(a => { a.setAttribute('href', '/portal/billing'); if (a.dataset.plan !== 'developer') a.textContent = 'Manage plan'; });
+	}
+</script>
 </Layout>
