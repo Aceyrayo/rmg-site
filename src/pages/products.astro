@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/layout.astro';
+---
+
+<Layout title="Our Software">
+	<main class="bg-white dark:bg-[#030712] transition-colors duration-200">
+		
+		<!-- Hero -->
+		<div class="max-w-7xl mx-auto px-8 pt-24 pb-16 text-center">
+			<h1 class="text-5xl md:text-6xl font-bold tracking-tighter text-slate-900 dark:text-white mb-6">
+				Software built to <span class="text-blue-600 dark:text-blue-500">scale.</span>
+			</h1>
+			<p class="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+				Explore the enterprise-grade tools we build at RMG Technologies. From high-frequency trading engines to everyday business management.
+			</p>
+		</div>
+
+		<!-- Product Grid -->
+		<div class="max-w-7xl mx-auto px-8 pb-32">
+			<div class="grid md:grid-cols-2 gap-8">
+				
+				<!-- Product 1: BizManager (Active) -->
+				<a href="/products/bizmanager" class="group relative bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300 overflow-hidden">
+					<div class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -mr-20 -mt-20 pointer-events-none"></div>
+					<div class="flex items-center justify-between mb-8 relative z-10">
+						<div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center">
+							<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.423 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+						</div>
+						<span class="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">Available Now</span>
+					</div>
+					<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3 relative z-10 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">RMG BizManager</h2>
+					<p class="text-slate-500 dark:text-slate-400 mb-6 relative z-10">A complete business management platform for retail and SMEs. Track inventory, manage sales, and view financial reports in real-time.</p>
+					<div class="flex items-center text-blue-600 dark:text-blue-400 font-bold text-sm relative z-10">
+						View Product Details <svg class="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+					</div>
+				</a>
+
+				<!-- Product 2: Trading Engine (Coming Soon) -->
+				<div class="relative bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 opacity-75 overflow-hidden">
+					<div class="flex items-center justify-between mb-8 relative z-10">
+						<div class="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center">
+							<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+						</div>
+						<span class="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold px-3 py-1 rounded-full">In Development</span>
+					</div>
+					<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3 relative z-10">RMG Alpha Trade</h2>
+					<p class="text-slate-500 dark:text-slate-400 mb-6 relative z-10">Ultra-low latency algorithmic trading engine for cryptocurrency and forex markets.</p>
+				</div>
+
+				<!-- Product 3: Defense (Coming Soon) -->
+				<div class="relative bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 opacity-75 overflow-hidden">
+					<div class="flex items-center justify-between mb-8 relative z-10">
+						<div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center">
+							<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"></path></svg>
+						</div>
+						<span class="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold px-3 py-1 rounded-full">In Development</span>
+					</div>
+					<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-3 relative z-10">RMG Sentinel</h2>
+					<p class="text-slate-500 dark:text-slate-400 mb-6 relative z-10">Encrypted data vaults and threat intelligence monitoring for government defense systems.</p>
+				</div>
+			</div>
+		</div>
+	</main>
+</Layout>
