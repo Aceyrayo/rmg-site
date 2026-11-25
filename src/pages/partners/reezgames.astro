@@ -1,0 +1,50 @@
+---
+import Layout from '../../layouts/layout.astro';
+---
+
+<Layout title="ReezGames">
+	<main class="bg-[#0a0a0a] text-white min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+		
+		<!-- Abstract Background Glow -->
+		<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/20 blur-[120px] rounded-full pointer-events-none"></div>
+		<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 pointer-events-none"></div>
+
+		<div class="relative z-10 text-center px-4">
+			<!-- Custom ReezGames Icon -->
+			<div class="w-32 h-32 mx-auto mb-8 relative">
+				<div class="absolute inset-0 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-3xl rotate-12 blur-md opacity-50 animate-pulse"></div>
+				<div class="absolute inset-0 bg-gradient-to-tr from-purple-600 to-pink-500 rounded-3xl rotate-12 flex items-center justify-center border border-white/20 shadow-2xl">
+					<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/>
+						<path d="M17.32 5H6.68a4 4 0 0 0-3.98 3.61c-.05.46-.07.92-.07 1.39v3c0 .47.02.93.07 1.39A4 4 0 0 0 6.68 18h10.64a4 4 0 0 0 3.98-3.61c.05-.46.07-.92.07-1.39v-3c0-.47-.02-.93-.07-1.39A4 4 0 0 0 17.32 5z"/>
+					</svg>
+				</div>
+			</div>
+
+			<h1 class="text-5xl md:text-7xl font-black tracking-tighter mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-300">
+				REEZGAMES
+			</h1>
+			
+			<div class="inline-flex items-center gap-2 bg-white/10 border border-white/20 rounded-full px-4 py-1.5 mb-8">
+				<span class="w-2 h-2 rounded-full bg-pink-500 animate-pulse"></span>
+				<span class="text-sm font-semibold tracking-widest uppercase text-pink-200">Coming Soon</span>
+			</div>
+
+			<p class="text-lg text-slate-400 max-w-md mx-auto mb-12">
+				Next-generation gaming experiences. Pushing the boundaries of mobile and web gaming. Get ready to play.
+			</p>
+
+			<!-- Partnership Badge -->
+			<div class="flex items-center justify-center gap-3 text-sm font-medium text-slate-500">
+				<span>In partnership with</span>
+				<a href="/" class="flex items-center gap-2 text-white hover:text-purple-400 transition-colors">
+					<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M16 2L30 10V22L16 30L2 22V10L16 2Z" stroke="currentColor" stroke-width="2" fill="transparent"/>
+						<path d="M16 8L23 12V20L16 24L9 20V12L16 8Z" fill="currentColor"/>
+					</svg>
+					<span class="font-bold tracking-widest uppercase">RMG TECHNOLOGIES</span>
+				</a>
+			</div>
+		</div>
+	</main>
+</Layout>
