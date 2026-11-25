@@ -1,0 +1,66 @@
+---
+import Layout from '../layouts/layout.astro';
+---
+
+<Layout title="Our Services">
+	<main class="bg-white dark:bg-[#030712] transition-colors duration-200">
+		
+		<div class="max-w-7xl mx-auto px-8 pt-24 pb-16 text-center">
+			<h1 class="text-5xl md:text-6xl font-bold tracking-tighter text-slate-900 dark:text-white mb-6">
+				How we <span class="text-blue-600 dark:text-blue-500">work.</span>
+			</h1>
+			<p class="text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
+				Whether you need a custom system built from scratch, a ready-made platform, or ongoing technical support, RMG Technologies has a solution.
+			</p>
+		</div>
+
+		<div class="max-w-7xl mx-auto px-8 pb-32 grid lg:grid-cols-3 gap-8">
+			
+			<!-- Service 1: Custom Development -->
+			<div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:border-blue-500/50 transition-colors">
+				<div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6">
+					<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+				</div>
+				<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Custom Software</h2>
+				<p class="text-slate-500 dark:text-slate-400 mb-6">Have a unique business problem? We build custom software from scratch. From initial architecture to final deployment.</p>
+				<ul class="space-y-3 mb-8 text-sm text-slate-600 dark:text-slate-400">
+					<li class="flex items-center gap-2"><span class="text-blue-500">✓</span> Full-stack web apps</li>
+					<li class="flex items-center gap-2"><span class="text-blue-500">✓</span> Third-party integrations (M-Pesa, APIs)</li>
+					<li class="flex items-center gap-2"><span class="text-blue-500">✓</span> Complete ownership</li>
+				</ul>
+				<a href="/contact" class="text-blue-600 dark:text-blue-400 font-bold text-sm hover:underline">Request a Quote →</a>
+			</div>
+
+			<!-- Service 2: SaaS Platform -->
+			<div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:border-purple-500/50 transition-colors">
+				<div class="w-14 h-14 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-2xl flex items-center justify-center mb-6">
+					<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path></svg>
+				</div>
+				<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">SaaS Subscriptions</h2>
+				<p class="text-slate-500 dark:text-slate-400 mb-6">Use our pre-built, enterprise-grade software. Ideal for gyms, schools, and retail shops looking to digitize quickly.</p>
+				<ul class="space-y-3 mb-8 text-sm text-slate-600 dark:text-slate-400">
+					<li class="flex items-center gap-2"><span class="text-purple-500">✓</span> Monthly or Annual billing</li>
+					<li class="flex items-center gap-2"><span class="text-purple-500">✓</span> Zero setup fees</li>
+					<li class="flex items-center gap-2"><span class="text-purple-500">✓</span> Instant access</li>
+				</ul>
+				<a href="/products" class="text-purple-600 dark:text-purple-400 font-bold text-sm hover:underline">View Our Software →</a>
+			</div>
+
+			<!-- Service 3: Maintenance -->
+			<div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-8 rounded-3xl shadow-sm hover:border-emerald-500/50 transition-colors">
+				<div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl flex items-center justify-center mb-6">
+					<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+				</div>
+				<h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Maintenance & Hosting</h2>
+				<p class="text-slate-500 dark:text-slate-400 mb-6">Let us handle the technical side. We manage your servers, database backups, security patches, and updates.</p>
+				<ul class="space-y-3 mb-8 text-sm text-slate-600 dark:text-slate-400">
+					<li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> 99.9% Uptime SLA</li>
+					<li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> Automated Daily Backups</li>
+					<li class="flex items-center gap-2"><span class="text-emerald-500">✓</span> 24/7 Technical Support</li>
+				</ul>
+				<a href="/contact" class="text-emerald-600 dark:text-emerald-400 font-bold text-sm hover:underline">Contact Support →</a>
+			</div>
+
+		</div>
+	</main>
+</Layout>
