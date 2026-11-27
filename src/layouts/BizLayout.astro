@@ -1,0 +1,139 @@
+---
+import '../styles/global.css';
+// BizManager app shell: its own sidebar, business switcher, trial banner, role-aware menu.
+// Uses the shared RMG toolkit (api, table, badge, toast, stat, panel, money, downloadCsv…) from AdminKit.
+import AdminKit from '../components/AdminKit.astro';
+const { title } = Astro.props;
+const nav = [
+	['Dashboard', '/biz', 'view', 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'],
+	['New Sale / POS', '/biz/pos', 'sell', 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3c-.6.6-.2 1.7.7 1.7H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z'],
+	['Sales & Invoices', '/biz/sales', 'view', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.6a1 1 0 01.7.3l5.4 5.4a1 1 0 01.3.7V19a2 2 0 01-2 2z'],
+	['Products & Stock', '/biz/products', 'view', 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'],
+	['Customers', '/biz/customers', 'view', 'M17 20h5v-2a3 3 0 00-5.4-1.9M17 20H7m10 0v-2c0-.7-.1-1.3-.4-1.9M7 20H2v-2a3 3 0 015.4-1.9M7 20v-2c0-.7.1-1.3.4-1.9m0 0a5 5 0 019.2 0M15 7a3 3 0 11-6 0 3 3 0 016 0z'],
+	['Expenses', '/biz/expenses', 'finance', 'M12 8c-1.7 0-3 .9-3 2s1.3 2 3 2 3 .9 3 2-1.3 2-3 2m0-8c1.1 0 2.1.4 2.6 1M12 8V7m0 1v8m0 0v1m0-1c-1.1 0-2.1-.4-2.6-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+	['Reports', '/biz/reports', 'finance', 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'],
+	['Team', '/biz/team', 'team', 'M12 4.4a4 4 0 110 5.2M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m12-10l2 2 4-4'],
+	['Settings', '/biz/settings', 'settings', 'M10.3 4.3c.4-1.8 3-1.8 3.4 0a1.7 1.7 0 002.6 1c1.5-1 3.3.8 2.3 2.3a1.7 1.7 0 001 2.6c1.8.4 1.8 3 0 3.4a1.7 1.7 0 00-1 2.6c1 1.5-.8 3.3-2.3 2.3a1.7 1.7 0 00-2.6 1c-.4 1.8-3 1.8-3.4 0a1.7 1.7 0 00-2.6-1c-1.5 1-3.3-.8-2.3-2.3a1.7 1.7 0 00-1-2.6c-1.8-.4-1.8-3 0-3.4a1.7 1.7 0 001-2.6c-1-1.5.8-3.3 2.3-2.3.9.5 2.1.1 2.6-1zM15 12a3 3 0 11-6 0 3 3 0 016 0z']
+];
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{title} | BizManager by RMG</title>
+		<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M8 22V10h6a4 4 0 010 8H8m6 0l4 4' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+		<script is:inline>
+			if (localStorage.getItem('rmg_theme') === 'dark' || (!('rmg_theme' in localStorage) && matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+		</script>
+	</head>
+	<body class="bg-slate-50 dark:bg-[#0b0f19] text-slate-900 dark:text-slate-200 font-sans antialiased flex h-[100dvh] overflow-hidden">
+		<div id="ov" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden"></div>
+
+		<aside id="side" class="w-[250px] bg-white dark:bg-[#080b12] border-r border-slate-200 dark:border-slate-800 flex flex-col h-[100dvh] shrink-0 fixed md:relative inset-y-0 left-0 z-50 -translate-x-full md:translate-x-0 transition-transform duration-300">
+			<div class="h-16 flex items-center gap-3 px-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+				<div class="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-black">B</div>
+				<div class="leading-tight"><p class="text-sm font-bold text-slate-900 dark:text-white">BizManager</p><p class="text-[11px] text-slate-500">by RMG Technologies</p></div>
+			</div>
+			<div class="p-3 border-b border-slate-200 dark:border-slate-800"><label class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Business</label><select id="wsSel" class="inp !py-1.5 mt-1 text-sm font-semibold"></select></div>
+			<nav class="flex-1 overflow-y-auto p-3 space-y-0.5">
+				{nav.map(([t, h, p, d]) => (
+					<a data-nav data-perm={p} href={h} class="hidden items-center gap-3 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">
+						<svg class="w-[18px] h-[18px] shrink-0 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d={d}></path></svg>{t}
+					</a>
+				))}
+			</nav>
+			<div class="p-3 border-t border-slate-200 dark:border-slate-800 space-y-1 text-sm">
+				<a href="/portal" class="block px-3 py-2 rounded-md text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">← RMG Portal</a>
+				<button id="logout" class="w-full text-left px-3 py-2 rounded-md text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">Sign out</button>
+			</div>
+		</aside>
+
+		<div class="flex-1 flex flex-col h-[100dvh] overflow-hidden min-w-0">
+			<header class="h-16 bg-white dark:bg-[#080b12] border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-4 md:px-8 shrink-0">
+				<div class="flex items-center gap-3 min-w-0">
+					<button id="menu" class="md:hidden text-slate-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+					<h1 class="font-bold text-slate-900 dark:text-white truncate">{title}</h1>
+				</div>
+				<div class="flex items-center gap-3"><span id="planBadge"></span><a data-perm-link="sell" href="/biz/pos" class="hidden btn btn-p !px-4 !py-2">+ New Sale</a></div>
+			</header>
+			<div id="banner"></div>
+			<main class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8">
+				<div id="gate" class="max-w-xl mx-auto"></div>
+				<div id="content" class="hidden">
+					<AdminKit />
+					<script is:inline>
+						// BIZ = shared state for every BizManager page. Pages run:  BIZ.ready.then(() => {...})
+						window.BIZ = { id: null, ws: null, ready: null, _ok: null, can: p => !!(BIZ.ws && BIZ.ws.perms.includes(p)) };
+						BIZ.ready = new Promise(r => { BIZ._ok = r; });
+						const bapi = (path, opts) => api('/api/biz/' + BIZ.id + path, opts);
+						const bjson = (method, body) => ({ method, body: JSON.stringify(body) });
+						const fmt = n => { try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: BIZ.ws.currency }).format(n || 0); } catch (e) { return (BIZ.ws.currency || '') + ' ' + Number(n || 0).toFixed(2); } };
+						const today = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+						const METHODS = ['Cash', 'Card', 'Mobile Money', 'Bank Transfer', 'Cheque', 'Other'];
+						const monthStart = () => today().slice(0, 8) + '01';
+						const docStatus = s => badge(s.overdue ? 'Overdue' : s.status, s.overdue ? 'red' : { Paid: 'green', Partial: 'amber', Unpaid: 'slate', Void: 'slate' }[s.status] || 'slate');
+						const ask = (title, fields, init = {}) => new Promise(res => {   // small form dialog -> resolves with values or null
+							const d = document.createElement('dialog'); d.className = 'card p-0 w-full max-w-md backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+							d.innerHTML = `<form class="p-6 space-y-4"><h2 class="text-lg font-bold">${esc(title)}</h2>${fields.map(f => `<div><label class="text-xs font-semibold text-slate-500">${esc(f.l)}</label>${f.t === 'select' ? `<select name="${f.k}" class="inp">${f.o.map(o => `<option ${o === (init[f.k] ?? f.v) ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>` : f.t === 'textarea' ? `<textarea name="${f.k}" rows="3" class="inp" ${f.req ? 'required' : ''}>${esc(init[f.k] ?? f.v ?? '')}</textarea>` : `<input name="${f.k}" type="${f.t || 'text'}" step="any" min="${f.min ?? ''}" class="inp" value="${esc(init[f.k] ?? f.v ?? '')}" placeholder="${esc(f.p || '')}" ${f.req ? 'required' : ''}>`}</div>`).join('')}<div class="flex justify-end gap-2 pt-2"><button type="button" class="btn" data-x>Cancel</button><button class="btn btn-p">Save</button></div></form>`;
+							document.body.appendChild(d); d.showModal(); const done = v => { d.close(); d.remove(); res(v); };
+							d.querySelector('[data-x]').onclick = () => done(null);
+							d.querySelector('form').onsubmit = e => { e.preventDefault(); const o = {}; fields.forEach(f => { const v = d.querySelector(`[name="${f.k}"]`).value; o[f.k] = f.t === 'number' ? (v === '' ? null : Number(v)) : v; }); done(o); };
+						});
+						function printDoc(s) {   // receipt / invoice -> print or save as PDF
+							const w = window.open('', '_blank'); if (!w) return toast('Allow pop-ups to print', true); const b = BIZ.ws, inv = s.kind === 'invoice';
+							w.document.write(`<html><head><title>${esc(s.number)}</title><style>*{box-sizing:border-box}body{font-family:system-ui,sans-serif;color:#0f172a;max-width:${inv ? 760 : 360}px;margin:24px auto;padding:0 16px;font-size:${inv ? 14 : 12}px}h1{margin:0;font-size:22px}table{width:100%;border-collapse:collapse;margin:16px 0}th{text-align:left;border-bottom:2px solid #0f172a;padding:6px 4px;font-size:11px;text-transform:uppercase}td{padding:6px 4px;border-bottom:1px solid #e2e8f0}.r{text-align:right}.t td{border:0;padding:3px 4px}.big{font-size:17px;font-weight:700}.m{color:#64748b}.tag{display:inline-block;border:2px solid #0f172a;padding:2px 10px;font-weight:700;letter-spacing:2px}</style></head><body>
+							<div style="display:flex;justify-content:space-between;gap:16px"><div><h1>${esc(b.name)}</h1><div class="m">${esc(b.address || '')}<br>${esc(b.phone || '')} ${esc(b.email || '')}</div></div><div style="text-align:right"><div class="tag">${inv ? 'INVOICE' : 'RECEIPT'}</div><div class="m" style="margin-top:6px">#${esc(s.number)}<br>${esc(s.date)}${s.due_date ? '<br>Due ' + esc(s.due_date) : ''}</div></div></div>
+							<p><span class="m">Billed to</span><br><b>${esc(s.customer_name || 'Walk-in customer')}</b></p>
+							<table><thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Total</th></tr></thead><tbody>${s.items.map(l => `<tr><td>${esc(l.name)}</td><td class="r">${l.qty}</td><td class="r">${l.price.toFixed(2)}</td><td class="r">${l.total.toFixed(2)}</td></tr>`).join('')}</tbody></table>
+							<table class="t" style="margin-left:auto;width:${inv ? 280 : '100%'}px"><tr><td>Subtotal</td><td class="r">${s.subtotal.toFixed(2)}</td></tr>${s.discount ? `<tr><td>Discount</td><td class="r">-${s.discount.toFixed(2)}</td></tr>` : ''}${s.tax ? `<tr><td>Tax</td><td class="r">${s.tax.toFixed(2)}</td></tr>` : ''}<tr class="big"><td>Total (${esc(b.currency)})</td><td class="r">${s.total.toFixed(2)}</td></tr><tr><td>Paid</td><td class="r">${s.paid.toFixed(2)}</td></tr><tr class="big"><td>Balance due</td><td class="r">${s.balance.toFixed(2)}</td></tr></table>
+							${s.status === 'Void' ? '<p style="color:#dc2626;font-weight:700">VOID</p>' : ''}${s.notes ? `<p class="m">${esc(s.notes)}</p>` : ''}<p class="m" style="text-align:center;margin-top:28px">Thank you for your business.</p></body></html>`);
+							w.document.close(); w.focus(); setTimeout(() => w.print(), 300);
+						}
+					</script>
+					<slot />
+				</div>
+			</main>
+		</div>
+
+		<script is:inline>
+			(async () => {
+				const g = id => document.getElementById(id);
+				if (!localStorage.getItem('rmg_token')) { location.href = '/login'; return; }
+				const side = g('side'), ov = g('ov'), tog = () => { side.classList.toggle('-translate-x-full'); ov.classList.toggle('hidden'); };
+				g('menu').onclick = tog; ov.onclick = tog;
+				g('logout').onclick = () => { localStorage.clear(); location.replace('/login'); };
+				document.querySelectorAll('[data-nav]').forEach(a => { if (a.getAttribute('href') === location.pathname.replace(/\/$/, '')) a.classList.add('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-700', 'dark:text-blue-400'); });
+				const gate = g('gate'), content = g('content'); let data;
+				const load = async () => { data = await api('/api/biz/workspaces'); };
+				const start = ws => {
+					BIZ.id = ws.id; BIZ.ws = ws; localStorage.setItem('biz_ws', ws.id);
+					document.querySelectorAll('[data-nav]').forEach(a => { const ok = ws.perms.includes(a.dataset.perm); a.classList.toggle('hidden', !ok); a.classList.toggle('flex', ok); });
+					document.querySelectorAll('[data-perm-link]').forEach(a => a.classList.toggle('hidden', !ws.perms.includes(a.dataset.permLink)));
+					const dl = ws.days_left;
+					g('planBadge').innerHTML = ws.plan === 'active' ? badge('Active', 'green') : ws.plan === 'trial' ? badge(dl >= 0 ? 'Trial · ' + dl + ' day' + (dl === 1 ? '' : 's') + ' left' : 'Trial ended', dl > 3 ? 'blue' : 'amber') : badge('Suspended', 'red');
+					if (!ws.writable) g('banner').innerHTML = `<div class="bg-amber-50 dark:bg-amber-900/20 border-b border-amber-200 dark:border-amber-900/50 text-amber-800 dark:text-amber-300 text-sm px-6 py-3">Your ${ws.plan === 'trial' ? 'free trial has ended' : 'account is inactive'}. You can still view your data, but changes are disabled. <a class="underline font-semibold" href="/contact?topic=Sales%20enquiry">Contact RMG to activate BizManager</a>.</div>`;
+					gate.innerHTML = ''; content.classList.remove('hidden');
+					BIZ._ok();
+				};
+				try {
+					await load();
+					const sel = g('wsSel');
+					const render = () => { sel.innerHTML = data.workspaces.map(w => `<option value="${w.id}">${esc(w.name)}</option>`).join('') + '<option value="new">+ New business…</option>'; };
+					if (data.invites.length) gate.innerHTML = data.invites.map(i => `<div class="card p-5 mb-4 flex flex-wrap items-center justify-between gap-3"><div><b>${esc(i.business)}</b> invited you as <b>${esc(i.role)}</b></div><div class="flex gap-2"><button class="btn btn-p" data-acc="${i.id}">Accept</button><button class="btn" data-dec="${i.id}">Decline</button></div></div>`).join('');
+					gate.onclick = async e => { const a = e.target.closest('[data-acc]'), d = e.target.closest('[data-dec]'); if (!a && !d) return;
+						try { await api('/api/biz/invites/' + (a ? a.dataset.acc : d.dataset.dec) + (a ? '/accept' : ''), { method: a ? 'POST' : 'DELETE' }); location.reload(); } catch (err) { toast(err.message, true); } };
+					const create = async () => {
+						const v = await ask('Set up your business', [{ k: 'name', l: 'Business name', req: 1, p: 'e.g. Amina Fresh Market' }, { k: 'currency', l: 'Currency (3 letters)', v: 'USD', req: 1 }, { k: 'tax_rate', l: 'Sales tax / VAT %', t: 'number', v: 0, min: 0 }, { k: 'phone', l: 'Phone' }, { k: 'address', l: 'Address' }]);
+						if (!v) return false; try { const ws = await api('/api/biz/workspaces', bjson('POST', { ...v, tax_rate: v.tax_rate || 0 })); localStorage.setItem('biz_ws', ws.id); location.reload(); return true; } catch (err) { toast(err.message, true); return false; } };
+					if (!data.workspaces.length) {
+						gate.innerHTML += `<div class="card p-10 text-center"><div class="w-14 h-14 mx-auto rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl font-black mb-4">B</div><h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Welcome to BizManager</h2><p class="text-slate-500 text-sm mb-6">Set up your business to start tracking sales, stock, customers and profit. Your 14-day free trial starts now — no card needed.</p><button id="setup" class="btn btn-p !px-6 !py-2.5">Set up my business</button></div>`;
+						g('setup').onclick = create; sel.innerHTML = '<option>No business yet</option>'; return;
+					}
+					render(); const saved = +localStorage.getItem('biz_ws'); const ws = data.workspaces.find(w => w.id === saved) || data.workspaces[0]; sel.value = ws.id;
+					sel.onchange = async () => { if (sel.value === 'new') { sel.value = ws.id; await create(); } else { localStorage.setItem('biz_ws', sel.value); location.reload(); } };
+					start(ws);
+				} catch (e) { gate.innerHTML = '<div class="card p-8 text-center text-red-500">' + esc(e.message || 'Could not load BizManager.') + '</div>'; }
+			})();
+		</script>
+	</body>
+</html>

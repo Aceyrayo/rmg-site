@@ -1,0 +1,22 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="Settings">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app'), g = id => document.getElementById(id), w = BIZ.ws;
+ if (!BIZ.can('settings')) { app.innerHTML = '<div class="card p-8 text-center text-slate-500">Only the business owner can change settings.</div>'; return; }
+ const L = 'text-xs font-semibold text-slate-500';
+ app.innerHTML = pageHead('Settings', 'Business profile, tax and numbering') + `<div class="grid lg:grid-cols-3 gap-6 mt-6"><form id="fm" class="lg:col-span-2 card p-6 space-y-4">
+  <div><label class="${L}">Business name</label><input id="name" class="inp" required value="${esc(w.name)}"></div>
+  <div class="grid sm:grid-cols-3 gap-4"><div><label class="${L}">Currency</label><input id="currency" maxlength="3" class="inp uppercase" value="${esc(w.currency)}"></div><div><label class="${L}">Sales tax / VAT %</label><input id="tax" type="number" min="0" max="100" step="any" class="inp" value="${w.tax_rate}"></div><div><label class="${L}">Invoice prefix</label><input id="pfx" maxlength="8" class="inp uppercase" value="${esc(w.invoice_prefix)}"></div></div>
+  <div class="grid sm:grid-cols-2 gap-4"><div><label class="${L}">Phone</label><input id="phone" class="inp" value="${esc(w.phone)}"></div><div><label class="${L}">Business email</label><input id="email" type="email" class="inp" value="${esc(w.email)}"></div></div>
+  <div><label class="${L}">Address (shown on invoices)</label><input id="address" class="inp" value="${esc(w.address)}"></div><div class="flex justify-end"><button class="btn btn-p !px-6 !py-2">Save settings</button></div></form>
+  <div class="space-y-6"><div class="card p-6"><h2 class="font-bold text-slate-900 dark:text-white mb-3">Plan</h2><p class="mb-2">${w.plan === 'active' ? badge('Active', 'green') : w.plan === 'trial' ? badge('Free trial', 'blue') : badge('Suspended', 'red')}</p><p class="text-sm text-slate-500">${w.plan === 'trial' ? (w.days_left >= 0 ? 'Your trial ends on <b>' + esc(w.trial_ends) + '</b> (' + w.days_left + ' days left).' : 'Your trial ended on ' + esc(w.trial_ends) + '.') : w.plan === 'active' ? 'Thanks for being a BizManager customer.' : 'Contact RMG to reactivate.'}</p>${w.plan !== 'active' ? '<a href="/contact?topic=Sales%20enquiry" class="btn btn-p mt-4 inline-block">Activate BizManager</a>' : ''}</div>
+  <div class="card p-6"><h2 class="font-bold text-slate-900 dark:text-white mb-3">Export your data</h2><div class="flex flex-col gap-2"><button class="btn" data-x="products">Products (CSV)</button><button class="btn" data-x="customers">Customers (CSV)</button><button class="btn" data-x="sales">Sales & invoices (CSV)</button></div></div></div></div>`;
+ g('fm').onsubmit = async e => { e.preventDefault(); try { await bapi('/settings', bjson('PATCH', { name: g('name').value, currency: g('currency').value, tax_rate: +g('tax').value || 0, invoice_prefix: g('pfx').value, phone: g('phone').value, email: g('email').value, address: g('address').value })); toast('Settings saved'); setTimeout(() => location.reload(), 600); } catch (err) { toast(err.message, true); } };
+ app.onclick = async e => { const b = e.target.closest('[data-x]'); if (!b) return; try { const k = b.dataset.x, rows = await bapi('/' + k); downloadCsv(k + '.csv', rows.map(r => { const o = {}; for (const f in r) if (typeof r[f] !== 'object') o[f] = r[f]; return o; })); } catch (err) { toast(err.message, true); } };
+});
+	</script>
+</BizLayout>

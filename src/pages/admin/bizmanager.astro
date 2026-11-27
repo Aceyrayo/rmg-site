@@ -1,0 +1,18 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="BizManager Clients">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+		// Every business using BizManager: activate after payment, extend or suspend.
+		listPage({ title: 'BizManager Clients', url: '/api/biz/admin/workspaces', sub: 'businesses', file: 'bizmanager-clients', poll: 30000,
+		 cols: [{ h: 'Business', f: r => '<b>' + esc(r.name) + '</b><div class="text-xs text-slate-500">#' + r.id + ' · ' + esc(r.owner) + '</div>' },
+		  { h: 'Plan', f: r => badge(r.plan, { active: 'green', trial: 'blue', suspended: 'red' }[r.plan]) }, { h: 'Trial ends', f: r => esc(r.trial_ends || '—') },
+		  { h: 'Products', f: r => r.products }, { h: 'Documents', f: r => r.documents }, { h: 'Team', f: r => r.members }, { h: 'Created', f: r => '<span class="text-xs text-slate-500">' + esc((r.created_at || '').slice(0, 10)) + '</span>' },
+		  { h: '', f: (r, i) => `<div class="flex gap-1 justify-end">${r.plan !== 'active' ? `<button class="btn btn-p" data-a="active" data-ix="${i}">Activate</button>` : `<button class="btn" data-a="trial" data-ix="${i}">Back to trial</button>`}<button class="btn" data-a="extend" data-ix="${i}">+14 days</button>${r.plan !== 'suspended' ? `<button class="btn btn-d" data-a="suspended" data-ix="${i}">Suspend</button>` : ''}</div>` }],
+		 onAction: async (a, r, reload) => {
+		  const body = a === 'extend' ? { extend_days: 14 } : { plan: a };
+		  if (a === 'suspended' && !confirm('Suspend ' + r.name + '? They will be unable to add or change data.')) return;
+		  await api('/api/biz/admin/workspaces/' + r.id, { method: 'PATCH', body: JSON.stringify(body) }); toast('Updated'); reload(); } });
+	</script>
+</AdminLayout>

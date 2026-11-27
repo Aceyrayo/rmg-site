@@ -1,0 +1,28 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="Customers">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app'), g = id => document.getElementById(id); let all = [], view = [];
+ const F = [{ k: 'name', l: 'Name / company', req: 1 }, { k: 'email', l: 'Email', t: 'email' }, { k: 'phone', l: 'Phone' }, { k: 'address', l: 'Address' }, { k: 'notes', l: 'Notes', t: 'textarea' }];
+ app.innerHTML = pageHead('Customers', '<span id="cnt"></span>', '<button id="ex" class="btn">Export CSV</button>' + (BIZ.can('sell') ? '<button id="nw" class="btn btn-p">+ New customer</button>' : '')) + '<div class="card mt-6"><div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3"><input id="q" class="inp sm:max-w-xs" placeholder="Search customers…"><label class="flex items-center gap-2 text-sm"><input id="ow" type="checkbox"> Owing money only</label></div><div id="tb" class="overflow-x-auto"></div></div>';
+ const draw = () => { const q = g('q').value.toLowerCase(); view = all.filter(c => (!g('ow').checked || c.balance > 0) && (c.name + c.email + c.phone).toLowerCase().includes(q));
+  g('cnt').textContent = `${view.length} customers · ${fmt(all.reduce((s, c) => s + c.balance, 0))} owed to you`;
+  table(g('tb'), [{ h: 'Customer', f: c => `<b>${esc(c.name)}</b><div class="text-xs text-slate-500">${esc(c.email || '')} ${esc(c.phone || '')}</div>` }, { h: 'Total billed', f: c => fmt(c.billed) }, { h: 'Owes', f: c => c.balance ? '<b class="text-amber-600">' + fmt(c.balance) + '</b>' : '—' }, { h: 'Documents', f: c => c.documents },
+   { h: '', f: c => `<div class="flex gap-1 justify-end"><button class="btn" data-s="${c.id}">Statement</button>${BIZ.can('sell') ? `<a class="btn" href="/biz/pos?mode=invoice&customer=${c.id}">Invoice</a><button class="btn" data-e="${c.id}">Edit</button>` : ''}${BIZ.can('void') ? `<button class="btn btn-d" data-d="${c.id}">Delete</button>` : ''}</div>` }], view); };
+ const load = async () => { all = await bapi('/customers'); draw(); };
+ g('tb').onclick = async e => { const b = e.target.closest('button'); if (!b) return; const id = b.dataset.s || b.dataset.e || b.dataset.d, c = all.find(x => x.id == id);
+  try { if (b.dataset.e) { const v = await ask('Edit customer', F, c); if (!v) return; await bapi('/customers/' + id, bjson('PATCH', v)); toast('Saved'); load(); }
+   else if (b.dataset.d) { if (!confirm('Delete ' + c.name + '?')) return; await bapi('/customers/' + id, { method: 'DELETE' }); toast('Deleted'); load(); }
+   else if (b.dataset.s) { const docs = await bapi('/sales?customer_id=' + id), d = document.createElement('dialog'); d.className = 'card p-0 w-full max-w-2xl backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+    d.innerHTML = `<div class="p-6"><div class="flex justify-between mb-4"><div><h2 class="font-bold text-lg">${esc(c.name)}</h2><p class="text-sm text-slate-500">Billed ${fmt(c.billed)} · Owes <b>${fmt(c.balance)}</b></p></div><button class="btn" data-pr>Print</button></div><div id="sx" class="max-h-80 overflow-y-auto"></div><div class="flex justify-end mt-4"><button class="btn" data-x>Close</button></div></div>`; document.body.appendChild(d); d.showModal();
+    d.querySelector('[data-x]').onclick = () => { d.close(); d.remove(); }; table(d.querySelector('#sx'), [{ h: 'Number', f: s => '<span class="font-mono text-xs">' + esc(s.number) + '</span>' }, { h: 'Date', f: s => esc(s.date) }, { h: 'Total', f: s => fmt(s.total) }, { h: 'Balance', f: s => fmt(s.balance) }, { h: '', f: s => docStatus(s) }], docs);
+    d.querySelector('[data-pr]').onclick = () => printTable('Statement · ' + c.name, ['number', 'date', 'total', 'balance', 'status'], docs); } } catch (err) { toast(err.message, true); } };
+ if (g('nw')) g('nw').onclick = async () => { const v = await ask('New customer', F); if (!v) return; try { await bapi('/customers', bjson('POST', v)); toast('Customer added'); load(); } catch (e) { toast(e.message, true); } };
+ g('q').oninput = draw; g('ow').onchange = draw; g('ex').onclick = () => downloadCsv('customers.csv', view.map(c => ({ name: c.name, email: c.email, phone: c.phone, address: c.address, billed: c.billed, owes: c.balance })));
+ load().catch(e => toast(e.message, true));
+});
+	</script>
+</BizLayout>

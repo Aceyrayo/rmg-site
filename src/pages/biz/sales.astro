@@ -1,0 +1,36 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="Sales & Invoices">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app'), g = id => document.getElementById(id); let rows = [];
+ app.innerHTML = pageHead('Sales & Invoices', '<span id="cnt"></span>', '<button id="ex" class="btn">Export CSV</button>' + (BIZ.can('sell') ? '<a href="/biz/pos?mode=invoice" class="btn">New invoice</a><a href="/biz/pos" class="btn btn-p">+ New sale</a>' : '')) + `
+  <div class="card mt-6"><div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-3">
+   <input id="q" class="inp sm:max-w-[200px]" placeholder="Number or customer…"><select id="k" class="inp sm:max-w-[140px]"><option value="">All types</option><option value="sale">Receipts</option><option value="invoice">Invoices</option></select>
+   <select id="st" class="inp sm:max-w-[140px]"><option value="">All status</option><option>Paid</option><option>Partial</option><option>Unpaid</option><option>Void</option></select>
+   <input id="f" type="date" class="inp sm:max-w-[150px]" title="From"><input id="t" type="date" class="inp sm:max-w-[150px]" title="To"></div><div id="tb" class="overflow-x-auto"></div></div>`;
+ const load = async () => { const p = new URLSearchParams({ q: g('q').value, kind: g('k').value, status: g('st').value, date_from: g('f').value, date_to: g('t').value }); rows = await bapi('/sales?' + p);
+  const live = rows.filter(s => s.status !== 'Void'); g('cnt').textContent = `${rows.length} documents · ${fmt(live.reduce((a, s) => a + s.total, 0))} total · ${fmt(live.reduce((a, s) => a + s.balance, 0))} outstanding`;
+  table(g('tb'), [{ h: 'Number', f: s => `<button class="font-mono text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline" data-v="${s.id}">${esc(s.number)}</button>` }, { h: 'Date', f: s => esc(s.date) }, { h: 'Customer', f: s => esc(s.customer_name || 'Walk-in') }, { h: 'Type', f: s => badge(s.kind === 'invoice' ? 'Invoice' : 'Receipt', s.kind === 'invoice' ? 'blue' : 'slate') },
+   { h: 'Total', f: s => '<b>' + fmt(s.total) + '</b>' }, { h: 'Balance', f: s => s.balance ? '<span class="text-amber-600 font-semibold">' + fmt(s.balance) + '</span>' : '—' }, { h: 'Status', f: s => docStatus(s) }, { h: '', f: s => `<div class="text-right"><button class="btn" data-v="${s.id}">View</button></div>` }], rows); };
+ const view = async id => { const s = await bapi('/sales/' + id), dlg = document.createElement('dialog'); dlg.className = 'card p-0 w-full max-w-2xl backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+  const canPay = BIZ.can('sell') && s.status !== 'Void' && s.balance > 0.004;
+  dlg.innerHTML = `<div class="p-6 space-y-5 max-h-[85vh] overflow-y-auto"><div class="flex justify-between gap-3"><div><h2 class="text-lg font-bold">${s.kind === 'invoice' ? 'Invoice' : 'Receipt'} <span class="font-mono">${esc(s.number)}</span></h2><p class="text-sm text-slate-500">${esc(s.customer_name || 'Walk-in customer')} · ${esc(s.date)}${s.due_date ? ' · due ' + esc(s.due_date) : ''}</p></div>${docStatus(s)}</div>
+   <table class="w-full text-sm"><thead class="text-xs uppercase text-slate-500"><tr><th class="text-left py-1">Item</th><th class="text-right">Qty</th><th class="text-right">Price</th><th class="text-right">Total</th></tr></thead><tbody>${s.items.map(l => `<tr class="border-t border-slate-100 dark:border-slate-800"><td class="py-2">${esc(l.name)}</td><td class="text-right">${l.qty}</td><td class="text-right">${fmt(l.price)}</td><td class="text-right">${fmt(l.total)}</td></tr>`).join('')}</tbody></table>
+   <div class="text-sm ml-auto max-w-[260px] space-y-1"><div class="flex justify-between"><span class="text-slate-500">Subtotal</span>${fmt(s.subtotal)}</div>${s.discount ? `<div class="flex justify-between"><span class="text-slate-500">Discount</span>-${fmt(s.discount)}</div>` : ''}${s.tax ? `<div class="flex justify-between"><span class="text-slate-500">Tax</span>${fmt(s.tax)}</div>` : ''}<div class="flex justify-between font-bold text-base"><span>Total</span>${fmt(s.total)}</div><div class="flex justify-between"><span class="text-slate-500">Paid</span>${fmt(s.paid)}</div><div class="flex justify-between font-bold"><span>Balance</span>${fmt(s.balance)}</div></div>
+   ${s.payments.length ? `<div><h3 class="text-xs font-bold uppercase text-slate-500 mb-2">Payments</h3>${s.payments.map(p => `<div class="flex justify-between text-sm py-1 border-t border-slate-100 dark:border-slate-800"><span>${esc(p.date)} · ${esc(p.method)}${p.note ? ' · ' + esc(p.note) : ''}</span><b>${fmt(p.amount)}</b></div>`).join('')}</div>` : ''}
+   <div class="flex flex-wrap gap-2 justify-end">${canPay ? '<button class="btn btn-p" data-pay>Record payment</button>' : ''}<button class="btn" data-pr>Print</button>${BIZ.can('sell') ? '<button class="btn" data-em>Email</button>' : ''}${BIZ.can('void') && s.status !== 'Void' ? '<button class="btn btn-d" data-vd>Void</button>' : ''}<button class="btn" data-x>Close</button></div></div>`;
+  document.body.appendChild(dlg); dlg.showModal(); const close = () => { dlg.close(); dlg.remove(); };
+  dlg.querySelector('[data-x]').onclick = close; dlg.querySelector('[data-pr]').onclick = () => printDoc(s);
+  const pay = dlg.querySelector('[data-pay]'); if (pay) pay.onclick = async () => { const v = await ask('Record payment', [{ k: 'amount', l: 'Amount (balance ' + fmt(s.balance) + ')', t: 'number', v: s.balance, req: 1, min: 0.01 }, { k: 'method', l: 'Method', t: 'select', o: METHODS }, { k: 'note', l: 'Note (optional)' }]); if (!v) return; try { await bapi('/sales/' + id + '/payments', bjson('POST', { ...v, date: today() })); toast('Payment recorded'); close(); load(); } catch (e) { toast(e.message, true); } };
+  const em = dlg.querySelector('[data-em]'); if (em) em.onclick = async () => { const v = await ask('Email ' + s.number, [{ k: 'to', l: 'Send to (leave blank to use the customer email)', t: 'email' }]); if (!v) return; try { toast((await bapi('/sales/' + id + '/email', bjson('POST', v))).message); } catch (e) { toast(e.message, true); } };
+  const vd = dlg.querySelector('[data-vd]'); if (vd) vd.onclick = async () => { if (!confirm('Void ' + s.number + '? Stock will be returned and the document excluded from reports.')) return; try { await bapi('/sales/' + id + '/void', { method: 'POST' }); toast('Document voided'); close(); load(); } catch (e) { toast(e.message, true); } }; };
+ g('tb').onclick = e => { const b = e.target.closest('[data-v]'); if (b) view(b.dataset.v).catch(x => toast(x.message, true)); };
+ ['q', 'k', 'st', 'f', 't'].forEach(i => g(i).oninput = () => load().catch(e => toast(e.message, true)));
+ g('ex').onclick = () => downloadCsv('sales.csv', rows.map(s => ({ number: s.number, type: s.kind, date: s.date, customer: s.customer_name, total: s.total, paid: s.paid, balance: s.balance, status: s.status, due_date: s.due_date || '' })));
+ load().catch(e => toast(e.message, true));
+});
+	</script>
+</BizLayout>

@@ -160,7 +160,7 @@ import Layout from '../layouts/layout.astro';
 		const form = document.getElementById('signupForm');
 const submitBtn = document.getElementById('submitBtn');
 const errorMsg = document.getElementById('errorMsg');
-const PLANS = { developer: 'Developer (free)', professional: 'Professional — $99/mo', enterprise: 'Enterprise — custom' };
+const PLANS = { developer: 'Developer (free)', professional: 'Professional — $99/mo', enterprise: 'Enterprise — custom', bizmanager: 'BizManager — 14-day free trial' };
 const wanted = new URLSearchParams(location.search).get('plan');
 if (wanted && PLANS[wanted]) {
 	localStorage.setItem('rmg_plan', wanted);

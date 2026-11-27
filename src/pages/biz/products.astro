@@ -1,0 +1,48 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="Products & Stock">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app'), g = id => document.getElementById(id), inv = BIZ.can('inventory'); let all = [], view = [];
+ const F = [{ k: 'name', l: 'Product name', req: 1 }, { k: 'sku', l: 'SKU / barcode (optional)' }, { k: 'category', l: 'Category' }, { k: 'unit', l: 'Unit', v: 'pcs' }, { k: 'price', l: 'Selling price', t: 'number', req: 1, min: 0 }, { k: 'cost', l: 'Cost price', t: 'number', v: 0, min: 0 }, { k: 'low_stock', l: 'Low-stock alert at', t: 'number', v: 5, min: 0 }];
+ app.innerHTML = pageHead('Products & Stock', '<span id="cnt"></span>', '<button id="ex" class="btn">Export CSV</button>' + (inv ? '<button id="im" class="btn">Import CSV</button><button id="nw" class="btn btn-p">+ New product</button>' : '')) + `
+  <div id="st" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6"></div>
+  <div class="card mt-6"><div class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3"><input id="q" class="inp sm:max-w-xs" placeholder="Search name, SKU, category…"><select id="cat" class="inp sm:max-w-[170px]"></select>
+   <label class="flex items-center gap-2 text-sm"><input id="lo" type="checkbox"> Low stock only</label><label class="flex items-center gap-2 text-sm"><input id="ar" type="checkbox"> Archived</label></div><div id="tb" class="overflow-x-auto"></div></div>`;
+ const load = async () => { all = await bapi('/products?archived=' + g('ar').checked); const cats = [...new Set(all.map(p => p.category).filter(Boolean))].sort(); const cur = g('cat').value;
+  g('cat').innerHTML = '<option value="">All categories</option>' + cats.map(c => `<option ${c === cur ? 'selected' : ''}>${esc(c)}</option>`).join(''); draw(); };
+ const draw = () => { const q = g('q').value.toLowerCase(), c = g('cat').value; view = all.filter(p => (!c || p.category === c) && (!g('lo').checked || p.low) && (!q || (p.name + p.sku + p.category).toLowerCase().includes(q)));
+  const val = all.reduce((s, p) => s + p.stock * p.cost, 0); g('cnt').textContent = view.length + ' of ' + all.length + ' products';
+  g('st').innerHTML = stat('Products', all.length) + stat('Low / out of stock', all.filter(p => p.low).length, all.some(p => p.low) ? 'text-amber-500' : '') + (BIZ.can('finance') ? stat('Stock value (cost)', fmt(val)) + stat('Retail value', fmt(all.reduce((s, p) => s + p.stock * p.price, 0))) : '');
+  table(g('tb'), [{ h: 'Product', f: p => `<b>${esc(p.name)}</b><div class="text-xs text-slate-500">${esc(p.sku || '')}</div>` }, { h: 'Category', f: p => esc(p.category) }, { h: 'Price', f: p => fmt(p.price) }, { h: 'Cost', f: p => fmt(p.cost) }, { h: 'Margin', f: p => p.margin + '%' },
+   { h: 'In stock', f: p => badge(p.stock + ' ' + p.unit, p.stock <= 0 ? 'red' : p.low ? 'amber' : 'green') },
+   { h: '', f: p => `<div class="flex gap-1 justify-end"><button class="btn" data-h="${p.id}">History</button>${inv ? `<button class="btn" data-a="${p.id}">Adjust</button><button class="btn" data-e="${p.id}">Edit</button><button class="btn ${p.active ? 'btn-d' : ''}" data-r="${p.id}">${p.active ? 'Archive' : 'Restore'}</button>` : ''}</div>` }], view); };
+ g('tb').onclick = async e => { const b = e.target.closest('button'); if (!b) return; const id = b.dataset.a || b.dataset.e || b.dataset.r || b.dataset.h, p = all.find(x => x.id == id);
+  try { if (b.dataset.a) { const v = await ask('Adjust stock · ' + p.name, [{ k: 'delta', l: 'Quantity (+ to add, − to remove)', t: 'number', req: 1 }, { k: 'reason', l: 'Reason', t: 'select', o: ['Restock', 'Damaged', 'Lost / theft', 'Stock count correction', 'Return', 'Other'] }, { k: 'cost', l: 'Unit cost of the new stock (optional)', t: 'number', min: 0 }]); if (!v) return; await bapi('/products/' + id + '/adjust', bjson('POST', v)); toast('Stock updated'); load(); }
+   else if (b.dataset.e) { const v = await ask('Edit product', F, p); if (!v) return; await bapi('/products/' + id, bjson('PATCH', v)); toast('Saved'); load(); }
+   else if (b.dataset.r) { if (p.active) { if (!confirm('Archive "' + p.name + '"? It stays in past sales but can no longer be sold.')) return; await bapi('/products/' + id, { method: 'DELETE' }); } else await bapi('/products/' + id, bjson('PATCH', { active: true })); toast('Done'); load(); }
+   else if (b.dataset.h) { const m = await bapi('/products/' + id + '/moves'), d = document.createElement('dialog'); d.className = 'card p-0 w-full max-w-lg backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+    d.innerHTML = `<div class="p-6"><h2 class="font-bold mb-4">Stock history · ${esc(p.name)}</h2><div class="max-h-80 overflow-y-auto" id="mv"></div><div class="flex justify-end mt-4"><button class="btn" data-x>Close</button></div></div>`; document.body.appendChild(d); d.showModal(); d.querySelector('[data-x]').onclick = () => { d.close(); d.remove(); };
+    table(d.querySelector('#mv'), [{ h: 'When', f: x => '<span class="text-xs font-mono">' + esc(x.at.slice(0, 16)) + '</span>' }, { h: 'Change', f: x => `<b class="${x.delta > 0 ? 'text-emerald-500' : 'text-red-500'}">${x.delta > 0 ? '+' : ''}${x.delta}</b>` }, { h: 'Reason', f: x => esc(x.reason) + (x.ref ? ' · ' + esc(x.ref) : '') }, { h: 'Balance', f: x => x.balance }], m); } } catch (err) { toast(err.message, true); } };
+ const csvCell = s => '"' + String(s ?? '').replace(/"/g, '""') + '"';
+ if (inv) {
+  g('nw').onclick = async () => { const v = await ask('New product', [...F, { k: 'stock', l: 'Opening stock', t: 'number', v: 0, min: 0 }]); if (!v) return; try { await bapi('/products', bjson('POST', v)); toast('Product added'); load(); } catch (e) { toast(e.message, true); } };
+  g('im').onclick = () => { const d = document.createElement('dialog'); d.className = 'card p-0 w-full max-w-lg backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+   d.innerHTML = `<div class="p-6 space-y-4"><h2 class="text-lg font-bold">Import products from CSV</h2><p class="text-sm text-slate-500">Columns: <code>name, sku, category, unit, price, cost, stock, low_stock</code>. Only <b>name</b> is required. Rows with a SKU that already exists are skipped.</p><a href="#" id="tpl" class="text-sm text-blue-500 hover:underline">Download a template</a><input type="file" id="fl" accept=".csv,text/csv" class="inp"><p id="pv" class="text-sm text-slate-500"></p><div class="flex justify-end gap-2"><button class="btn" data-x>Cancel</button><button class="btn btn-p" id="go" disabled>Import</button></div></div>`;
+   document.body.appendChild(d); d.showModal(); let items = []; const close = () => { d.close(); d.remove(); }; d.querySelector('[data-x]').onclick = close;
+   d.querySelector('#tpl').onclick = e => { e.preventDefault(); const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['name,sku,category,unit,price,cost,stock,low_stock\nSample product,SKU-001,General,pcs,10.00,6.00,25,5\n'], { type: 'text/csv' })); a.download = 'products-template.csv'; a.click(); };
+   d.querySelector('#fl').onchange = async e => { const f = e.target.files[0]; if (!f) return; const text = await f.text(), rows = []; let row = [], cell = '', q = false;
+    for (let i = 0; i < text.length; i++) { const c = text[i]; if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; } else if (c === '"') q = true; else if (c === ',') { row.push(cell); cell = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; if (row.some(x => x.trim())) rows.push(row); row = []; } else cell += c; } if (cell || row.length) { row.push(cell); rows.push(row); }
+    const head = (rows.shift() || []).map(h => h.trim().toLowerCase()); const ix = k => head.indexOf(k);
+    items = rows.map(r => ({ name: (r[ix('name')] || '').trim(), sku: (r[ix('sku')] || '').trim(), category: (r[ix('category')] || '').trim(), unit: (r[ix('unit')] || 'pcs').trim() || 'pcs', price: +r[ix('price')] || 0, cost: +r[ix('cost')] || 0, stock: +r[ix('stock')] || 0, low_stock: ix('low_stock') >= 0 && r[ix('low_stock')] !== '' ? +r[ix('low_stock')] : 5 })).filter(x => x.name);
+    d.querySelector('#pv').textContent = ix('name') < 0 ? 'No "name" column found.' : items.length + ' products ready to import.'; d.querySelector('#go').disabled = !items.length || ix('name') < 0; };
+   d.querySelector('#go').onclick = async () => { try { const r = await bapi('/products/bulk', bjson('POST', { items })); toast(`${r.created} imported, ${r.skipped} skipped`); close(); load(); } catch (e) { toast(e.message, true); } }; };
+ }
+ ['q', 'cat', 'lo'].forEach(i => g(i).oninput = draw); g('ar').onchange = () => load().catch(e => toast(e.message, true));
+ g('ex').onclick = () => downloadCsv('products.csv', view.map(p => ({ name: p.name, sku: p.sku, category: p.category, unit: p.unit, price: p.price, cost: p.cost, stock: p.stock, low_stock: p.low_stock })));
+ load().catch(e => toast(e.message, true));
+});
+	</script>
+</BizLayout>

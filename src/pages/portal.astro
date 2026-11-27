@@ -1,6 +1,11 @@
 ---
 import PortalLayout from '../layouts/PortalLayout.astro';
-const groups = [
+
+// 1. Define the exact types so TypeScript is happy
+type Group = [string, Array<[string, string, string]>];
+
+const groups: Group[] = [
+	['Business', [['BizManager', '/biz', 'Sales, stock, invoices, customers and profit for your business']]],
 	['Trading', [['Trading Systems', '/portal/trading', 'Engines and market at a glance'], ['Trading Bots', '/portal/bots', 'Deploy and manage algorithmic engines'], ['Live Market Data', '/portal/market-data', 'Crypto prices and forex rates']]],
 	['Developers', [['API Credentials', '/portal/api-keys', 'Create and revoke API keys'], ['API Documentation', '/portal/api-docs', 'Endpoints with live testing'], ['Webhooks', '/portal/webhooks', 'Signed event delivery + logs'], ['Integrations', '/portal/integrations', 'Slack, Discord, Teams, Zapier']]],
 	['Security', [['Security Center', '/portal/security', 'IP allowlist, sessions, sign-out'], ['Defense & Military', '/portal/defence', 'Encrypted vault and infrastructure'], ['Threat Intelligence', '/portal/threat-intel', 'Hostile activity on your account'], ['System Logs', '/portal/logs', 'Live event stream'], ['Audit Logs', '/portal/audit-logs', 'Every action, searchable']]],

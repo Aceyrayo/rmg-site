@@ -92,12 +92,12 @@ form.addEventListener('submit', async (e) => {
 	localStorage.setItem('rmg_name', d.first_name); localStorage.setItem('rmg_email', d.email);
 	if (g('remember').checked) localStorage.setItem('rmg_remember_user', g('username').value.trim()); else localStorage.removeItem('rmg_remember_user');
 	// A plan chosen on the pricing page becomes a plan request for our team
-	const plan = localStorage.getItem('rmg_plan');
-	if (plan && plan !== 'developer' && d.role !== 'admin') {
+	const plan = localStorage.getItem('rmg_plan'), goBiz = plan === 'bizmanager' && d.role !== 'admin';
+	if (plan && plan !== 'developer' && plan !== 'bizmanager' && d.role !== 'admin') {
 		try { await fetch(RMG.API + '/api/tickets', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + d.access_token }, body: JSON.stringify({ subject: 'Plan request: ' + plan, category: 'Billing Question', description: 'New account requesting the ' + plan + ' plan.' }) }); } catch (_) {}
 	}
 	localStorage.removeItem('rmg_plan');
-	window.location.href = d.role === 'admin' ? '/dashboard' : '/portal';
+	window.location.href = d.role === 'admin' ? '/dashboard' : (goBiz ? '/biz' : '/portal');
 });
 </script>
 </Layout>

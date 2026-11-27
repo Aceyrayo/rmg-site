@@ -1,0 +1,32 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="Dashboard">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app');
+ try {
+  const d = await bapi('/dashboard?today=' + today()), fin = d.finance;
+  const cols = s => { const m = Math.max(1, ...s.map(x => x[1])); return `<div class="flex items-end gap-1.5 h-44">${s.map(([dt, v]) => `<div class="flex-1 flex flex-col items-center justify-end h-full group" title="${dt}: ${fmt(v)}"><div class="w-full rounded-t bg-blue-500/80 group-hover:bg-blue-500 transition-colors" style="height:${Math.max(v / m * 100, 2)}%"></div><span class="text-[9px] text-slate-400 mt-1">${dt.slice(8)}</span></div>`).join('')}</div>`; };
+  const acts = [['/biz/pos', '+ New sale', 'btn-p', 'sell'], ['/biz/pos?mode=invoice', 'New invoice', '', 'sell'], ['/biz/products', 'Add product', '', 'inventory'], ['/biz/expenses', 'Add expense', '', 'finance']].filter(a => BIZ.can(a[3]));
+  app.innerHTML = pageHead('Welcome to ' + esc(BIZ.ws.name), 'Here is how your business is doing today', acts.map(a => `<a href="${a[0]}" class="btn ${a[2]}">${a[1]}</a>`).join('')) + `
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+   ${stat("Today's sales", fmt(d.today.revenue), '')}${stat('This month', fmt(d.month.revenue))}
+   ${fin ? stat('Net profit (month)', fmt(d.month.net), d.month.net >= 0 ? 'text-emerald-500' : 'text-red-500') : stat('Sales this month', d.month.count)}
+   ${stat('Customers owe you', fmt(d.outstanding.amount), d.outstanding.overdue ? 'text-amber-500' : '')}</div>
+  ${d.outstanding.overdue ? `<div class="mt-4 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300 text-sm px-4 py-3"><b>${d.outstanding.overdue}</b> invoice(s) are overdue. <a class="underline font-semibold" href="/biz/sales">Review them →</a></div>` : ''}
+  <div class="grid lg:grid-cols-3 gap-6 mt-6"><div class="lg:col-span-2">${panel('Revenue — last 14 days', cols(d.series))}</div>
+   ${panel('Top products this month', bars(d.top_products.map(p => [p.name, p.revenue]), fmt))}</div>
+  <div class="grid lg:grid-cols-2 gap-6 mt-6">
+   <div class="card"><div class="p-5 flex justify-between"><h2 class="font-bold text-slate-900 dark:text-white">Low stock ${d.low_stock_count ? badge(d.low_stock_count, 'amber') : ''}</h2><a href="/biz/products" class="text-xs text-blue-500 hover:underline">Manage</a></div><div id="ls" class="overflow-x-auto"></div></div>
+   <div class="card"><div class="p-5 flex justify-between"><h2 class="font-bold text-slate-900 dark:text-white">Recent sales</h2><a href="/biz/sales" class="text-xs text-blue-500 hover:underline">View all</a></div><div id="rc" class="overflow-x-auto"></div></div></div>
+  ${fin ? `<div class="grid lg:grid-cols-3 gap-6 mt-6">${panel('Expenses this month', bars(d.expenses_by_category, fmt))}${stat('Stock value (at cost)', fmt(d.stock_value))}${stat('Gross profit (month)', fmt(d.month.gross))}</div>` : ''}`;
+  table(document.getElementById('ls'), [{ h: 'Product', f: p => '<b>' + esc(p.name) + '</b>' }, { h: 'In stock', f: p => badge(p.stock + ' ' + p.unit, p.stock <= 0 ? 'red' : 'amber') }], d.low_stock);
+  if (!d.low_stock.length) document.getElementById('ls').innerHTML = '<div class="p-8 text-center text-sm text-slate-500">All products are well stocked ✓</div>';
+  table(document.getElementById('rc'), [{ h: 'Document', f: s => '<span class="font-mono text-xs">' + esc(s.number) + '</span><div class="text-xs text-slate-500">' + esc(s.customer_name || 'Walk-in') + '</div>' }, { h: 'Total', f: s => '<b>' + fmt(s.total) + '</b>' }, { h: '', f: s => docStatus(s) }], d.recent);
+  if (!d.recent.length) document.getElementById('rc').innerHTML = '<div class="p-8 text-center text-sm text-slate-500">No sales yet. <a class="text-blue-500 hover:underline" href="/biz/pos">Make your first sale →</a></div>';
+ } catch (e) { toast(e.message, true); }
+});
+	</script>
+</BizLayout>

@@ -1,6 +1,19 @@
 ---
 // One template, two studios. Edit the config in reezgames.astro / clutchco.astro.
 import StudioLayout from '../layouts/StudioLayout.astro';
+
+// Define the type for the Game object
+type Game = {
+	art: string;
+	title: string;
+	blurb: string;
+	genre: string;
+	tags: string[];
+};
+
+type Pillar = [string, string];
+type FAQ = [string, string];
+
 const { s } = Astro.props;
 const t = s.theme;
 const year = new Date().getFullYear();
@@ -68,7 +81,7 @@ const year = new Date().getFullYear();
 	<section id="games" class="max-w-6xl mx-auto px-5 py-24">
 		<div class="text-center mb-14"><p class={`text-xs font-bold tracking-[0.25em] uppercase mb-3 ${t.link}`}>The lineup</p><h2 class="text-3xl sm:text-5xl font-black tracking-tight">First titles in development</h2><p class="text-white/60 mt-4 max-w-xl mx-auto">Names, trailers and release dates are announced here first. Join the waitlist so you never miss a reveal.</p></div>
 		<div class="grid md:grid-cols-3 gap-6">
-			{s.games.map((g, i) => (
+			{s.games.map((g: Game, i: number) => (
 				<article class="group relative rounded-3xl border border-white/10 overflow-hidden bg-white/[0.04] hover:-translate-y-2 transition-transform duration-300">
 					<div class={`relative h-56 bg-gradient-to-br ${g.art} flex items-center justify-center overflow-hidden`}>
 						<img src={s.icon} alt="" class="w-28 h-28 opacity-20 blur-[2px] group-hover:opacity-35 group-hover:scale-110 transition-all duration-500" />
@@ -90,7 +103,7 @@ const year = new Date().getFullYear();
 		<div class="max-w-6xl mx-auto px-5 py-24">
 			<div class="text-center mb-14"><p class={`text-xs font-bold tracking-[0.25em] uppercase mb-3 ${t.link}`}>What we stand for</p><h2 class="text-3xl sm:text-5xl font-black tracking-tight">{s.aboutTitle}</h2></div>
 			<div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-				{s.pillars.map(([title, d], i) => (
+				{s.pillars.map(([title, d]: Pillar, i: number) => (
 					<div class="rounded-2xl border border-white/10 bg-white/[0.04] p-6"><div class={`w-10 h-10 rounded-xl flex items-center justify-center font-black mb-4 text-white ${t.btn}`}>{i + 1}</div><h3 class="font-bold mb-2">{title}</h3><p class="text-sm text-white/60 leading-relaxed">{d}</p></div>
 				))}
 			</div>
@@ -138,7 +151,7 @@ const year = new Date().getFullYear();
 	<section id="faq" class="max-w-3xl mx-auto px-5 pb-24">
 		<h2 class="text-3xl font-black tracking-tight text-center mb-10">Questions</h2>
 		<div class="rounded-2xl border border-white/10 divide-y divide-white/10 bg-white/[0.03]">
-			{s.faq.map(([q, a]) => (
+			{s.faq.map(([q, a]: FAQ) => (
 				<details class="group p-6"><summary class="flex justify-between items-center cursor-pointer list-none font-semibold">{q}<span class="text-white/40 group-open:rotate-45 transition-transform text-2xl leading-none">+</span></summary><p class="text-white/60 text-sm leading-relaxed mt-3">{a}</p></details>
 			))}
 		</div>

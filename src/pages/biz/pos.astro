@@ -1,0 +1,67 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="New Sale">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app'), g = id => document.getElementById(id), qs = new URLSearchParams(location.search);
+ let prods = [], custs = [], cart = [], mode = qs.get('mode') === 'invoice' ? 'invoice' : 'sale', cat = '', touched = false;
+ const rate = BIZ.ws.tax_rate || 0, lbl = 'text-xs font-semibold text-slate-500';
+ if (!BIZ.can('sell')) { app.innerHTML = '<div class="card p-8 text-center text-slate-500">Your role cannot create sales.</div>'; return; }
+ app.innerHTML = `<div class="grid lg:grid-cols-5 gap-6"><div class="lg:col-span-3 space-y-4">
+  <div class="flex gap-3"><input id="q" class="inp" placeholder="Search products or scan a barcode / SKU…" autofocus><button id="cu" class="btn whitespace-nowrap">+ Custom item</button></div>
+  <div id="cats" class="flex flex-wrap gap-2"></div><div id="grid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3"></div></div>
+  <div class="lg:col-span-2"><div class="card p-5 lg:sticky lg:top-0 space-y-4">
+   <div class="grid grid-cols-2 gap-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-1" id="mt"></div>
+   <div class="flex gap-2"><select id="cs" class="inp"></select><button id="ac" class="btn" title="New customer">+</button></div>
+   <div id="lines" class="space-y-2 max-h-72 overflow-y-auto"></div>
+   <div class="grid grid-cols-2 gap-3"><div><label class="${lbl}">Discount (${esc(BIZ.ws.currency)})</label><input id="disc" type="number" min="0" step="any" value="0" class="inp"></div><div id="dw" class="hidden"><label class="${lbl}">Due date</label><input id="due" type="date" class="inp"></div></div>
+   <div id="tot" class="text-sm space-y-1"></div>
+   <div class="grid grid-cols-2 gap-3"><div><label class="${lbl}">Payment method</label><select id="me" class="inp">${METHODS.map(m => `<option>${m}</option>`).join('')}</select></div><div><label id="pl" class="${lbl}"></label><input id="paid" type="number" min="0" step="any" class="inp"></div></div>
+   <textarea id="nt" rows="1" class="inp" placeholder="Note (optional)"></textarea><button id="go" class="btn btn-p w-full !py-3 text-base"></button></div></div></div>`;
+ const totals = () => { const sub = cart.reduce((s, l) => s + l.qty * l.price, 0), d = Math.min(Math.max(+g('disc').value || 0, 0), sub), tax = (sub - d) * rate / 100; return { sub, d, tax, total: sub - d + tax }; };
+ const drawGrid = () => { const q = g('q').value.toLowerCase(); const list = prods.filter(p => (!cat || p.category === cat) && (!q || (p.name + p.sku).toLowerCase().includes(q)));
+  g('grid').innerHTML = list.map(p => `<button data-p="${p.id}" ${p.stock <= 0 ? 'disabled' : ''} class="card p-3 text-left hover:!border-blue-400 transition-colors disabled:opacity-40"><div class="font-semibold text-sm text-slate-900 dark:text-white leading-tight">${esc(p.name)}</div><div class="text-blue-600 dark:text-blue-400 font-bold mt-1">${fmt(p.price)}</div><div class="text-[11px] ${p.low ? 'text-amber-500' : 'text-slate-400'}">${p.stock <= 0 ? 'Out of stock' : p.stock + ' ' + esc(p.unit) + ' left'}</div></button>`).join('') || '<div class="col-span-full text-center text-sm text-slate-500 py-10">No products found. <a class="text-blue-500 hover:underline" href="/biz/products">Add products →</a></div>'; };
+ const drawCart = () => { g('lines').innerHTML = cart.length ? cart.map((l, i) => `<div class="flex items-center gap-2"><div class="flex-1 min-w-0"><div class="text-sm font-medium text-slate-900 dark:text-white truncate">${esc(l.name)}</div><input data-pr="${i}" type="number" min="0" step="any" value="${l.price}" class="inp !py-1 !px-2 !w-24 text-xs mt-1"></div><input data-q="${i}" type="number" min="0" step="any" value="${l.qty}" class="inp !py-1 !px-2 !w-16 text-center"><span class="w-20 text-right text-sm font-semibold">${fmt(l.qty * l.price)}</span><button data-rm="${i}" class="text-slate-400 hover:text-red-500">✕</button></div>`).join('') : '<p class="text-center text-sm text-slate-400 py-6">Tap a product to add it</p>'; drawTot(); };
+ const drawTot = () => { const t = totals(), r = (a, b, c = '') => `<div class="flex justify-between ${c}"><span class="text-slate-500">${a}</span><span>${b}</span></div>`;
+  g('tot').innerHTML = r('Subtotal', fmt(t.sub)) + (t.d ? r('Discount', '-' + fmt(t.d)) : '') + (rate ? r('Tax (' + rate + '%)', fmt(t.tax)) : '') + r('<b class="text-slate-900 dark:text-white text-base">Total</b>', '<b class="text-slate-900 dark:text-white text-xl">' + fmt(t.total) + '</b>');
+  if (!touched) g('paid').value = mode === 'sale' ? t.total.toFixed(2) : '0';
+  g('go').textContent = (mode === 'sale' ? 'Complete sale · ' : 'Create invoice · ') + fmt(t.total); };
+ const setMode = m => { mode = m; g('mt').innerHTML = [['sale', 'Sale (receipt)'], ['invoice', 'Invoice']].map(([k, l]) => `<button data-m="${k}" class="py-1.5 rounded-md text-sm font-semibold ${k === m ? 'bg-white dark:bg-slate-900 shadow text-slate-900 dark:text-white' : 'text-slate-500'}">${l}</button>`).join('');
+  g('dw').classList.toggle('hidden', m !== 'invoice'); g('pl').textContent = m === 'sale' ? 'Amount received' : 'Paid now'; touched = false; drawTot(); };
+ const drawCust = sel => { g('cs').innerHTML = '<option value="">Walk-in customer</option>' + custs.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join(''); if (sel) g('cs').value = sel; };
+ const add = p => { const l = cart.find(x => x.pid === p.id); if ((l ? l.qty : 0) + 1 > p.stock) return toast('Only ' + p.stock + ' in stock', true); l ? l.qty++ : cart.push({ pid: p.id, name: p.name, price: p.price, qty: 1 }); drawCart(); };
+ const load = async () => { [prods, custs] = await Promise.all([bapi('/products'), bapi('/customers')]); const cats = [...new Set(prods.map(p => p.category).filter(Boolean))];
+  g('cats').innerHTML = cats.length ? ['', ...cats].map(c => `<button data-c="${esc(c)}" class="btn ${c === cat ? 'btn-p' : ''} !py-1">${c ? esc(c) : 'All'}</button>`).join('') : ''; drawGrid(); drawCust(g('cs').value); };
+ const d14 = new Date(Date.now() + 14 * 864e5); g('due').value = d14.getFullYear() + '-' + String(d14.getMonth() + 1).padStart(2, '0') + '-' + String(d14.getDate()).padStart(2, '0');
+ try { await load(); } catch (e) { return toast(e.message, true); }
+ if (qs.get('customer')) drawCust(qs.get('customer')); setMode(mode); drawCart();
+ g('q').oninput = drawGrid; g('q').onkeydown = e => { if (e.key !== 'Enter') return; const q = g('q').value.trim().toLowerCase(), hit = prods.find(p => p.sku && p.sku.toLowerCase() === q) || (prods.filter(p => p.name.toLowerCase().includes(q)).length === 1 ? prods.find(p => p.name.toLowerCase().includes(q)) : null); if (hit) { add(hit); g('q').value = ''; drawGrid(); } };
+ g('cats').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; load(); } };
+ g('grid').onclick = e => { const b = e.target.closest('[data-p]'); if (b) add(prods.find(p => p.id == b.dataset.p)); };
+ g('mt').onclick = e => { const b = e.target.closest('[data-m]'); if (b) setMode(b.dataset.m); };
+ g('lines').onchange = e => { const t = e.target, i = t.dataset.q ?? t.dataset.pr; if (i === undefined) return; if (t.dataset.q !== undefined) { cart[i].qty = Math.max(+t.value || 0, 0); const p = prods.find(x => x.id === cart[i].pid); if (p && cart[i].qty > p.stock) { toast('Only ' + p.stock + ' in stock', true); cart[i].qty = p.stock; } if (!cart[i].qty) cart.splice(i, 1); } else cart[i].price = Math.max(+t.value || 0, 0); drawCart(); };
+ g('lines').onclick = e => { const b = e.target.closest('[data-rm]'); if (b) { cart.splice(b.dataset.rm, 1); drawCart(); } };
+ g('disc').oninput = drawTot; g('paid').oninput = () => { touched = true; };
+ g('cu').onclick = async () => { const v = await ask('Custom item', [{ k: 'name', l: 'Description', req: 1, p: 'e.g. Delivery fee, Labour' }, { k: 'price', l: 'Price', t: 'number', req: 1, min: 0 }, { k: 'qty', l: 'Quantity', t: 'number', v: 1, min: 0.01 }]); if (v) { cart.push({ pid: null, name: v.name, price: v.price, qty: v.qty || 1 }); drawCart(); } };
+ g('ac').onclick = async () => { const v = await ask('New customer', [{ k: 'name', l: 'Name', req: 1 }, { k: 'phone', l: 'Phone' }, { k: 'email', l: 'Email', t: 'email' }]); if (!v) return; try { const c = await bapi('/customers', bjson('POST', v)); custs.push(c); drawCust(c.id); toast('Customer added'); } catch (e) { toast(e.message, true); } };
+ g('go').onclick = async () => {
+  if (!cart.length) return toast('Add at least one item', true); const t = totals(), cid = g('cs').value, paid = +g('paid').value || 0;
+  if (mode === 'invoice' && !cid) return toast('Choose a customer for the invoice', true);
+  if (mode === 'sale' && paid < t.total - 0.005 && !cid) return toast('Select a customer for a part-paid sale', true);
+  g('go').disabled = true;
+  try { const s = await bapi('/sales', bjson('POST', { kind: mode, customer_id: cid ? +cid : null, items: cart.map(l => ({ product_id: l.pid, name: l.name, qty: l.qty, price: l.price })), discount: t.d, paid, method: g('me').value, date: today(), due_date: mode === 'invoice' ? g('due').value : null, notes: g('nt').value }));
+   const change = mode === 'sale' ? Math.max(paid - t.total, 0) : 0, cust = custs.find(c => c.id == cid), dlg = document.createElement('dialog');
+   dlg.className = 'card p-0 w-full max-w-sm backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+   dlg.innerHTML = `<div class="p-8 text-center space-y-3"><div class="w-14 h-14 mx-auto rounded-full bg-emerald-500 text-white text-2xl flex items-center justify-center">✓</div><h2 class="text-xl font-bold">${mode === 'sale' ? 'Sale complete' : 'Invoice created'}</h2><p class="font-mono text-sm text-slate-500">${esc(s.number)}</p><p class="text-3xl font-bold">${fmt(s.total)}</p>${change ? `<p class="text-sm">Change due: <b>${fmt(change)}</b></p>` : ''}${s.balance ? `<p class="text-sm text-amber-600">Balance owing: <b>${fmt(s.balance)}</b></p>` : ''}<div class="flex flex-col gap-2 pt-2"><button class="btn btn-p" data-pr>Print ${mode === 'sale' ? 'receipt' : 'invoice'}</button>${cust && cust.email ? '<button class="btn" data-em>Email to ' + esc(cust.email) + '</button>' : ''}<button class="btn" data-nw>New ${mode === 'sale' ? 'sale' : 'invoice'}</button></div></div>`;
+   document.body.appendChild(dlg); dlg.showModal();
+   dlg.querySelector('[data-pr]').onclick = () => printDoc(s);
+   const em = dlg.querySelector('[data-em]'); if (em) em.onclick = async () => { try { const r = await bapi('/sales/' + s.id + '/email', bjson('POST', {})); toast(r.message); } catch (e) { toast(e.message, true); } };
+   dlg.querySelector('[data-nw]').onclick = () => { dlg.close(); dlg.remove(); };
+   cart = []; touched = false; g('disc').value = 0; g('nt').value = ''; drawCart(); await load();
+  } catch (e) { toast(e.message, true); }
+  g('go').disabled = false; };
+});
+	</script>
+</BizLayout>

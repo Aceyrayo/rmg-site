@@ -1,0 +1,20 @@
+---
+import BizLayout from '../../layouts/BizLayout.astro';
+---
+<BizLayout title="Team">
+	<div id="app" class="max-w-6xl mx-auto"></div>
+	<script is:inline>
+BIZ.ready.then(async () => {
+ const app = document.getElementById('app'), g = id => document.getElementById(id); const Y = '<span class="text-emerald-500 font-bold">✓</span>', N = '<span class="text-slate-300 dark:text-slate-600">—</span>';
+ if (!BIZ.can('team')) { app.innerHTML = '<div class="card p-8 text-center text-slate-500">Only the business owner can manage the team.</div>'; return; }
+ const MX = [['Make sales & take payments', 1, 1, 1, 0], ['Add customers', 1, 1, 1, 0], ['Manage products & stock', 1, 1, 0, 0], ['Void sales / delete customers', 1, 1, 0, 0], ['View expenses & reports', 1, 1, 0, 1], ['Manage team & settings', 1, 0, 0, 0]];
+ app.innerHTML = pageHead('Team', 'Invite staff — unlimited accounts, with the right access for each role', '<button id="inv" class="btn btn-p">+ Invite team member</button>') + '<div class="card mt-6"><div id="tb" class="overflow-x-auto"></div></div><div class="card mt-6"><div class="p-5 font-bold text-slate-900 dark:text-white">What each role can do</div><div id="mx" class="overflow-x-auto"></div></div><p class="text-xs text-slate-500 mt-4">Invited people sign in with the same email address (or create an RMG account with it), open BizManager and accept the invitation.</p>';
+ table(g('mx'), [{ h: 'Capability', f: r => r[0] }, { h: 'Owner', f: r => Y }, { h: 'Manager', f: r => r[2] ? Y : N }, { h: 'Cashier', f: r => r[3] ? Y : N }, { h: 'Accountant', f: r => r[4] ? Y : N }], MX);
+ const load = async () => { const m = await bapi('/members'); table(g('tb'), [{ h: 'Member', f: x => '<b>' + esc(x.name || x.email) + '</b><div class="text-xs text-slate-500">' + esc(x.email) + '</div>' }, { h: 'Role', f: x => x.id ? `<select class="inp !py-1 !w-auto" data-id="${x.id}">${['Manager', 'Cashier', 'Accountant'].map(r => `<option ${r === x.role ? 'selected' : ''}>${r}</option>`).join('')}</select>` : badge('Owner', 'red') }, { h: 'Status', f: x => badge(x.status, x.status === 'Active' ? 'green' : 'amber') }, { h: '', f: x => x.id ? `<div class="text-right"><button class="btn btn-d" data-rm="${x.id}">Remove</button></div>` : '' }], m); };
+ g('inv').onclick = async () => { const v = await ask('Invite a team member', [{ k: 'email', l: 'Email address', t: 'email', req: 1 }, { k: 'role', l: 'Role', t: 'select', o: ['Cashier', 'Manager', 'Accountant'] }]); if (!v) return; try { await bapi('/members', bjson('POST', v)); toast('Invitation sent'); load(); } catch (e) { toast(e.message, true); } };
+ g('tb').onchange = async e => { if (!e.target.dataset.id) return; try { await bapi('/members/' + e.target.dataset.id, bjson('PATCH', { role: e.target.value })); toast('Role updated'); } catch (err) { toast(err.message, true); load(); } };
+ g('tb').onclick = async e => { const b = e.target.closest('[data-rm]'); if (!b || !confirm('Remove this person\'s access?')) return; try { await bapi('/members/' + b.dataset.rm, { method: 'DELETE' }); toast('Removed'); load(); } catch (err) { toast(err.message, true); } };
+ load().catch(e => toast(e.message, true));
+});
+	</script>
+</BizLayout>
