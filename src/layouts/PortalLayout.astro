@@ -1,12 +1,147 @@
-
 ---
-
-// Client-portal wrapper: your AppLayout + the shared UI toolkit (loaded only on pages that use it).
-import AppLayout from './AppLayout.astro';
-import AdminKit from '../components/AdminKit.astro';
+interface Props {
+  title: string;
+}
 const { title } = Astro.props;
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/portal';
+
+const navItems = [
+  { href: '/portal', label: 'Overview' },
+  { href: '/portal/analytics', label: 'Analytics & Reports' },
+  { href: '/portal/bots', label: 'Trading Bots' },
+  { href: '/portal/api-keys', label: 'API Credentials' },
+  { href: '/portal/api-docs', label: 'API Documentation' },
+  { href: '/portal/enterprise', label: 'Enterprise Tools' },
+  { href: '/portal/integrations', label: 'Integrations' },
+  { href: '/portal/defense', label: 'Defense & Military' },
+  { href: '/portal/billing', label: 'Billing & Plans' },
+  { href: '/portal/logs', label: 'System Logs' },
+  { href: '/portal/audit-logs', label: 'Audit Logs' },
+];
 ---
-<AppLayout title={title}>
-	<AdminKit />
-	<slot />
-</AppLayout>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} | RMG Portal</title>
+  </head>
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen flex">
+    <!-- SIDEBAR -->
+    <aside class="w-64 shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 hidden md:flex flex-col">
+      <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+        <a href="/portal" class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">RMG Portal</a>
+      </div>
+
+      <nav id="portalSidebarNav" class="flex-1 p-3 space-y-1 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = currentPath === item.href;
+          return (
+            <a
+              href={item.href}
+              class={`block px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? 'bg-blue-600 text-white'
+                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+              }`}
+            >
+              {item.label}
+            </a>
+          );
+        })}
+      </nav>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col min-w-0">
+      <!-- TOP NAVIGATION BAR -->
+      <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+          <h1 class="text-base font-bold text-slate-900 dark:text-white truncate">{title}</h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- DIRECT SWITCH TO BIZMANAGER (NO RE-LOGIN) -->
+          <a
+            id="switchToBizBtn"
+            href="/biz"
+            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span id="switchToBizLabel">BizManager</span>
+          </a>
+
+          <button
+            id="portalLogoutBtn"
+            type="button"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            Sign out
+          </button>
+        </div>
+      </header>
+
+      <main class="flex-1 p-6">
+        <slot />
+      </main>
+    </div>
+
+    <script is:inline>
+      const API_URL = 'https://rmg-api-e46k.onrender.com';
+      const token = localStorage.getItem('rmg_token');
+
+      // Only redirect to login if there is genuinely no token
+      if (!token) {
+        window.location.replace('/login');
+      }
+
+      // Keep existing shared helper functions available to all portal pages
+      window.api = async function (path, opts = {}) {
+        const res = await fetch(API_URL + path, {
+          ...opts,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('rmg_token') || ''}`,
+            ...(opts.headers || {}),
+          },
+        });
+        if (res.status === 401) {
+          localStorage.removeItem('rmg_token');
+          window.location.replace('/login');
+          throw new Error('Session expired');
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || 'Request failed');
+        return data;
+      };
+
+      // Pre-select the user's active business so clicking BizManager opens it immediately
+      (async () => {
+        try {
+          const data = await window.api('/api/biz/workspaces');
+          const list = data.workspaces || [];
+          const btn = document.getElementById('switchToBizBtn');
+          const lbl = document.getElementById('switchToBizLabel');
+          if (list.length > 0 && btn && lbl) {
+            const savedId = localStorage.getItem('rmg_active_ws');
+            const activeWs = list.find(w => String(w.id) === String(savedId)) || list[0];
+            localStorage.setItem('rmg_active_ws', String(activeWs.id));
+            btn.href = `/biz?ws=${activeWs.id}`;
+            lbl.textContent = `BizManager · ${activeWs.name}`;
+          }
+        } catch (_) {
+          // Keep default /biz link if workspaces haven't been created yet
+        }
+      })();
+
+      document.getElementById('portalLogoutBtn')?.addEventListener('click', () => {
+        localStorage.removeItem('rmg_token');
+        localStorage.removeItem('rmg_active_ws');
+        window.location.replace('/login');
+      });
+    </script>
+  </body>
+</html>
