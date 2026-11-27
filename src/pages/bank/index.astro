@@ -1,0 +1,200 @@
+---
+import BankLayout from '../../layouts/BankLayout.astro';
+---
+<BankLayout title="SavannaBank Overview">
+	<div class="max-w-7xl mx-auto space-y-6">
+		<div id="bankStats" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+		<div class="grid lg:grid-cols-3 gap-6">
+			<div class="lg:col-span-2 card p-6 space-y-4">
+				<div class="flex items-center justify-between gap-2">
+					<div>
+						<h2 class="text-lg font-bold text-slate-900 dark:text-white">Multi-Currency Wallets</h2>
+						<p class="text-xs text-slate-500">KES, USD, EUR, GBP, NGN, ZAR, UGX & TZS accounts</p>
+					</div>
+					<button id="newWalletBtn" class="btn btn-p !py-1.5 !px-3 text-xs">+ New Wallet</button>
+				</div>
+				<div id="walletsGrid" class="grid sm:grid-cols-2 gap-4"></div>
+			</div>
+
+			<div class="card p-6 space-y-4">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">Quick Send (Any Rail)</h2>
+				<p class="text-xs text-slate-500">Send via SavannaBank, M-Pesa, Airtel Money, Bank Transfer, PayPal, or Card.</p>
+				<form id="quickSendForm" class="space-y-3">
+					<div>
+						<label class="text-xs font-semibold text-slate-500">From Wallet</label>
+						<select id="qsWallet" class="inp mt-1"></select>
+					</div>
+					<div>
+						<label class="text-xs font-semibold text-slate-500">Payment Channel</label>
+						<select id="qsChannel" class="inp mt-1">
+							<option>M-Pesa</option>
+							<option>Airtel Money</option>
+							<option>SavannaWallet</option>
+							<option>Bank Transfer</option>
+							<option>PayPal</option>
+							<option>Card</option>
+						</select>
+					</div>
+					<div>
+						<label class="text-xs font-semibold text-slate-500">Recipient (Phone / Account / PayPal Email)</label>
+						<input id="qsRecipient" type="text" required placeholder="254712345678 or user@paypal.com or SB..." class="inp mt-1" />
+					</div>
+					<div>
+						<label class="text-xs font-semibold text-slate-500">Amount</label>
+						<input id="qsAmount" type="number" step="0.01" min="1" required placeholder="1500" class="inp mt-1" />
+					</div>
+					<div>
+						<label class="text-xs font-semibold text-slate-500">Transaction PIN (if set)</label>
+						<input id="qsPin" type="password" maxlength="6" placeholder="4-6 digit PIN" class="inp mt-1" />
+					</div>
+					<button class="btn btn-p w-full">Send Funds Now</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="card p-6 space-y-4">
+			<div class="flex flex-wrap items-center justify-between gap-2">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">Recent Ledger Transactions</h2>
+				<select id="txChannelFilter" class="inp !w-auto text-xs">
+					<option value="">All Channels</option>
+					<option>M-Pesa</option>
+					<option>Airtel Money</option>
+					<option>SavannaWallet</option>
+					<option>Bank Transfer</option>
+					<option>PayPal</option>
+					<option>Card</option>
+					<option>FX</option>
+					<option>Loan</option>
+				</select>
+			</div>
+			<div id="txTableWrap"></div>
+		</div>
+	</div>
+
+	<script is:inline>
+		(() => {
+			let overviewData = null;
+
+			const renderWallets = (wallets) => {
+				const wrap = document.getElementById('walletsGrid');
+				const sel = document.getElementById('qsWallet');
+				sel.innerHTML = wallets.filter(w => w.status === 'Active').map(w =>
+					`<option value="${w.id}">${esc(w.label)} (${w.currency}) — ${BANK.fmtMoney(w.balance, w.currency)}</option>`
+				).join('');
+
+				wrap.innerHTML = wallets.map(w => `
+					<div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 flex flex-col justify-between gap-3">
+						<div class="flex items-start justify-between gap-2">
+							<div>
+								<p class="text-xs font-bold uppercase tracking-wider text-slate-400">${esc(w.wallet_type)} · ${esc(w.currency)}</p>
+								<h3 class="font-bold text-slate-900 dark:text-white">${esc(w.label)}</h3>
+								<p class="text-xs font-mono text-slate-500 mt-0.5">${esc(w.account_number)}</p>
+							</div>
+							${badge(w.status, w.status === 'Active' ? 'green' : w.status === 'Frozen' ? 'amber' : 'slate')}
+						</div>
+						<div class="flex items-end justify-between">
+							<p class="text-xl font-extrabold text-slate-900 dark:text-white">${BANK.fmtMoney(w.balance, w.currency)}</p>
+							<button class="btn text-xs !py-1 !px-2.5" data-toggle-freeze="${w.id}" data-next-status="${w.status === 'Active' ? 'Frozen' : 'Active'}">
+								${w.status === 'Active' ? 'Freeze' : 'Unfreeze'}
+							</button>
+						</div>
+					</div>
+				`).join('');
+			};
+
+			const renderTxTable = (txs) => {
+				document.getElementById('txTableWrap').innerHTML = table(
+					['Reference', 'Channel', 'Type', 'Counterparty', 'Amount', 'Fee', 'Balance After', 'Time'],
+					txs.map(t => [
+						`<span class="font-mono text-xs">${esc(t.reference)}</span>`,
+						badge(t.channel, 'blue'),
+						esc(t.tx_type),
+						esc(t.counterparty || '-'),
+						`<span class="font-bold">${BANK.fmtMoney(t.amount, t.currency)}</span>`,
+						BANK.fmtMoney(t.fee, t.currency),
+						BANK.fmtMoney(t.balance_after, t.currency),
+						`<span class="text-xs text-slate-500">${esc(t.created_at)}</span>`
+					])
+				);
+			};
+
+			const loadAll = async () => {
+				overviewData = await BANK.api('/overview');
+				const s = overviewData.summary;
+				document.getElementById('bankStats').innerHTML =
+					stat('Net Worth (KES)', `KES ${Number(s.net_worth_kes).toLocaleString()}`, `≈ $${Number(s.net_worth_usd).toLocaleString()} USD`) +
+					stat('Active Wallets', String(s.wallet_count), 'Multi-currency') +
+					stat('Micro-Loan Credit', `KES ${Number(s.available_credit_kes).toLocaleString()}`, `Active debt: KES ${Number(s.active_debt_kes).toLocaleString()}`) +
+					stat('Active Loans', String(s.active_loans), 'Affordable terms');
+
+				const ap = document.getElementById('bankAntiPhish');
+				if (ap && overviewData.security?.anti_phish_phrase) {
+					ap.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span><span>Phrase: ${esc(overviewData.security.anti_phish_phrase)}</span>`;
+				}
+
+				renderWallets(overviewData.wallets || []);
+				renderTxTable(overviewData.recent_transactions || []);
+			};
+
+			document.getElementById('newWalletBtn').onclick = async () => {
+				try {
+					const label = prompt('Wallet name (e.g. M-Pesa Reserve or Euro Savings):');
+					if (!label) return;
+					const currency = (prompt('Currency (KES, USD, EUR, GBP, NGN, ZAR, UGX, TZS):', 'KES') || 'KES').toUpperCase();
+					const wallet_type = prompt('Type (Current, Savings, Vault, FX):', 'Current') || 'Current';
+					const initial_deposit = Number(prompt('Initial deposit amount:', '0') || '0');
+					await BANK.api('/wallets', BANK.json('POST', { label, currency, wallet_type, initial_deposit }));
+					toast('Wallet created');
+					await loadAll();
+				} catch (e) {
+					toast(e.message, true);
+				}
+			};
+
+			document.getElementById('walletsGrid').addEventListener('click', async (e) => {
+				const btn = e.target.closest('[data-toggle-freeze]');
+				if (!btn) return;
+				try {
+					await BANK.api(`/wallets/${btn.dataset.toggleFreeze}/status`, BANK.json('PATCH', { status: btn.dataset.nextStatus }));
+					toast(`Wallet marked ${btn.dataset.nextStatus}`);
+					await loadAll();
+				} catch (err) {
+					toast(err.message, true);
+				}
+			});
+
+			document.getElementById('quickSendForm').onsubmit = async (e) => {
+				e.preventDefault();
+				try {
+					const res = await BANK.api('/send', BANK.json('POST', {
+						from_wallet_id: Number(document.getElementById('qsWallet').value),
+						channel: document.getElementById('qsChannel').value,
+						recipient: document.getElementById('qsRecipient').value.trim(),
+						amount: Number(document.getElementById('qsAmount').value),
+						pin: document.getElementById('qsPin').value.trim() || null
+					}));
+					toast(res.message || 'Transfer sent');
+					document.getElementById('qsRecipient').value = '';
+					document.getElementById('qsAmount').value = '';
+					document.getElementById('qsPin').value = '';
+					await loadAll();
+				} catch (err) {
+					toast(err.message, true);
+				}
+			};
+
+			document.getElementById('txChannelFilter').onchange = async (e) => {
+				try {
+					const ch = e.target.value;
+					const rows = await BANK.api(`/transactions${ch ? `?channel=${encodeURIComponent(ch)}` : ''}`);
+					renderTxTable(rows);
+				} catch (err) {
+					toast(err.message, true);
+				}
+			};
+
+			loadAll().catch(err => toast(err.message, true));
+		})();
+	</script>
+</BankLayout>

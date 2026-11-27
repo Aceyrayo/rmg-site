@@ -1,0 +1,80 @@
+---
+import BankLayout from '../../layouts/BankLayout.astro';
+---
+<BankLayout title="Markets: Crypto, FX & NSE Kenya">
+	<div class="max-w-7xl mx-auto space-y-6">
+		<div class="flex flex-wrap items-center justify-between gap-2">
+			<div>
+				<h2 class="text-xl font-bold text-slate-900 dark:text-white">Multi-Market Intelligence</h2>
+				<p id="mktMeta" class="text-xs text-slate-500">Loading crypto, FX, and Nairobi Securities Exchange (NSE) feeds...</p>
+			</div>
+			<button id="refreshMkt" class="btn text-xs">Refresh Live Feeds</button>
+		</div>
+
+		<div class="card p-6 space-y-3">
+			<h3 class="font-bold text-slate-900 dark:text-white">Nairobi Securities Exchange (NSE)</h3>
+			<div id="nseIndices" class="grid sm:grid-cols-3 gap-3"></div>
+			<div id="nseTable"></div>
+		</div>
+
+		<div class="card p-6 space-y-3">
+			<h3 class="font-bold text-slate-900 dark:text-white">Crypto Markets (USD & KES)</h3>
+			<div id="cryptoTable"></div>
+		</div>
+
+		<div class="card p-6 space-y-3">
+			<h3 class="font-bold text-slate-900 dark:text-white">Foreign Exchange Rates (Per 1 USD)</h3>
+			<div id="fxGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3"></div>
+		</div>
+	</div>
+
+	<script is:inline>
+		(() => {
+			const loadMarkets = async () => {
+				const m = await BANK.api('/markets');
+				document.getElementById('mktMeta').textContent = `Updated: ${m.updated_at}${m.stale ? ' (cached/fallback)' : ' (live)'}`;
+
+				document.getElementById('nseIndices').innerHTML = (m.nse?.indices || []).map(ix => `
+					<div class="p-3.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50">
+						<p class="text-xs text-slate-500">${esc(ix.name)}</p>
+						<p class="text-lg font-extrabold text-slate-900 dark:text-white mt-0.5">${Number(ix.value).toLocaleString()}</p>
+						<p class="text-xs font-semibold ${ix.change >= 0 ? 'text-emerald-600' : 'text-red-500'}">${ix.change >= 0 ? '+' : ''}${ix.change}</p>
+					</div>
+				`).join('');
+
+				document.getElementById('nseTable').innerHTML = table(
+					['Ticker', 'Company', 'Sector', 'Price (KES)', '24h %', 'Volume'],
+					(m.nse?.stocks || []).map(s => [
+						`<span class="font-mono font-bold">${esc(s.ticker)}</span>`,
+						esc(s.name),
+						esc(s.sector),
+						`KES ${Number(s.price).toFixed(2)}`,
+						badge(`${s.change_pct >= 0 ? '+' : ''}${Number(s.change_pct).toFixed(2)}%`, s.change_pct >= 0 ? 'green' : 'red'),
+						Number(s.volume || 0).toLocaleString()
+					])
+				);
+
+				document.getElementById('cryptoTable').innerHTML = table(
+					['Asset', 'Price (USD)', 'Price (KES)', '24h Change', '24h Volume'],
+					(m.crypto || []).map(c => [
+						`<b>${esc(c.name)}</b> <span class="text-xs text-slate-500">${esc(c.symbol)}</span>`,
+						`$${Number(c.price || 0).toLocaleString(undefined, { maximumFractionDigits: 4 })}`,
+						`KES ${Number(c.price_kes || 0).toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+						badge(`${Number(c.change_24h || 0) >= 0 ? '+' : ''}${Number(c.change_24h || 0).toFixed(2)}%`, Number(c.change_24h || 0) >= 0 ? 'green' : 'red'),
+						`$${Number(c.volume || 0).toLocaleString()}`
+					])
+				);
+
+				document.getElementById('fxGrid').innerHTML = Object.entries(m.forex || {}).map(([code, rate]) => `
+					<div class="p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+						<p class="text-xs font-bold text-slate-400">USD → ${esc(code)}</p>
+						<p class="text-base font-extrabold text-slate-900 dark:text-white">${Number(rate).toLocaleString(undefined, { maximumFractionDigits: 4 })}</p>
+					</div>
+				`).join('');
+			};
+
+			document.getElementById('refreshMkt').onclick = () => loadMarkets().catch(e => toast(e.message, true));
+			loadMarkets().catch(e => toast(e.message, true));
+		})();
+	</script>
+</BankLayout>

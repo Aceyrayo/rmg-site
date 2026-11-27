@@ -1,0 +1,114 @@
+---
+import BankLayout from '../../layouts/BankLayout.astro';
+---
+<BankLayout title="Send Money, Top-Up & FX Swap">
+	<div class="max-w-6xl mx-auto grid lg:grid-cols-2 gap-6">
+		<div class="card p-6 space-y-4">
+			<h2 class="text-lg font-bold text-slate-900 dark:text-white">Deposit / Top Up Wallet</h2>
+			<p class="text-xs text-slate-500">Fund via M-Pesa, Airtel Money, Bank Transfer, PayPal, or Card.</p>
+			<form id="depForm" class="space-y-3">
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Target Wallet</label>
+					<select id="depWallet" class="inp mt-1"></select>
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Payment Method</label>
+					<select id="depChannel" class="inp mt-1">
+						<option>M-Pesa</option>
+						<option>Airtel Money</option>
+						<option>PayPal</option>
+						<option>Bank Transfer</option>
+						<option>Card</option>
+						<option>SavannaWallet</option>
+					</select>
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Source Phone / PayPal Email / Bank Ref</label>
+					<input id="depSource" type="text" placeholder="2547... or name@paypal.com" class="inp mt-1" />
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Amount</label>
+					<input id="depAmount" type="number" step="0.01" min="1" required class="inp mt-1" />
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Transaction PIN (if set)</label>
+					<input id="depPin" type="password" maxlength="6" class="inp mt-1" />
+				</div>
+				<button class="btn btn-p w-full">Deposit Funds</button>
+			</form>
+		</div>
+
+		<div class="card p-6 space-y-4">
+			<h2 class="text-lg font-bold text-slate-900 dark:text-white">Instant FX Currency Swap</h2>
+			<p class="text-xs text-slate-500">Convert between KES, USD, EUR, GBP, NGN, ZAR, UGX & TZS wallets.</p>
+			<form id="fxForm" class="space-y-3">
+				<div>
+					<label class="text-xs font-semibold text-slate-500">From Wallet</label>
+					<select id="fxFrom" class="inp mt-1"></select>
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">To Wallet</label>
+					<select id="fxTo" class="inp mt-1"></select>
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Amount to Convert</label>
+					<input id="fxAmount" type="number" step="0.01" min="0.01" required class="inp mt-1" />
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Transaction PIN (if set)</label>
+					<input id="fxPin" type="password" maxlength="6" class="inp mt-1" />
+				</div>
+				<button class="btn btn-p w-full">Swap Currencies</button>
+			</form>
+		</div>
+	</div>
+
+	<script is:inline>
+		(() => {
+			const init = async () => {
+				const wallets = await BANK.api('/wallets');
+				const active = wallets.filter(w => w.status === 'Active');
+				const opts = active.map(w => `<option value="${w.id}">${esc(w.label)} (${w.currency}) — ${BANK.fmtMoney(w.balance, w.currency)}</option>`).join('');
+				document.getElementById('depWallet').innerHTML = opts;
+				document.getElementById('fxFrom').innerHTML = opts;
+				document.getElementById('fxTo').innerHTML = opts;
+				if (active.length > 1) document.getElementById('fxTo').selectedIndex = 1;
+			};
+
+			document.getElementById('depForm').onsubmit = async (e) => {
+				e.preventDefault();
+				try {
+					const r = await BANK.api('/deposit', BANK.json('POST', {
+						wallet_id: Number(document.getElementById('depWallet').value),
+						channel: document.getElementById('depChannel').value,
+						source_detail: document.getElementById('depSource').value.trim(),
+						amount: Number(document.getElementById('depAmount').value),
+						pin: document.getElementById('depPin').value.trim() || null
+					}));
+					toast(r.message);
+					document.getElementById('depAmount').value = '';
+					document.getElementById('depPin').value = '';
+					await init();
+				} catch (err) { toast(err.message, true); }
+			};
+
+			document.getElementById('fxForm').onsubmit = async (e) => {
+				e.preventDefault();
+				try {
+					const r = await BANK.api('/fx/swap', BANK.json('POST', {
+						from_wallet_id: Number(document.getElementById('fxFrom').value),
+						to_wallet_id: Number(document.getElementById('fxTo').value),
+						amount: Number(document.getElementById('fxAmount').value),
+						pin: document.getElementById('fxPin').value.trim() || null
+					}));
+					toast(r.message);
+					document.getElementById('fxAmount').value = '';
+					document.getElementById('fxPin').value = '';
+					await init();
+				} catch (err) { toast(err.message, true); }
+			};
+
+			init().catch(err => toast(err.message, true));
+		})();
+	</script>
+</BankLayout>

@@ -1,0 +1,68 @@
+---
+import BankLayout from '../../layouts/BankLayout.astro';
+---
+<BankLayout title="SavannaBank Security Vault">
+	<div class="max-w-3xl mx-auto card p-6 space-y-5">
+		<div>
+			<h2 class="text-lg font-bold text-slate-900 dark:text-white">Transaction PIN & Anti-Phishing Controls</h2>
+			<p id="secStatusText" class="text-xs text-slate-500 mt-0.5">Configure PIN protection for transfers, swaps, and loan disbursements.</p>
+		</div>
+		<form id="secForm" class="space-y-4">
+			<div class="grid sm:grid-cols-2 gap-4">
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Current PIN (only if PIN already set)</label>
+					<input id="curPin" type="password" maxlength="6" class="inp mt-1" />
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">New 4–6 Digit Transaction PIN</label>
+					<input id="newPin" type="password" maxlength="6" placeholder="e.g. 4829" class="inp mt-1" />
+				</div>
+			</div>
+			<div class="grid sm:grid-cols-2 gap-4">
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Require PIN Above Amount</label>
+					<input id="pinThreshold" type="number" step="100" min="0" value="5000" class="inp mt-1" />
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Anti-Phishing Phrase</label>
+					<input id="antiPhish" type="text" required value="SAVANNA-GUARD" class="inp mt-1" />
+				</div>
+			</div>
+			<label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+				<input id="twoFa" type="checkbox" checked class="rounded" />
+				<span>Enforce multi-factor session verification</span>
+			</label>
+			<button class="btn btn-p">Save Security Controls</button>
+		</form>
+	</div>
+
+	<script is:inline>
+		(() => {
+			BANK.api('/overview').then(ov => {
+				const s = ov.security || {};
+				document.getElementById('pinThreshold').value = s.require_pin_above ?? 5000;
+				document.getElementById('antiPhish').value = s.anti_phish_phrase || 'SAVANNA-GUARD';
+				document.getElementById('twoFa').checked = s.two_fa_enabled !== false;
+				document.getElementById('secStatusText').textContent = s.has_pin
+					? `PIN is active · Current IP: ${s.client_ip || 'unknown'}`
+					: `No PIN set yet (set one above to protect transfers & loans) · Current IP: ${s.client_ip || 'unknown'}`;
+			}).catch(e => toast(e.message, true));
+
+			document.getElementById('secForm').onsubmit = async (e) => {
+				e.preventDefault();
+				try {
+					const r = await BANK.api('/security', BANK.json('PUT', {
+						current_pin: document.getElementById('curPin').value.trim() || null,
+						new_pin: document.getElementById('newPin').value.trim() || null,
+						require_pin_above: Number(document.getElementById('pinThreshold').value || 0),
+						anti_phish_phrase: document.getElementById('antiPhish').value.trim(),
+						two_fa_enabled: document.getElementById('twoFa').checked
+					}));
+					toast(r.message);
+					document.getElementById('curPin').value = '';
+					document.getElementById('newPin').value = '';
+				} catch (err) { toast(err.message, true); }
+			};
+		})();
+	</script>
+</BankLayout>

@@ -1,0 +1,123 @@
+---
+import BankLayout from '../../layouts/BankLayout.astro';
+---
+<BankLayout title="SavannaBank Micro-Loans">
+	<div class="max-w-6xl mx-auto space-y-6">
+		<div class="grid md:grid-cols-3 gap-4">
+			<div class="card p-5 space-y-1">
+				<p class="text-xs font-bold uppercase text-emerald-600">14-Day Tier</p>
+				<h3 class="font-bold text-slate-900 dark:text-white">Savanna Micro-Advance</h3>
+				<p class="text-xs text-slate-500">Up to KES 50,000 · 4.5% interest · 1.0% origination fee</p>
+			</div>
+			<div class="card p-5 space-y-1">
+				<p class="text-xs font-bold uppercase text-cyan-600">30-Day Tier</p>
+				<h3 class="font-bold text-slate-900 dark:text-white">Quick Cash Boost</h3>
+				<p class="text-xs text-slate-500">Up to KES 150,000 · 6.5% interest · 1.5% origination fee</p>
+			</div>
+			<div class="card p-5 space-y-1">
+				<p class="text-xs font-bold uppercase text-blue-600">45-Day Tier</p>
+				<h3 class="font-bold text-slate-900 dark:text-white">SME Float Line</h3>
+				<p class="text-xs text-slate-500">Up to KES 350,000 · 8.0% interest · 1.5% origination fee</p>
+			</div>
+		</div>
+
+		<div class="card p-6 space-y-4">
+			<h2 class="text-lg font-bold text-slate-900 dark:text-white">Request an Affordable Loan</h2>
+			<form id="loanApplyForm" class="grid sm:grid-cols-4 gap-3 items-end">
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Disburse To Wallet</label>
+					<select id="loanWallet" class="inp mt-1"></select>
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Loan Product</label>
+					<select id="loanProduct" class="inp mt-1">
+						<option>Savanna Micro-Advance</option>
+						<option>Quick Cash Boost</option>
+						<option>SME Float Line</option>
+					</select>
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">Principal Amount</label>
+					<input id="loanAmount" type="number" step="100" min="500" required placeholder="10000" class="inp mt-1" />
+				</div>
+				<div>
+					<label class="text-xs font-semibold text-slate-500">PIN (if set)</label>
+					<input id="loanPin" type="password" maxlength="6" placeholder="PIN" class="inp mt-1 mb-2" />
+					<button class="btn btn-p w-full">Disburse Loan</button>
+				</div>
+			</form>
+		</div>
+
+		<div class="card p-6 space-y-4">
+			<h2 class="text-lg font-bold text-slate-900 dark:text-white">Your Loans & Repayments</h2>
+			<div id="loansList" class="space-y-3"></div>
+		</div>
+	</div>
+
+	<script is:inline>
+		(() => {
+			let wallets = [];
+			const loadLoans = async () => {
+				const ov = await BANK.api('/overview');
+				wallets = (ov.wallets || []).filter(w => w.status === 'Active');
+				document.getElementById('loanWallet').innerHTML = wallets.map(w =>
+					`<option value="${w.id}">${esc(w.label)} (${w.currency})</option>`
+				).join('');
+
+				const loans = ov.loans || [];
+				const el = document.getElementById('loansList');
+				if (!loans.length) {
+					el.innerHTML = '<p class="text-sm text-slate-500">No loans requested yet.</p>';
+					return;
+				}
+				el.innerHTML = loans.map(l => `
+					<div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-4">
+						<div>
+							<p class="font-bold text-slate-900 dark:text-white">${esc(l.loan_code)} · ${esc(l.product_name)}</p>
+							<p class="text-xs text-slate-500">Principal: ${l.principal.toFixed(2)} · Rate: ${l.interest_rate_pct}% · Due: ${esc(l.due_date)}</p>
+							<p class="text-xs font-semibold mt-1">Remaining Balance: <span class="text-amber-600">${l.remaining_balance.toFixed(2)}</span> / ${l.total_repayable.toFixed(2)}</p>
+						</div>
+						<div class="flex items-center gap-2">
+							${badge(l.status, l.status === 'Repaid' ? 'green' : 'amber')}
+							${l.status === 'Active' ? `<button class="btn btn-p text-xs !py-1.5 !px-3" data-repay="${l.id}" data-rem="${l.remaining_balance}">Repay</button>` : ''}
+						</div>
+					</div>
+				`).join('');
+			};
+
+			document.getElementById('loanApplyForm').onsubmit = async (e) => {
+				e.preventDefault();
+				try {
+					const r = await BANK.api('/loans/apply', BANK.json('POST', {
+						wallet_id: Number(document.getElementById('loanWallet').value),
+						product_name: document.getElementById('loanProduct').value,
+						amount: Number(document.getElementById('loanAmount').value),
+						pin: document.getElementById('loanPin').value.trim() || null
+					}));
+					toast(r.message);
+					document.getElementById('loanAmount').value = '';
+					document.getElementById('loanPin').value = '';
+					await loadLoans();
+				} catch (err) { toast(err.message, true); }
+			};
+
+			document.getElementById('loansList').addEventListener('click', async (e) => {
+				const btn = e.target.closest('[data-repay]');
+				if (!btn) return;
+				try {
+					const defaultAmt = btn.dataset.rem;
+					const amt = Number(prompt(`Enter repayment amount (Remaining: ${defaultAmt}):`, defaultAmt) || '0');
+					if (amt <= 0) return;
+					const r = await BANK.api(`/loans/${btn.dataset.repay}/repay`, BANK.json('POST', {
+						wallet_id: Number(document.getElementById('loanWallet').value),
+						amount: amt
+					}));
+					toast(r.message);
+					await loadLoans();
+				} catch (err) { toast(err.message, true); }
+			});
+
+			loadLoans().catch(err => toast(err.message, true));
+		})();
+	</script>
+</BankLayout>
