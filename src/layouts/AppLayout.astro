@@ -54,9 +54,9 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Command Center</p>
 						<div class="space-y-0.5">
-							<a href="/dashboard" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Global Overview</a>
-							<a href="/admin/analytics" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Deep Analytics</a>
-							<a href="/admin/live-feed" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Live Activity Feed</a>
+							<a data-side-nav href="/dashboard" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Global Overview</a>
+							<a data-side-nav href="/admin/analytics" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Deep Analytics</a>
+							<a data-side-nav href="/admin/live-feed" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Live Activity Feed</a>
 						</div>
 					</div>
 
@@ -64,10 +64,10 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">User Management</p>
 						<div class="space-y-0.5">
-							<a href="/admin/users" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">All Accounts</a>
-							<a href="/admin/roles" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Roles & Permissions</a>
-							<a href="/admin/verification" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">KYC Verification</a>
-							<a href="/admin/sessions" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Active Sessions</a>
+							<a data-side-nav href="/admin/users" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">All Accounts</a>
+							<a data-side-nav href="/admin/roles" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Roles & Permissions</a>
+							<a data-side-nav href="/admin/verification" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">KYC Verification</a>
+							<a data-side-nav href="/admin/sessions" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Active Sessions</a>
 						</div>
 					</div>
 
@@ -75,11 +75,11 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Deployments</p>
 						<div class="space-y-0.5">
-							<a href="/admin/trading-engines" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Engines</a>
-							<a href="/admin/defense-protocols" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense Protocols</a>
-							<a href="/admin/enterprise-nodes" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Nodes</a>
-							<a href="/admin/updates" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Updates</a>
-							<a href="/admin/rollbacks" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Rollback Manager</a>
+							<a data-side-nav href="/admin/trading-engines" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Engines</a>
+							<a data-side-nav href="/admin/defense-protocols" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense Protocols</a>
+							<a data-side-nav href="/admin/enterprise-nodes" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Nodes</a>
+							<a data-side-nav href="/admin/updates" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Updates</a>
+							<a data-side-nav href="/admin/rollbacks" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Rollback Manager</a>
 						</div>
 					</div>
 
@@ -87,12 +87,12 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Infrastructure</p>
 						<div class="space-y-0.5">
-							<a href="/admin/system-health" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Server Health</a>
-							<a href="/admin/database" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Database Manager</a>
-							<a href="/admin/api-gateway" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Gateway</a>
-							<a href="/admin/firewall" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Firewall Rules</a>
-							<a href="/admin/encryption-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Encryption Keys</a>
-							<a href="/admin/threat-map" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Global Threat Map</a>
+							<a data-side-nav href="/admin/system-health" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Server Health</a>
+							<a data-side-nav href="/admin/database" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Database Manager</a>
+							<a data-side-nav href="/admin/api-gateway" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Gateway</a>
+							<a data-side-nav href="/admin/firewall" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Firewall Rules</a>
+							<a data-side-nav href="/admin/encryption-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Encryption Keys</a>
+							<a data-side-nav href="/admin/threat-map" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Global Threat Map</a>
 						</div>
 					</div>
 
@@ -100,11 +100,11 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Financials</p>
 						<div class="space-y-0.5">
-							<a href="/admin/revenue" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Revenue Overview</a>
-							<a href="/admin/subscriptions" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Subscriptions</a>
-							<a href="/admin/invoices" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Global Invoices</a>
-							<a href="/admin/transactions" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Transaction Logs</a>
-							<a href="/admin/payouts" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Payout Management</a>
+							<a data-side-nav href="/admin/revenue" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Revenue Overview</a>
+							<a data-side-nav href="/admin/subscriptions" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Subscriptions</a>
+							<a data-side-nav href="/admin/invoices" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Global Invoices</a>
+							<a data-side-nav href="/admin/transactions" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Transaction Logs</a>
+							<a data-side-nav href="/admin/payouts" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Payout Management</a>
 						</div>
 					</div>
 
@@ -112,10 +112,11 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Communications</p>
 						<div class="space-y-0.5">
-							<a href="/admin/marketing-inbox" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Marketing Inbox</a>
-							<a href="/admin/tickets" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
-							<a href="/admin/broadcast" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Broadcast Email</a>
-							<a href="/admin/announcements" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Announcements</a>
+							<a data-side-nav href="/admin/marketing-inbox" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Marketing Inbox</a>
+							<a data-side-nav href="/admin/tickets" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
+							<a data-side-nav href="/admin/waitlist" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Game Waitlists</a>
+							<a data-side-nav href="/admin/broadcast" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Broadcast Email</a>
+							<a data-side-nav href="/admin/announcements" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Announcements</a>
 						</div>
 					</div>
 
@@ -123,26 +124,11 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Developer Tools</p>
 						<div class="space-y-0.5">
-							<a href="/admin/api-logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Request Logs</a>
-							<a href="/admin/error-tracking" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Error Tracking</a>
-							<a href="/admin/webhooks" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Webhook Logs</a>
-							<a href="/admin/audit-trail" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Audit Trail</a>
+							<a data-side-nav href="/admin/api-logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Request Logs</a>
+							<a data-side-nav href="/admin/error-tracking" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Error Tracking</a>
+							<a data-side-nav href="/admin/webhooks" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Webhook Logs</a>
+							<a data-side-nav href="/admin/audit-trail" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Audit Trail</a>
 						</div>
-					</div>
-				</div>
-
-
-
-
-				<!-- Communications & Support -->
-				<div>
-					<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Communications</p>
-					<div class="space-y-0.5">
-						<a href="/admin/marketing-inbox" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Marketing Inbox</a>
-						<a href="/admin/tickets" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
-						<a href="/admin/waitlist" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Game Waitlists</a>
-						<a href="/admin/broadcast" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Broadcast Email</a>
-						<a href="/admin/announcements" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Announcements</a>
 					</div>
 				</div>
 
@@ -151,33 +137,42 @@ const { title } = Astro.props;
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Main</p>
 						<div class="space-y-0.5">
-							<a href="/portal" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Overview</a>
+							<a data-side-nav href="/portal" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Overview</a>
+							<a data-side-nav href="/portal/analytics" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Analytics & Reports</a>
+							<a href="/biz" class="flex items-center justify-between px-2 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-md transition-colors">
+								<span>BizManager</span>
+								<span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-600 text-white">Open</span>
+							</a>
 						</div>
 					</div>
 
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">RMG Divisions</p>
 						<div class="space-y-0.5">
-							<a href="/portal/trading" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Systems</a>
-							<a href="/portal/defense" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
-							<a href="/portal/enterprise" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Tools</a>
+							<a data-side-nav href="/portal/bots" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Trading Bots</a>
+							<a data-side-nav href="/portal/defense" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Defense & Military</a>
+							<a data-side-nav href="/portal/enterprise" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Enterprise Tools</a>
+							<a data-side-nav href="/portal/integrations" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Integrations</a>
 						</div>
 					</div>
 
 					<div>
-						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Account</p>
+						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Account & API</p>
 						<div class="space-y-0.5">
-							<a href="/portal/api-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Credentials</a>
-							<a href="/portal/security" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Security Center</a>
+							<a data-side-nav href="/portal/api-keys" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Credentials</a>
+							<a data-side-nav href="/portal/api-docs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">API Documentation</a>
+							<a data-side-nav href="/portal/security" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Security Center</a>
+							<a data-side-nav href="/portal/logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">System Logs</a>
+							<a data-side-nav href="/portal/audit-logs" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Audit Logs</a>
 						</div>
 					</div>
 
 					<div>
 						<p class="px-2 text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Manage</p>
 						<div class="space-y-0.5">
-							<a href="/portal/billing" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Billing</a>
-							<a href="/portal/support" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
-							<a href="/portal/settings" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Account Settings</a>
+							<a data-side-nav href="/portal/billing" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Billing</a>
+							<a data-side-nav href="/portal/support" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Support Tickets</a>
+							<a data-side-nav href="/portal/settings" class="flex items-center gap-3 px-2 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors">Account Settings</a>
 						</div>
 					</div>
 				</div>
@@ -225,7 +220,11 @@ const { title } = Astro.props;
 						<span class="text-slate-900 dark:text-white font-semibold">{title}</span>
 					</div>
 				</div>
-				<div class="flex items-center gap-4">
+				<div class="flex items-center gap-3">
+					<a id="topBizBtn" href="/biz" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-colors">
+						<svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+						<span id="topBizLabel">BizManager</span>
+					</a>
 					<div class="hidden sm:flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700">
 						<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online
 					</div>
@@ -283,6 +282,32 @@ const { title } = Astro.props;
 					document.getElementById('clientSidebar').classList.remove('hidden');
 					document.getElementById('adminSidebar').classList.add('hidden');
 				}
+
+				// Highlight current sidebar link
+				const curPath = window.location.pathname.replace(/\/+$/, '') || '/portal';
+				document.querySelectorAll('[data-side-nav]').forEach((a) => {
+					const href = (a.getAttribute('href') || '').replace(/\/+$/, '');
+					if (href === curPath) {
+						a.classList.add('bg-blue-50', 'dark:bg-blue-900/20', 'text-blue-700', 'dark:text-blue-400', 'font-semibold');
+					}
+				});
+
+				// Pre-load user's active BizManager workspace into the top bar button
+				const apiBase = typeof API_URL !== 'undefined' ? API_URL : 'https://rmg-api-e46k.onrender.com';
+				fetch(`${apiBase}/api/biz/workspaces`, {
+					headers: { Authorization: `Bearer ${token}` }
+				})
+					.then(r => (r.ok ? r.json() : null))
+					.then(data => {
+						const list = data?.workspaces || [];
+						if (!list.length) return;
+						const saved = +localStorage.getItem('biz_ws');
+						const ws = list.find(w => w.id === saved) || list[0];
+						localStorage.setItem('biz_ws', ws.id);
+						const lbl = document.getElementById('topBizLabel');
+						if (lbl) lbl.textContent = `BizManager · ${ws.name}`;
+					})
+					.catch(() => {});
 
 				const profileBtn = document.getElementById('profileBtn');
 				const profileMenu = document.getElementById('profileMenu');
