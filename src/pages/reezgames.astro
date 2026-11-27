@@ -1,0 +1,42 @@
+---
+import StudioPage from '../components/StudioPage.astro';
+// ✏️ EDIT ME: all the text, game slots and colours for this page live in this one object.
+const s = {
+	name: 'ReezGames',
+	icon: '/brands/reezgames-icon.svg',
+	tagline: 'Bright, friendly games made to be loved and replayed.',
+	description: 'ReezGames is a new game studio crafting bright, easy-to-love games for everyone. Coming soon — join the waitlist.',
+	headA: 'Games made to be', headB: 'replayed', headC: '.',
+	sub: 'ReezGames is a new studio crafting colourful, easy-to-love games for everyone. Our first titles are on the way — be the first to play.',
+	games: [
+		{ title: 'Title reveal soon', genre: 'Arcade', tags: ['Mobile', 'Casual'], blurb: 'A bright, fast game you can pick up in seconds and still be chasing high scores weeks later.', art: 'from-violet-600/60 via-fuchsia-600/40 to-rose-500/50' },
+		{ title: 'Title reveal soon', genre: 'Puzzle', tags: ['Mobile', 'Relaxing'], blurb: 'Clever puzzles with a calm, satisfying rhythm — made for coffee breaks and late nights.', art: 'from-fuchsia-600/60 via-pink-500/40 to-orange-400/50' },
+		{ title: 'Title reveal soon', genre: 'Adventure', tags: ['PC', 'Co-op'], blurb: 'A charming world to explore on your own or with friends. Details coming soon.', art: 'from-indigo-600/60 via-violet-600/40 to-fuchsia-500/50' }
+	],
+	aboutTitle: 'Play should feel good.',
+	pillars: [
+		['Easy to pick up', 'Clear, welcoming design so anyone can jump in and have fun straight away.'],
+		['Made with care', 'Every animation, sound and detail is polished before it reaches you.'],
+		['Play your way', 'Short sessions or long ones, solo or with friends — it fits your life.'],
+		['Safe & secure', 'Your account and player data are protected with enterprise-grade security.']
+	],
+	partnerText: 'ReezGames is supported by RMG Technologies, whose secure, high-performance infrastructure powers our accounts, servers and player data — so the experience is fast, reliable and safe from day one.',
+	faq: [
+		['When will the first game launch?', 'We are still building. Release dates and trailers will be announced here first — join the waitlist and we will email you.'],
+		['Which platforms will you support?', 'Platforms will be confirmed per game. We are starting with the ones our players use most.'],
+		['Is it free to join the waitlist?', 'Absolutely. Joining is free and you can unsubscribe at any time.'],
+		['How are you connected to RMG Technologies?', 'RMG Technologies is our technology partner. Visit them from the link above to learn more about the platform behind our games.']
+	],
+	sister: { name: 'ClutchCo', href: '/clutchco', icon: '/brands/clutchco-icon.svg' },
+	theme: {
+		bg: '#0d0716', grid: 'rgba(217,70,239,0.10)', shadow: 'rgba(217,70,239,0.45)',
+		glowA: 'bg-violet-600/30', glowB: 'bg-rose-500/20',
+		grad: 'from-violet-400 via-fuchsia-400 to-rose-400',
+		btn: 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-rose-500 hover:brightness-110',
+		cta: 'from-violet-600 via-fuchsia-600 to-rose-500',
+		chip: 'border-fuchsia-400/30 text-fuchsia-200 bg-fuchsia-500/10',
+		dot: 'bg-fuchsia-400', ring: 'focus:ring-fuchsia-500', link: 'text-fuchsia-300'
+	}
+};
+---
+<StudioPage s={s} />

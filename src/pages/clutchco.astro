@@ -1,0 +1,42 @@
+---
+import StudioPage from '../components/StudioPage.astro';
+// ✏️ EDIT ME: all the text, game slots and colours for this page live in this one object.
+const s = {
+	name: 'ClutchCo',
+	icon: '/brands/clutchco-icon.svg',
+	tagline: 'Competitive games where every round counts.',
+	description: 'ClutchCo is a competitive game studio building fast, skill-first games. Coming soon — join the waitlist.',
+	headA: 'Built for the', headB: 'clutch', headC: '.',
+	sub: 'ClutchCo is a competitive studio making fast, skill-first games where every round counts. Our first titles are in the works.',
+	games: [
+		{ title: 'Title reveal soon', genre: 'Competitive', tags: ['PC', 'Ranked'], blurb: 'Tight, tactical rounds where one smart play can flip the whole match.', art: 'from-amber-500/60 via-orange-600/40 to-red-600/50' },
+		{ title: 'Title reveal soon', genre: 'Strategy', tags: ['PC', 'Online'], blurb: 'Outthink your opponent in fast matches built around bold decisions.', art: 'from-orange-500/60 via-red-600/40 to-rose-700/50' },
+		{ title: 'Title reveal soon', genre: 'Arena', tags: ['Console', 'Team'], blurb: 'Team-based action with low-latency play and a serious competitive ladder.', art: 'from-yellow-500/60 via-orange-500/40 to-red-500/50' }
+	],
+	aboutTitle: 'Win the moment.',
+	pillars: [
+		['Skill first', 'Matches are decided by decisions and execution — not luck or grinding.'],
+		['Fair play', 'Competitive integrity is designed in from the start, with player trust at the centre.'],
+		['Lightning fast', 'Low-latency, responsive play so every input counts when it matters most.'],
+		['Community driven', 'We build with our players — feedback shapes what we make next.']
+	],
+	partnerText: 'ClutchCo is supported by RMG Technologies, whose low-latency, high-reliability systems underpin our matchmaking, servers and player accounts — built for the moments where milliseconds decide the game.',
+	faq: [
+		['When will the first game launch?', 'We are still building. Release dates and trailers will be announced here first — join the waitlist and we will email you.'],
+		['Will there be ranked or esports play?', 'Competitive play is the heart of ClutchCo. Details on ranked ladders and events will be shared as we get closer to launch.'],
+		['Is it free to join the waitlist?', 'Absolutely. Joining is free and you can unsubscribe at any time.'],
+		['How are you connected to RMG Technologies?', 'RMG Technologies is our technology partner. Visit them from the link above to learn more about the platform behind our games.']
+	],
+	sister: { name: 'ReezGames', href: '/reezgames', icon: '/brands/reezgames-icon.svg' },
+	theme: {
+		bg: '#07091a', grid: 'rgba(249,115,22,0.10)', shadow: 'rgba(249,115,22,0.45)',
+		glowA: 'bg-orange-600/25', glowB: 'bg-red-600/20',
+		grad: 'from-amber-300 via-orange-400 to-red-500',
+		btn: 'bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 hover:brightness-110',
+		cta: 'from-amber-500 via-orange-600 to-red-600',
+		chip: 'border-orange-400/30 text-orange-200 bg-orange-500/10',
+		dot: 'bg-orange-400', ring: 'focus:ring-orange-500', link: 'text-orange-300'
+	}
+};
+---
+<StudioPage s={s} />

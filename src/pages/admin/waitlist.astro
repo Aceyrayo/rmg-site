@@ -1,0 +1,12 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+<AdminLayout title="Game Waitlists">
+	<div class="max-w-7xl mx-auto"><div id="app"></div></div>
+	<script is:inline>
+		crudPage({ kind:'waitlist', title:'Game Waitlists', noun:'Sign-up', status:'status', sub:'People who joined the ReezGames and ClutchCo waitlists',
+		 fields:[{k:'email',l:'Email',t:'email',req:1},{k:'brand',l:'Studio',t:'select',o:['ReezGames','ClutchCo']},{k:'status',l:'Status',t:'select',o:['New','Contacted','Subscribed']}],
+		 cols:[{k:'email',l:'Email'},{k:'brand',l:'Studio',f:r=>badge(r.brand,r.brand==='ReezGames'?'blue':'amber')},{k:'status',l:'Status'},{k:'created_at',l:'Joined'}],
+		 actions:[{label:'Email',run:async r=>{ location.href='mailto:'+r.email; }}] });
+	</script>
+</AdminLayout>

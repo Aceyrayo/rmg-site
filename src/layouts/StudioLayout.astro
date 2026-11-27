@@ -1,0 +1,21 @@
+---
+// Minimal dark shell for the game-studio pages (no RMG navbar — each studio has its own identity).
+const { title, description, icon, themeColor = '#0b0f19' } = Astro.props;
+---
+<html lang="en" class="scroll-smooth">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={icon.replace('-icon.svg', '-og.png')} />
+		<meta name="theme-color" content={themeColor} />
+		<link rel="icon" type="image/svg+xml" href={icon} />
+		<script is:inline src="/rmg-client.js"></script>
+	</head>
+	<body class="antialiased font-sans text-white selection:bg-white/20" style={`background:${themeColor}`}>
+		<slot />
+	</body>
+</html>
