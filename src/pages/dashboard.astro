@@ -4,7 +4,7 @@ import AppLayout from '../layouts/AppLayout.astro';
 
 <AppLayout title="Admin Command">
 	<div class="max-w-7xl mx-auto space-y-6">
-		
+
 		<!-- HEADER: Dark Mode Alert -->
 		<div class="bg-slate-900 border border-slate-700 rounded-xl p-6 shadow-2xl relative overflow-hidden">
 			<div class="absolute top-0 right-0 w-64 h-64 bg-red-500/10 blur-3xl rounded-full pointer-events-none"></div>
@@ -82,11 +82,34 @@ import AppLayout from '../layouts/AppLayout.astro';
 			</div>
 		</div>
 
+		<!-- BIZMANAGER WORKSPACES CONTROL PANEL -->
+		<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+			<div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-3 bg-slate-50 dark:bg-slate-900/50">
+				<div>
+					<h2 class="text-lg font-bold text-slate-900 dark:text-white">BizManager Workspaces</h2>
+					<p id="bizSummary" class="text-xs text-slate-500 mt-0.5">Loading businesses...</p>
+				</div>
+				<div class="flex flex-wrap items-center gap-2">
+					<input id="bizSearch" type="text" placeholder="Search business or owner..." class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
+					<select id="bizPlanFilter" class="px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
+						<option value="">All plans</option>
+						<option value="active">Active</option>
+						<option value="trial">Trial</option>
+						<option value="suspended">Suspended</option>
+					</select>
+					<button id="bizRefresh" class="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline px-2">Refresh</button>
+				</div>
+			</div>
+			<div id="bizWorkspacesList" class="divide-y divide-slate-100 dark:divide-slate-800">
+				<div class="p-8 text-center text-slate-500 text-sm animate-pulse">Loading workspaces...</div>
+			</div>
+		</div>
+
 		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-			
+
 			<!-- LEFT COL: USER MANAGEMENT & INBOX -->
 			<div class="lg:col-span-2 space-y-6">
-				
+
 				<!-- Inbox -->
 				<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
 					<div class="p-5 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50">
@@ -126,11 +149,40 @@ import AppLayout from '../layouts/AppLayout.astro';
 		</div>
 	</div>
 
+	<!-- WORKSPACE INSPECTOR MODAL -->
+	<dialog id="bizModal" class="w-full max-w-4xl rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 p-0 shadow-2xl backdrop:bg-slate-950/70">
+		<div class="p-5 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+			<div>
+				<h3 id="bizModalTitle" class="text-lg font-bold">Workspace Inspector</h3>
+				<p id="bizModalSub" class="text-xs text-slate-500 font-mono"></p>
+			</div>
+			<div class="flex flex-wrap items-center gap-2">
+				<button data-biz-tab="members" class="biz-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white">Team & Roles</button>
+				<button data-biz-tab="sales" class="biz-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Sales & Invoices</button>
+				<button data-biz-tab="expenses" class="biz-tab px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Expenses</button>
+				<button id="bizModalClose" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">Close</button>
+			</div>
+		</div>
+
+		<div id="bizModalStats" class="grid grid-cols-2 sm:grid-cols-4 gap-3 p-4 bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-xs"></div>
+
+		<div id="bizModalBody" class="p-5 max-h-[65vh] overflow-y-auto space-y-4 text-sm"></div>
+	</dialog>
+
 	<script is:inline>
 		const token = localStorage.getItem('rmg_token');
 		const API_URL = 'https://rmg-api-e46k.onrender.com';
 		const messagesList = document.getElementById('messagesList');
 		const statUsers = document.getElementById('statUsers');
+
+		let allWorkspaces = [];
+		const bizModal = document.getElementById('bizModal');
+		let activeWsId = null;
+		let activeTab = 'members';
+		let cachedMembers = [];
+		let cachedLedger = null;
+
+		const money = (cur, n) => `${cur || 'USD'} ${Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 		// Fetch Stats
 		async function fetchStats() {
@@ -138,18 +190,20 @@ import AppLayout from '../layouts/AppLayout.astro';
 				const res = await fetch(`${API_URL}/api/stats`);
 				const data = await res.json();
 				statUsers.innerText = data.global_users;
-			} catch(e) { statUsers.innerText = "Err"; }
+			} catch (e) {
+				statUsers.innerText = "Err";
+			}
 		}
 
 		// Fetch Messages
 		async function fetchMessages() {
 			messagesList.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm animate-pulse">Fetching data...</div>';
-			
+
 			try {
 				const res = await fetch(`${API_URL}/api/messages`, {
 					headers: { 'Authorization': `Bearer ${token}` }
 				});
-				
+
 				if (res.status === 401 || res.status === 403) {
 					alert("Admin access required.");
 					window.location.href = '/login';
@@ -182,14 +236,312 @@ import AppLayout from '../layouts/AppLayout.astro';
 						</p>
 					</div>
 				`).join('');
-
 			} catch (error) {
 				messagesList.innerHTML = '<div class="p-8 text-center text-red-500 text-sm">Failed to connect to API.</div>';
 			}
 		}
 
+		// BizManager Workspaces
+		async function fetchWorkspaces() {
+			const box = document.getElementById('bizWorkspacesList');
+			const sum = document.getElementById('bizSummary');
+			try {
+				const res = await fetch(`${API_URL}/api/biz/admin/workspaces`, {
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+				if (!res.ok) throw new Error('Failed to load workspaces');
+				allWorkspaces = await res.json();
+				renderWorkspaces();
+			} catch (err) {
+				sum.textContent = 'Unable to load businesses';
+				box.innerHTML = `<div class="p-6 text-center text-red-500 text-sm">${err.message}</div>`;
+			}
+		}
+
+		function renderWorkspaces() {
+			const box = document.getElementById('bizWorkspacesList');
+			const sum = document.getElementById('bizSummary');
+			const q = (document.getElementById('bizSearch')?.value || '').trim().toLowerCase();
+			const pf = document.getElementById('bizPlanFilter')?.value || '';
+
+			const filtered = allWorkspaces.filter(w =>
+				(!pf || w.plan === pf) &&
+				(!q || `${w.name} ${w.owner} #${w.id}`.toLowerCase().includes(q))
+			);
+
+			const activeCount = allWorkspaces.filter(w => w.plan === 'active').length;
+			const trialCount = allWorkspaces.filter(w => w.plan === 'trial').length;
+			sum.textContent = `${allWorkspaces.length} total · ${activeCount} active · ${trialCount} on trial`;
+
+			if (!filtered.length) {
+				box.innerHTML = '<div class="p-8 text-center text-slate-500 text-sm">No matching businesses found.</div>';
+				return;
+			}
+
+			const badgeCls = {
+				active: 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30',
+				trial: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/30',
+				suspended: 'bg-red-500/15 text-red-600 dark:text-red-400 border-red-500/30'
+			};
+
+			box.innerHTML = filtered.map(w => `
+				<div class="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
+					<div class="space-y-1">
+						<div class="flex items-center gap-2.5 flex-wrap">
+							<span class="font-bold text-slate-900 dark:text-white">${w.name}</span>
+							<span class="text-xs px-2 py-0.5 rounded-full border font-semibold uppercase ${badgeCls[w.plan] || ''}">${w.plan}</span>
+							<span class="text-xs font-mono text-slate-400">#${w.id}</span>
+						</div>
+						<p class="text-xs text-slate-500">
+							Owner: <b class="text-slate-700 dark:text-slate-300">${w.owner}</b> ·
+							Trial ends: <span class="font-mono">${w.trial_ends || '—'}</span> ·
+							${w.products} products · ${w.documents} docs · ${w.members} members
+						</p>
+					</div>
+					<div class="flex flex-wrap items-center gap-2">
+						<select data-plan-id="${w.id}" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
+							<option value="trial" ${w.plan === 'trial' ? 'selected' : ''}>Trial</option>
+							<option value="active" ${w.plan === 'active' ? 'selected' : ''}>Active</option>
+							<option value="suspended" ${w.plan === 'suspended' ? 'selected' : ''}>Suspended</option>
+						</select>
+						<button data-extend="${w.id}" data-days="14" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200">+14d trial</button>
+						<button data-extend="${w.id}" data-days="30" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200">+30d trial</button>
+						<button data-inspect="${w.id}" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">Inspect</button>
+						<a href="/biz?ws=${w.id}" class="px-2.5 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white">Open Biz</a>
+					</div>
+				</div>
+			`).join('');
+		}
+
+		async function patchWorkspace(wsId, payload) {
+			const res = await fetch(`${API_URL}/api/biz/admin/workspaces/${wsId}`, {
+				method: 'PATCH',
+				headers: {
+					'Authorization': `Bearer ${token}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			});
+			if (!res.ok) {
+				const err = await res.json().catch(() => ({}));
+				throw new Error(err.detail || 'Update failed');
+			}
+			await fetchWorkspaces();
+		}
+
+		async function openWorkspaceInspector(wsId, tab = 'members') {
+			activeWsId = Number(wsId);
+			activeTab = tab;
+			const ws = allWorkspaces.find(w => w.id === activeWsId);
+			document.getElementById('bizModalTitle').textContent = ws ? ws.name : `Workspace #${activeWsId}`;
+			document.getElementById('bizModalSub').textContent = ws ? `ID #${ws.id} · Owner: ${ws.owner} · Plan: ${ws.plan.toUpperCase()}` : '';
+			document.getElementById('bizModalBody').innerHTML = '<div class="py-10 text-center text-slate-500 animate-pulse">Loading workspace data...</div>';
+			if (!bizModal.open) bizModal.showModal();
+
+			const headers = { 'Authorization': `Bearer ${token}` };
+			const [memRes, ledRes] = await Promise.all([
+				fetch(`${API_URL}/api/biz/admin/workspaces/${activeWsId}/members`, { headers }),
+				fetch(`${API_URL}/api/biz/admin/workspaces/${activeWsId}/ledger?limit=100`, { headers })
+			]);
+			if (!memRes.ok || !ledRes.ok) {
+				document.getElementById('bizModalBody').innerHTML = '<div class="py-8 text-center text-red-500">Failed to load workspace details.</div>';
+				return;
+			}
+			cachedMembers = await memRes.json();
+			cachedLedger = await ledRes.json();
+			renderInspectorTab();
+		}
+
+		function renderInspectorTab() {
+			document.querySelectorAll('.biz-tab').forEach(btn => {
+				const on = btn.dataset.bizTab === activeTab;
+				btn.className = `biz-tab px-3 py-1.5 rounded-lg text-xs font-semibold ${on ? 'bg-blue-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'}`;
+			});
+
+			const cur = cachedLedger?.workspace?.currency || 'USD';
+			const s = cachedLedger?.summary || {};
+			document.getElementById('bizModalStats').innerHTML = `
+				<div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"><span class="text-slate-500 block">Revenue (excl. tax)</span><b class="text-sm">${money(cur, s.revenue)}</b></div>
+				<div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"><span class="text-slate-500 block">Outstanding</span><b class="text-sm text-amber-500">${money(cur, s.outstanding)}</b></div>
+				<div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"><span class="text-slate-500 block">Expenses</span><b class="text-sm">${money(cur, s.expenses)}</b></div>
+				<div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800"><span class="text-slate-500 block">Net (Rev − Exp)</span><b class="text-sm ${s.net_cash_view >= 0 ? 'text-emerald-500' : 'text-red-500'}">${money(cur, s.net_cash_view)}</b></div>
+			`;
+
+			const body = document.getElementById('bizModalBody');
+			if (activeTab === 'members') {
+				body.innerHTML = `
+					<form id="adminAddMemberForm" class="flex flex-wrap gap-2 p-3 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+						<input name="email" type="email" required placeholder="user@example.com" class="flex-1 min-w-[200px] px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+						<select name="role" class="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
+							<option value="Manager">Manager</option>
+							<option value="Cashier" selected>Cashier</option>
+							<option value="Accountant">Accountant</option>
+						</select>
+						<button type="submit" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-600 hover:bg-blue-500 text-white">+ Add Member</button>
+					</form>
+					<div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+						<table class="w-full text-left text-xs">
+							<thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase">
+								<tr><th class="p-3">Member</th><th class="p-3">Role</th><th class="p-3">Status</th><th class="p-3 text-right">Actions</th></tr>
+							</thead>
+							<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+								${cachedMembers.map(m => `
+									<tr>
+										<td class="p-3"><b>${m.name || m.email}</b><div class="text-slate-500">${m.email}</div></td>
+										<td class="p-3">${m.id === 0 ? '<span class="px-2 py-0.5 rounded bg-red-500/15 text-red-500 font-semibold">Owner</span>' : `
+											<select data-mem-role="${m.id}" class="px-2 py-1 rounded border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950">
+												${['Manager', 'Cashier', 'Accountant'].map(r => `<option ${r === m.role ? 'selected' : ''}>${r}</option>`).join('')}
+											</select>`}
+										</td>
+										<td class="p-3">
+											<span class="px-2 py-0.5 rounded-full font-semibold ${m.status === 'Active' ? 'bg-emerald-500/15 text-emerald-500' : 'bg-amber-500/15 text-amber-500'}">${m.status}</span>
+										</td>
+										<td class="p-3 text-right space-x-1">
+											${m.id !== 0 && m.status === 'Invited' ? `<button data-mem-activate="${m.id}" class="px-2 py-1 rounded bg-emerald-600 text-white font-semibold">Activate</button>` : ''}
+											${m.id !== 0 ? `<button data-mem-del="${m.id}" class="px-2 py-1 rounded bg-red-600/15 text-red-500 hover:bg-red-600 hover:text-white font-semibold">Remove</button>` : '—'}
+										</td>
+									</tr>
+								`).join('')}
+							</tbody>
+						</table>
+					</div>
+				`;
+			} else if (activeTab === 'sales') {
+				const rows = cachedLedger?.sales || [];
+				body.innerHTML = rows.length ? `
+					<div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+						<table class="w-full text-left text-xs">
+							<thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase">
+								<tr><th class="p-3">Number</th><th class="p-3">Date</th><th class="p-3">Customer</th><th class="p-3">Total</th><th class="p-3">Balance</th><th class="p-3">Status</th></tr>
+							</thead>
+							<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+								${rows.map(x => `
+									<tr>
+										<td class="p-3 font-mono font-semibold">${x.number}</td>
+										<td class="p-3">${x.date}</td>
+										<td class="p-3">${x.customer_name || 'Walk-in'}</td>
+										<td class="p-3 font-semibold">${money(cur, x.total)}</td>
+										<td class="p-3 ${x.balance > 0 ? 'text-amber-500 font-semibold' : 'text-slate-400'}">${x.balance > 0 ? money(cur, x.balance) : '—'}</td>
+										<td class="p-3">${x.status}</td>
+									</tr>
+								`).join('')}
+							</tbody>
+						</table>
+					</div>` : '<div class="py-8 text-center text-slate-500">No sales or invoices recorded yet.</div>';
+			} else {
+				const rows = cachedLedger?.expenses || [];
+				body.innerHTML = rows.length ? `
+					<div class="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-lg">
+						<table class="w-full text-left text-xs">
+							<thead class="bg-slate-50 dark:bg-slate-950 text-slate-500 uppercase">
+								<tr><th class="p-3">Date</th><th class="p-3">Category</th><th class="p-3">Vendor / Description</th><th class="p-3 text-right">Amount</th></tr>
+							</thead>
+							<tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+								${rows.map(x => `
+									<tr>
+										<td class="p-3">${x.date}</td>
+										<td class="p-3 font-semibold">${x.category}</td>
+										<td class="p-3"><b>${x.vendor || '—'}</b> <span class="text-slate-500">${x.description || ''}</span></td>
+										<td class="p-3 text-right font-semibold">${money(cur, x.amount)}</td>
+									</tr>
+								`).join('')}
+							</tbody>
+						</table>
+					</div>` : '<div class="py-8 text-center text-slate-500">No expenses recorded yet.</div>';
+			}
+		}
+
+		document.getElementById('bizWorkspacesList').addEventListener('change', async e => {
+			const sel = e.target.closest('[data-plan-id]');
+			if (!sel) return;
+			try {
+				await patchWorkspace(sel.dataset.planId, { plan: sel.value });
+			} catch (err) {
+				alert(err.message);
+				fetchWorkspaces();
+			}
+		});
+
+		document.getElementById('bizWorkspacesList').addEventListener('click', async e => {
+			const ext = e.target.closest('[data-extend]');
+			if (ext) {
+				try {
+					await patchWorkspace(ext.dataset.extend, { extend_days: Number(ext.dataset.days) });
+				} catch (err) {
+					alert(err.message);
+				}
+				return;
+			}
+			const inspectBtn = e.target.closest('[data-inspect]');
+			if (inspectBtn) {
+				openWorkspaceInspector(inspectBtn.dataset.inspect, 'members');
+			}
+		});
+
+		document.getElementById('bizModalClose').addEventListener('click', () => bizModal.close());
+		bizModal.addEventListener('click', async e => {
+			const tabBtn = e.target.closest('[data-biz-tab]');
+			if (tabBtn) {
+				activeTab = tabBtn.dataset.bizTab;
+				renderInspectorTab();
+				return;
+			}
+			const actBtn = e.target.closest('[data-mem-activate]');
+			if (actBtn) {
+				const res = await fetch(`${API_URL}/api/biz/admin/workspaces/${activeWsId}/members/${actBtn.dataset.memActivate}`, {
+					method: 'PATCH',
+					headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+					body: JSON.stringify({ status: 'Active' })
+				});
+				if (!res.ok) return alert((await res.json().catch(() => ({}))).detail || 'Activation failed');
+				await openWorkspaceInspector(activeWsId, 'members');
+				return;
+			}
+			const delBtn = e.target.closest('[data-mem-del]');
+			if (delBtn && confirm('Remove this member from the workspace?')) {
+				const res = await fetch(`${API_URL}/api/biz/admin/workspaces/${activeWsId}/members/${delBtn.dataset.memDel}`, {
+					method: 'DELETE',
+					headers: { 'Authorization': `Bearer ${token}` }
+				});
+				if (!res.ok) return alert((await res.json().catch(() => ({}))).detail || 'Remove failed');
+				await openWorkspaceInspector(activeWsId, 'members');
+				fetchWorkspaces();
+			}
+		});
+
+		bizModal.addEventListener('change', async e => {
+			const sel = e.target.closest('[data-mem-role]');
+			if (!sel) return;
+			const res = await fetch(`${API_URL}/api/biz/admin/workspaces/${activeWsId}/members/${sel.dataset.memRole}`, {
+				method: 'PATCH',
+				headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+				body: JSON.stringify({ role: sel.value })
+			});
+			if (!res.ok) alert((await res.json().catch(() => ({}))).detail || 'Role update failed');
+			await openWorkspaceInspector(activeWsId, 'members');
+		});
+
+		bizModal.addEventListener('submit', async e => {
+			if (e.target.id !== 'adminAddMemberForm') return;
+			e.preventDefault();
+			const fd = new FormData(e.target);
+			const res = await fetch(`${API_URL}/api/biz/admin/workspaces/${activeWsId}/members`, {
+				method: 'POST',
+				headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email: fd.get('email'), role: fd.get('role'), activate_if_registered: true })
+			});
+			if (!res.ok) return alert((await res.json().catch(() => ({}))).detail || 'Failed to add member');
+			await openWorkspaceInspector(activeWsId, 'members');
+			fetchWorkspaces();
+		});
+
+		document.getElementById('bizSearch').addEventListener('input', renderWorkspaces);
+		document.getElementById('bizPlanFilter').addEventListener('change', renderWorkspaces);
+		document.getElementById('bizRefresh').addEventListener('click', fetchWorkspaces);
+
 		fetchStats();
 		fetchMessages();
+		fetchWorkspaces();
 		document.getElementById('refreshBtn').addEventListener('click', fetchMessages);
 	</script>
 </AppLayout>
