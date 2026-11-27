@@ -46,7 +46,7 @@
 
 	const money = n => '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 	const pageHead = (t, s, extra = '') => `<div class="flex flex-wrap items-center justify-between gap-3"><div><h1 class="text-2xl font-bold text-slate-900 dark:text-white">${t}</h1><p class="text-sm text-slate-500">${s || ''}</p></div><div class="flex gap-2">${extra}</div></div>`;
-	const stat = (l, v, c = '') => `<div class="card p-5"><p class="text-sm font-semibold text-slate-500">${l}</p><p class="text-3xl font-bold mt-1 ${c || 'text-slate-900 dark:text-white'}">${v}</p></div>`;
+	const stat = (l, v, c = '') => `<div class="card p-5"><p class="text-sm font-semibold text-slate-500">${l}</p><p class="text-xl xl:text-2xl font-bold mt-1 break-words ${c || 'text-slate-900 dark:text-white'}">${v}</p></div>`;
 	const panel = (t, body) => `<div class="card p-5"><h2 class="font-bold text-slate-900 dark:text-white mb-4">${t}</h2>${body}</div>`;
 	const bars = (items, fmt = v => v) => { const m = Math.max(1, ...items.map(i => i[1])); return items.length ? items.map(([l, v]) => `<div class="mb-3"><div class="flex justify-between text-xs mb-1"><span class="text-slate-600 dark:text-slate-300">${esc(l)}</span><span class="font-mono text-slate-500">${fmt(v)}</span></div><div class="h-2 rounded bg-slate-100 dark:bg-slate-800"><div class="h-2 rounded bg-blue-600" style="width:${v / m * 100}%"></div></div></div>`).join('') : '<p class="text-sm text-slate-500">No data yet.</p>'; };
 	const patchRec = (kind, id, data, base = '/api/admin/records') => api(`${base}/${kind}/${id}`, { method: 'PATCH', body: JSON.stringify({ data }) });

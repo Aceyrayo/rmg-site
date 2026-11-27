@@ -8,14 +8,34 @@ BIZ.ready.then(async () => {
  const app = document.getElementById('app'), g = id => document.getElementById(id); let all = [];
  const CATS = ['Rent', 'Salaries & wages', 'Utilities', 'Transport', 'Marketing', 'Supplies', 'Equipment', 'Taxes & fees', 'Repairs', 'Other'];
  const F = e => [{ k: 'amount', l: 'Amount', t: 'number', req: 1, min: 0.01 }, { k: 'category', l: 'Category', t: 'select', o: CATS, v: 'Other' }, { k: 'vendor', l: 'Paid to (vendor)' }, { k: 'description', l: 'Description' }, { k: 'date', l: 'Date', t: 'date', v: today() }];
- app.innerHTML = pageHead('Expenses', '<span id="cnt"></span>', '<button id="ex" class="btn">Export CSV</button><button id="nw" class="btn btn-p">+ Add expense</button>') + `
+ app.innerHTML = pageHead('Expenses', '<span id="cnt"></span>', '<button id="ex" class="btn">Export CSV</button><button id="im" class="btn">Import CSV</button><button id="nw" class="btn btn-p">+ Add expense</button>') + `
   <div class="card mt-6 p-4 flex flex-wrap gap-3 items-center"><label class="text-sm text-slate-500">From</label><input id="f" type="date" class="inp !w-auto" value="${monthStart()}"><label class="text-sm text-slate-500">To</label><input id="t" type="date" class="inp !w-auto" value="${today()}"></div>
-  <div class="grid lg:grid-cols-3 gap-6 mt-6"><div class="lg:col-span-2 card"><div id="tb" class="overflow-x-auto"></div></div><div id="side"></div></div>`;
+  <div class="grid lg:grid-cols-3 gap-6 mt-6"><div class="lg:col-span-2 card"><div id="tb" class="overflow-x-auto"></div></div><div id="catSide"></div></div>`;
  const load = async () => { all = await bapi('/expenses?' + new URLSearchParams({ date_from: g('f').value, date_to: g('t').value })); const tot = all.reduce((s, e) => s + e.amount, 0), cat = {};
   all.forEach(e => cat[e.category] = (cat[e.category] || 0) + e.amount); g('cnt').textContent = `${all.length} expenses · ${fmt(tot)} total`;
-  g('side').innerHTML = panel('By category', bars(Object.entries(cat).sort((a, b) => b[1] - a[1]), fmt));
+  g('catSide').innerHTML = panel('By category', bars(Object.entries(cat).sort((a, b) => b[1] - a[1]), fmt));
   table(g('tb'), [{ h: 'Date', f: e => esc(e.date) }, { h: 'Category', f: e => badge(e.category, 'slate') }, { h: 'Details', f: e => '<b>' + esc(e.vendor || '—') + '</b><div class="text-xs text-slate-500">' + esc(e.description) + '</div>' }, { h: 'Amount', f: e => '<b>' + fmt(e.amount) + '</b>' },
    { h: '', f: e => `<div class="flex gap-1 justify-end"><button class="btn" data-e="${e.id}">Edit</button><button class="btn btn-d" data-d="${e.id}">Delete</button></div>` }], all); };
+ function parseCsv(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) { const c = text[i]; if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; } else if (c === '"') q = true; else if (c === ',') { row.push(cell); cell = ''; } else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cell); cell = ''; if (row.some(x => x.trim())) rows.push(row); row = []; } else cell += c; }
+  if (cell || row.length) { row.push(cell); rows.push(row); }
+  return rows;
+ }
+ g('im').onclick = () => {
+  const d = document.createElement('dialog'); d.className = 'card p-0 w-full max-w-lg backdrop:bg-slate-900/60 text-slate-900 dark:text-slate-200';
+  d.innerHTML = `<div class="p-6 space-y-4"><h2 class="text-lg font-bold">Import expenses from CSV</h2><p class="text-sm text-slate-500">Columns: <code>amount, category, vendor, description, date</code>. Only <b>amount</b> is required.</p><a href="#" id="tpl" class="text-sm text-blue-500 hover:underline">Download Grace Pure Honey sample CSV</a><input type="file" id="fl" accept=".csv,text/csv" class="inp"><p id="pv" class="text-sm text-slate-500"></p><div class="flex justify-end gap-2"><button class="btn" data-x>Cancel</button><button class="btn btn-p" id="go" disabled>Import</button></div></div>`;
+  document.body.appendChild(d); d.showModal(); let items = []; const close = () => { d.close(); d.remove(); }; d.querySelector('[data-x]').onclick = close;
+  d.querySelector('#tpl').onclick = e => { e.preventDefault(); const dt = today(); const sample = `amount,category,vendor,description,date\n145000,Supplies,Baringo & Kitui Outgrower Beekeepers,Purchase of 350kg raw comb honey,${dt}\n38500,Supplies,Nairobi Glass & Packaging Ltd,500g & 1kg glass jars and gold lids,${dt}\n42000,Equipment,Agro-Apiary Kenya Ltd,Stainless steel 4-frame honey extractor,${dt}\n18500,Taxes & fees,Kenya Bureau of Standards (KEBS),Annual S-Mark renewal & lab purity test,${dt}\n14200,Transport,Wells Fargo & Fuel,Bulk delivery to Naivas & Kitui collection,${dt}\n52000,Salaries & wages,Apiary & Processing Staff,Monthly wages for extraction attendants,${dt}\n25000,Rent,Kitengela Light Industrial Park,Monthly rent for bottling & storage unit,${dt}\n4800,Utilities,Kenya Power & Water,Electricity & sanitation water,${dt}\n9500,Marketing,Meta & Nairobi Farmers Market,Karen Farmers Market stall & ads,${dt}\n`;
+   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([sample], { type: 'text/csv' })); a.download = 'grace-honey-expenses.csv'; a.click(); };
+  d.querySelector('#fl').onchange = async e => { const f = e.target.files[0]; if (!f) return; const rows = parseCsv(await f.text());
+   const head = (rows.shift() || []).map(h => h.trim().toLowerCase()); const ix = k => head.indexOf(k);
+   items = rows.map(r => ({ amount: +r[ix('amount')] || 0, category: CATS.includes((r[ix('category')] || '').trim()) ? (r[ix('category')] || '').trim() : 'Other', vendor: (r[ix('vendor')] || '').trim(), description: (r[ix('description')] || '').trim(), date: (r[ix('date')] || '').trim() || today() })).filter(x => x.amount > 0);
+   d.querySelector('#pv').textContent = ix('amount') < 0 ? 'No "amount" column found.' : items.length + ' expenses ready to import.'; d.querySelector('#go').disabled = !items.length || ix('amount') < 0; };
+  d.querySelector('#go').onclick = async () => { const btn = d.querySelector('#go'); btn.disabled = true; btn.textContent = 'Importing…'; let ok = 0;
+   for (const item of items) { try { await bapi('/expenses', bjson('POST', item)); ok++; } catch (_) {} }
+   toast(`${ok} expense(s) imported`); close(); load(); };
+ };
  g('nw').onclick = async () => { const v = await ask('Add expense', F()); if (!v) return; try { await bapi('/expenses', bjson('POST', v)); toast('Expense added'); load(); } catch (e) { toast(e.message, true); } };
  g('tb').onclick = async e => { const b = e.target.closest('button'); if (!b) return; const x = all.find(i => i.id == (b.dataset.e || b.dataset.d));
   try { if (b.dataset.e) { const v = await ask('Edit expense', F(), x); if (!v) return; await bapi('/expenses/' + x.id, bjson('PATCH', v)); toast('Saved'); load(); } else { if (!confirm('Delete this expense?')) return; await bapi('/expenses/' + x.id, { method: 'DELETE' }); toast('Deleted'); load(); } } catch (err) { toast(err.message, true); } };
